@@ -7,128 +7,170 @@
 export type AppRole = "admin" | "operador_chefe" | "operador" | "consultor";
 
 export interface Despacho {
-  id: string; // id_despacho UUID
-  numos: number;
-  dias_para_despacho: number | null;
-  inconsistencia: number | null;
-  nomelcd: string | null;
-  regional: string | null;
-  nomecli: string | null;
-  numcpf: string | null;
-  dth_nascimento: string | null;
-  responsavel: string | null;
-  tratativa: string | null;
-  motivo_da_improcedencia: string | null;
   base: string | null;
-  familia: string | null;
-  telefone: string | null;
-  email: string | null;
   complemento: string | null;
-  dsclgr_os: string | null;
-  criterio: string | null;
-  concluida: boolean;
-  data_conclusao: string | null;
+  concluida: boolean | null;
   created_at: string;
-  updated_at: string;
+  criterio: string | null;
+  data_conclusao: string | null;
   deleted_at: string | null;
   deleted_by: string | null;
-  in_base_5311?: boolean;
+  dias_para_despacho: number | null;
+  dsclgr_os: string | null;
+  familia: string | null;
+  id_cliente: number | null;
+  id_despacho: string;
+  inconsistencia: number | null;
+  motivo_da_improcedencia: string | null;
+  nome_lcd: string | null;
+  num_os: number;
+  regional: string | null;
+  responsavel: string | null;
+  tratativa: string | null;
+  updated_at: string;
 }
 
 export interface Caderno {
-  id: string; // id_os UUID
-  numos: number;
-  numobra: string | null;
-  status: string | null;
-  nomelcd: string | null;
-  regional: string | null;
-  controle_os: string | null;
-  origem: string | null;
-  prazo: string | null;
-  nomecli: string | null;
-  numcpf: string | null;
-  dth_nascimento: string | null;
-  email: string | null;
-  numtel: string | null;
-  numtel2: string | null;
-  complemento: string | null;
-  dsclgr_os: string | null;
-  datasol: string | null;
-  // Legacy fields kept nullable; not present in the new schema, always null.
-  datacontab: string | null;
-  data_766: string | null;
-  dataprev: string | null;
-  datatertrab: string | null;
-  dth_envio_dineng: string | null;
-  dth_retorno_dineng: string | null;
-  dth_impedimento: string | null;
-  motivo_improcedencia: string | null;
-  pendencia_obra: string | null;
-  criterio: string | null;
-  tipo_carta_enviada: string | null;
-  base_5311: string | null;
-  tranche: string | null;
-  responsavel: string | null;
-  prioridade: string | null;
-  observacao: string | null;
-  empreiteira: string | null;
-  data_recebimento: string | null;
+ base_5311: string | null;
   bloco_cliente: string | null;
-  data_carta: string | null;
+  complemento: string | null;
+  controle_os: string | null;
   created_at: string;
-  updated_at: string;
+  criterio: string | null;
+  data_carta: string | null;
+  dataprev: string | null;
+  datasol: string | null;
+  datatertrab: string | null;
   deleted_at: string | null;
   deleted_by: string | null;
-  in_base_5311?: boolean;
+  dsclgr_os: string | null;
+  empreiteira: string | null;
+  id_cliente: number | null;
+  id_loc: number | null;
+  id_obra: number | null;
+  id_os: string;
+  motivo_improcedencia: string | null;
+  num_os: number;
+  observacao: string | null;
+  origem: string | null;
+  pendencia_obra: string | null;
+  prazo: string | null;
+  prioridade: string | null;
+  responsavel: string | null;
+  status: string | null;
+  tipo_carta_enviada: string | null;
+  tranche: string | null;
+  updated_at: string;
 }
 
 export interface Demanda {
-  id: string;
-  titulo: string;
-  descricao: string | null;
-  // `tipo` was removed from the schema but kept here for back-compat in UI;
-  // it always mirrors tipo_demanda.
-  tipo: string;
-  tipo_demanda: string;
-  tipo_carta: string | null;
-  prioridade: string | null;
-  status: string | null;
-  prazo_execucao: string | null;
-  operador_id: string | null;
-  criado_por: string;
-  num_os?: number | null;
-  num_obra?: string | null;
   created_at: string;
-  updated_at: string;
+  criado_por: string;
   deleted_at: string | null;
   deleted_by: string | null;
+  descricao: string | null;
+  id: string;
+  num_obra: string | null;
+  num_os: number | null;
+  operador_id: string | null;
+  prazo_execucao: string | null;
+  prioridade: string | null;
+  status: string | null;
+  tipo_carta: string | null;
+  tipo_demanda: string;
+  titulo: string;
+  updated_at: string;
 }
 
 export interface UserRole {
-  id: string;
-  user_id: string;
-  role: AppRole;
   created_at: string;
+  id: string;
+  role: Database["public"]["Enums"]["app_role"];
+  user_id: string;
 }
 
 export interface Profile {
-  id: string;
-  user_id: string;
-  username: string | null;
-  full_name: string | null;
   avatar_url: string | null;
   cargo: string | null;
   created_at: string;
+  full_name: string | null;
+  id: string;
   updated_at: string;
+  user_id: string;
+  username: string | null;
 }
 
 export interface DocumentoCarta {
-  id: string;
-  titulo: string;
-  descricao: string | null;
-  url: string;
-  storage_path: string | null;
-  uploaded_by: string | null;
+  created_at: string
+  descricao: string | null
+  id: string
+  storage_path: string | null
+  titulo: string
+  updated_at: string
+  uploaded_by: string | null
+  url: string
+}
+
+export interface Localidade {
+  cod_lcd: string | null;
   created_at: string;
+  id_loc: number;
+  nome_lcd: string | null;
+  regional: string | null;
+  updated_at: string;
+}
+
+export interface Notifications{
+  created_at: string;
+  data: Json | null;
+  id: string;
+  message: string;
+  read: boolean;
+  title: string;
+  type: string;
+  user_id: string;
+}
+
+export interface Obra{
+  created_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+  id_obra: number;
+  num_obra: string | null;
+  sigco: number | null;
+  status: string | null;
+  updated_at: string;
+}
+
+export interface Prioritario {
+  cpf_corrigido: string | null
+  created_at: string
+  id: string
+  id_cliente: number | null
+  nome: string | null
+  observacao: string | null
+  updated_at: string
+}
+
+export interface historico_os{
+  campo: string | null;
+  created_at: string;
+  id: string;
+  num_os: number;
+  user_id: string | null;
+  valor_new: string | null;
+  valor_old: string | null;
+}
+
+export interface cliente{
+  cpf: string | null;
+  created_at: string;
+  deleted_at: string | null;
+  deleted_by: string | null;
+  dt_nasc: string | null;
+  email: string | null;
+  id_cliente: number;
+  nome: string | null;
+  telefone: string[] | null;
   updated_at: string;
 }
