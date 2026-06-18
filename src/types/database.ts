@@ -4,6 +4,8 @@
 // working without rewrites. The `id` field is the underlying UUID PK
 // (id_os / id_despacho); mutations target the real column.
 
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
 export type AppRole = "admin" | "operador_chefe" | "operador" | "consultor";
 
 export interface Despacho {
@@ -31,7 +33,7 @@ export interface Despacho {
 }
 
 export interface Caderno {
- base_5311: string | null;
+  base_5311: string | null;
   bloco_cliente: string | null;
   complemento: string | null;
   controle_os: string | null;
@@ -85,7 +87,7 @@ export interface Demanda {
 export interface UserRole {
   created_at: string;
   id: string;
-  role: Database["public"]["Enums"]["app_role"];
+  role: AppRole;
   user_id: string;
 }
 
@@ -152,7 +154,7 @@ export interface Prioritario {
   updated_at: string
 }
 
-export interface historico_os{
+export interface HistoricoOs {
   campo: string | null;
   created_at: string;
   id: string;
@@ -162,7 +164,7 @@ export interface historico_os{
   valor_old: string | null;
 }
 
-export interface cliente{
+export interface Cliente {
   cpf: string | null;
   created_at: string;
   deleted_at: string | null;
