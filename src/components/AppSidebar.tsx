@@ -53,25 +53,11 @@ const tabelasItems = [
     icon: Building2,
   },
   {
-    title: "Localidades",
-    url: "/tratativas/localidades",
-    icon: MapPin,
-  },
-  {
     title: "Prioritários",
     url: "/tratativas/prioritarios",
     icon: Star,
   },
-  {
-    title: "Documentos / Cartas",
-    url: "/tratativas/documentos-cartas",
-    icon: FileEdit,
-  },
-  {
-    title: "Histórico OS",
-    url: "/tratativas/historico-os",
-    icon: History,
-  },
+
 ];
 
 const chefeItems = [
@@ -126,6 +112,11 @@ export function AppSidebar() {
     {
       title: "Logs de Auditoria",
       url: "/tratativas/audit-logs",
+      icon: History,
+    },
+    {
+      title: "Histórico OS",
+      url: "/tratativas/historico-os",
       icon: History,
     },
   ];
