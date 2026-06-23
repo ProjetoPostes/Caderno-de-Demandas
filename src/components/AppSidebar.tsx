@@ -1,4 +1,4 @@
-import { LayoutDashboard, Send, BookOpen, BarChart3, Users, ClipboardList, User, Shield, Upload, Home, History, UserCheck, Star } from "lucide-react";
+import { LayoutDashboard, Send, BookOpen, BarChart3, Users, ClipboardList, User, Shield, Upload, Home, History, UserCheck, Star, Building2, MapPin, FileEdit } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Sidebar,
