@@ -78,11 +78,7 @@ const subItems: Record<string, SubItem[]> = {
     { id: "despacho", label: "Despacho", icon: <Send className="h-5 w-5" />, route: "/consulta/despacho" },
     { id: "caderno", label: "Caderno", icon: <BookOpen className="h-5 w-5" />, route: "/consulta/caderno" },
     { id: "cliente", label: "Cliente", icon: <Users className="h-5 w-5" />, route: "/consulta/clientes" },
-    { id: "obras", label: "Obras", icon: <Building2 className="h-5 w-5" />, route: "/consulta/obras" },
-    { id: "localidades", label: "Localidades", icon: <MapPin className="h-5 w-5" />, route: "/consulta/localidades" },
     { id: "prioritarios", label: "Prioritários", icon: <Star className="h-5 w-5" />, route: "/consulta/prioritarios" },
-    { id: "documentos", label: "Doc. / Cartas", icon: <FileEdit className="h-5 w-5" />, route: "/consulta/documentos-cartas" },
-    { id: "historico", label: "Histórico OS", icon: <History className="h-5 w-5" />, route: "/consulta/historico-os" },
     { id: "cartas", label: "Cartas", icon: <Mail className="h-5 w-5" />, route: "/consulta/caderno?modo=cartas" },
   ],
   cartas: [
@@ -90,6 +86,7 @@ const subItems: Record<string, SubItem[]> = {
     { id: "outros-doc", label: "Outros Doc", icon: <FolderOpen className="h-5 w-5" /> },
   ],
   obras: [
+    { id: "obras", label: "Obras", icon: <Building2 className="h-5 w-5" />, route: "/consulta/obras" },
     { id: "pendente", label: "Pendente", icon: <Clock className="h-5 w-5" /> },
     { id: "analisada", label: "Analisada", icon: <Search className="h-5 w-5" /> },
     { id: "contratada", label: "Contratada", icon: <Briefcase className="h-5 w-5" /> },
