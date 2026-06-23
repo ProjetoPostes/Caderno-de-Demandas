@@ -25,6 +25,10 @@ import ImportacaoPage from "./pages/ImportacaoPage";
 import AuditLogsPage from "./pages/AuditLogsPage";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
 import UserApprovalPage from "./pages/UserApprovalPage";
+import ObrasPage from "./pages/ObrasPage";
+import LocalidadesPage from "./pages/LocalidadesPage";
+import PrioritariosPage from "./pages/PrioritariosPage";
+import HistoricoOsPage from "./pages/HistoricoOsPage";
 // Consulta pages (read-only views from MainHub)
 import DespachoConsulta from "./pages/consulta/DespachoConsulta";
 import CadernoConsulta from "./pages/consulta/CadernoConsulta";
@@ -117,6 +121,46 @@ const App = () => (
                   element={
                     <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
                       <ClientesPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="obras"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <ObrasPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="localidades"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <LocalidadesPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="prioritarios"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <PrioritariosPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="documentos-cartas"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <DocumentosCartas />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="historico-os"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <HistoricoOsPage />
                     </RoleProtectedRoute>
                   }
                 />
@@ -222,6 +266,47 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/consulta/obras"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <ObrasPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/localidades"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <LocalidadesPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/prioritarios"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <PrioritariosPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/historico-os"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <HistoricoOsPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+
 
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
