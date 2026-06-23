@@ -27,6 +27,10 @@ import {
   Clipboard,
   PieChart,
   MessageCircle,
+  Send,
+  MapPin,
+  Star,
+  History,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
