@@ -266,6 +266,47 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/consulta/obras"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <ObrasPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/localidades"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <LocalidadesPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/prioritarios"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <PrioritariosPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/consulta/historico-os"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <HistoricoOsPage standalone />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+
 
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
