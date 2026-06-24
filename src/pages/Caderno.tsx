@@ -335,32 +335,22 @@ export default function Caderno() {
                       <TableHead className="w-[50px]">Ações</TableHead>
                       <TableHead>NUMOS</TableHead>
                       <TableHead>NUMOBRA</TableHead>
-                      <TableHead>Status</TableHead>
                       <TableHead>LCD</TableHead>
-                      <TableHead>Regional</TableHead>
                       <TableHead>Controle OS</TableHead>
                       <TableHead>Origem</TableHead>
-                      <TableHead>Prazo</TableHead>
                       <TableHead>Nome Cliente</TableHead>
                       <TableHead>CPF</TableHead>
-                      <TableHead>Nascimento</TableHead>
-                      <TableHead>E-mail</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Telefone 2</TableHead>
                       <TableHead>Complemento</TableHead>
                       <TableHead>Logradouro</TableHead>
                       <TableHead>Data Sol</TableHead>
                       <TableHead>Data Ter Trab</TableHead>
-                      <TableHead>Data Impedimento</TableHead>
                       <TableHead>Motivo Improcedência</TableHead>
-                      <TableHead>Pendência Obra</TableHead>
                       <TableHead>Critério</TableHead>
                       <TableHead>Tipo Carta</TableHead>
                       <TableHead>Base 5311</TableHead>
                       <TableHead>Tranche</TableHead>
                       <TableHead>Responsável</TableHead>
                       <TableHead>Prioridade</TableHead>
-                      <TableHead>Observação</TableHead>
                       <TableHead>Empreiteira</TableHead>
                       <TableHead>Data Carta</TableHead>
                     </TableRow>
@@ -379,32 +369,22 @@ export default function Caderno() {
                           </TableCell>
                           <TableCell className="font-mono text-xs">{item.numos}</TableCell>
                           <TableCell className="font-mono text-xs">{item.numobra ?? "-"}</TableCell>
-                          <TableCell><Badge variant="outline">{item.status ?? "-"}</Badge></TableCell>
                           <TableCell className="text-xs">{item.nomelcd ?? "-"}</TableCell>
-                          <TableCell>{item.regional ?? "-"}</TableCell>
                           <TableCell><Badge variant="secondary">{item.controle_os ?? "-"}</Badge></TableCell>
                           <TableCell>{item.origem ?? "-"}</TableCell>
-                          <TableCell>{item.prazo ?? "-"}</TableCell>
                           <TableCell className="max-w-[200px] truncate">{item.nomecli ?? "-"}</TableCell>
                           <TableCell className="font-mono text-xs">{maskCpf(item.numcpf)}</TableCell>
-                          <TableCell className="text-xs">{item.dth_nascimento ?? "-"}</TableCell>
-                          <TableCell className="text-xs">{item.email ?? "-"}</TableCell>
-                          <TableCell className="text-xs">{item.numtel ?? "-"}</TableCell>
-                          <TableCell className="text-xs">{item.numtel2 ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.complemento ?? "-"}</TableCell>
                           <TableCell className="text-xs max-w-[200px] truncate">{item.dsclgr_os ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.datasol ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.datatertrab ?? "-"}</TableCell>
-                          <TableCell className="text-xs">{item.dth_impedimento ?? "-"}</TableCell>
                           <TableCell className="text-xs max-w-[150px] truncate">{item.motivo_improcedencia ?? "-"}</TableCell>
-                          <TableCell className="text-xs">{item.pendencia_obra ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.criterio ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.tipo_carta_enviada ?? "-"}</TableCell>
                           <TableCell>{item.base_5311 ?? "-"}</TableCell>
                           <TableCell>{item.tranche ?? "-"}</TableCell>
                           <TableCell>{item.responsavel ?? "-"}</TableCell>
                           <TableCell>{item.prioridade ?? "-"}</TableCell>
-                          <TableCell className="text-xs max-w-[150px] truncate">{item.observacao ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.empreiteira ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.data_carta ?? "-"}</TableCell>
                         </TableRow>
