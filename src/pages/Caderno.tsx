@@ -82,7 +82,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 150;
 
 export default function Caderno() {
   const { data, isLoading, updateCaderno, bulkUpdateCaderno, isBulkUpdating } = useCaderno(1000);
