@@ -277,7 +277,7 @@ export function useObraOsList(numObra: string | null) {
         .order("num_os", { ascending: true })
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as Array<{
+      return (data ?? []) as unknown as Array<{
         id_os: string;
         num_os: number;
         status: string | null;
