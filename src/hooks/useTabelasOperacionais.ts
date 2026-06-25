@@ -243,6 +243,51 @@ export function usePrioritarioMutations() {
   return { create, update, remove };
 }
 
+// ---------- OBRA: counts and OS list ----------
+export function useObraOsCounts(numObras: string[]) {
+  return useQuery({
+    queryKey: ["obra-os-counts", numObras.slice().sort()],
+    enabled: numObras.length > 0,
+    queryFn: async (): Promise<Record<string, number>> => {
+      const results = await Promise.all(
+        numObras.map(async (n) => {
+          const { count } = await supabase
+            .from("caderno")
+            .select("id_os", { count: "exact", head: true })
+            .is("deleted_at", null)
+            .eq("numobra", n);
+          return [n, count ?? 0] as const;
+        }),
+      );
+      return Object.fromEntries(results);
+    },
+  });
+}
+
+export function useObraOsList(numObra: string | null) {
+  return useQuery({
+    queryKey: ["obra-os-list", numObra],
+    enabled: !!numObra,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("caderno")
+        .select("id_os,num_os,status,controle_os,id_cli,cliente:id_cli(nome,cpf)")
+        .is("deleted_at", null)
+        .eq("numobra", numObra!)
+        .order("num_os", { ascending: true })
+        .limit(500);
+      if (error) throw error;
+      return (data ?? []) as Array<{
+        id_os: string;
+        num_os: number;
+        status: string | null;
+        controle_os: string | null;
+        cliente: { nome: string | null; cpf: string | null } | null;
+      }>;
+    },
+  });
+}
+
 // ---------- HISTORICO OS (read-only) ----------
 export function useHistoricoOs(params: ListParams = {}) {
   const { page = 1, pageSize = 25, search = "", sortField = "created_at", sortDir = "desc", filters } = params;
