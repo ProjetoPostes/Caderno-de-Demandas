@@ -278,18 +278,7 @@ export default function ClientesPage() {
               </TableBody>
             </Table>
 
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={cliente.osDespacho.length > 0 ? "secondary" : "outline"}>
-                          {cliente.osDespacho.length}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+
 
             {/* Pagination */}
             <div className="flex items-center justify-between px-4 py-3 border-t">
