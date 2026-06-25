@@ -244,19 +244,19 @@ export function usePrioritarioMutations() {
 }
 
 // ---------- OBRA: counts and OS list ----------
-export function useObraOsCounts(numObras: string[]) {
+export function useObraOsCounts(idObras: number[]) {
   return useQuery({
-    queryKey: ["obra-os-counts", numObras.slice().sort()],
-    enabled: numObras.length > 0,
-    queryFn: async (): Promise<Record<string, number>> => {
+    queryKey: ["obra-os-counts", idObras.slice().sort()],
+    enabled: idObras.length > 0,
+    queryFn: async (): Promise<Record<number, number>> => {
       const results = await Promise.all(
-        numObras.map(async (n) => {
+        idObras.map(async (id) => {
           const { count } = await supabase
             .from("caderno")
             .select("id_os", { count: "exact", head: true })
             .is("deleted_at", null)
-            .eq("numobra", n);
-          return [n, count ?? 0] as const;
+            .eq("id_obra", id);
+          return [id, count ?? 0] as const;
         }),
       );
       return Object.fromEntries(results);
@@ -264,16 +264,16 @@ export function useObraOsCounts(numObras: string[]) {
   });
 }
 
-export function useObraOsList(numObra: string | null) {
+export function useObraOsList(idObra: number | null) {
   return useQuery({
-    queryKey: ["obra-os-list", numObra],
-    enabled: !!numObra,
+    queryKey: ["obra-os-list", idObra],
+    enabled: idObra !== null,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("caderno")
-        .select("id_os,num_os,status,controle_os,id_cli,cliente:id_cli(nome,cpf)")
+        .select("id_os,num_os,status,controle_os,id_cliente,cliente:id_cliente(nome,cpf)")
         .is("deleted_at", null)
-        .eq("numobra", numObra!)
+        .eq("id_obra", idObra!)
         .order("num_os", { ascending: true })
         .limit(500);
       if (error) throw error;
