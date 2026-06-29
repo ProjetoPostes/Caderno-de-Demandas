@@ -105,6 +105,18 @@ export default function Caderno() {
     return await bulkUpdateCaderno({ ids, updates });
   };
 
+  const criterios = [
+    "2- CadUnico",
+    "PRONAF",
+    "Nao possui criterio",
+    "ATER",
+    "Analisar",
+    "6- Assentamentos rurais",
+    "Crédito Fundiario",
+    "Quilombola",
+    "Indigena"
+  ]
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
@@ -438,7 +450,7 @@ export default function Caderno() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <FormField control={form.control} name="motivo_improcedencia" render={({ field }) => (<FormItem><FormLabel>Motivo Improcedência</FormLabel><FormControl><Textarea {...field} value={field.value ?? ""} /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="criterio" render={({ field }) => (<FormItem><FormLabel>Critério</FormLabel><FormControl><Input {...field} value={field.value ?? ""} /></FormControl></FormItem>)} />
+                      <FormField control={form.control} name="criterio" render={({ field }) => (<FormItem><FormLabel>Critério</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl> <SelectTrigger><SelectValue placeholder="Selecione um critério" /> </SelectTrigger> </FormControl> <SelectContent>  {criterios.map((item) => ( <SelectItem  key={item} value={item} > {item}</SelectItem>))}</SelectContent></Select></FormItem>)} />
                       <FormField control={form.control} name="tipo_carta_enviada" render={({ field }) => (<FormItem><FormLabel>Tipo Carta</FormLabel><FormControl><Input {...field} value={field.value ?? ""} /></FormControl></FormItem>)} />
                       <FormField control={form.control} name="base_5311" render={({ field }) => (<FormItem><FormLabel>Base 5311</FormLabel><FormControl><Input {...field} value={field.value ?? ""} /></FormControl></FormItem>)} />
                       <FormField control={form.control} name="tranche" render={({ field }) => (<FormItem><FormLabel>Tranche</FormLabel><FormControl><Input {...field} value={field.value ?? ""} /></FormControl></FormItem>)} />
