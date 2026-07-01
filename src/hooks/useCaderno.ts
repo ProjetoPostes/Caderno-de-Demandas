@@ -69,18 +69,18 @@ async function upsertLocalidade(
   return (data as { id_loc: number } | null)?.id_loc ?? null;
 }
 
-export function useCaderno() {
+export function useCaderno(limit?: number) {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["caderno", limit],
+    queryKey: ["caderno", limit ?? "all"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_caderno_full", {
         p_show_deleted: false,
       });
       if (error) throw error;
       const rows = (data as unknown as Caderno[]) ?? [];
-      return rows.slice(0, limit);
+      return limit ? rows.slice(0, limit) : rows;
     },
   });
 
