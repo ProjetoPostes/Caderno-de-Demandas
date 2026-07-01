@@ -268,7 +268,8 @@ export default function Caderno() {
   const statuses = [...new Set(data.map((d) => d.status).filter(Boolean))];
   const regionais = [...new Set(data.map((d) => d.regional).filter(Boolean))];
   const tranches = [...new Set(data.map((d) => d.tranche).filter(Boolean))];
-  const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))];
+  const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))] as string[];
+  const responsaveis = [...new Set(data.map((d) => d.responsavel).filter(Boolean))] as string[];
 
   if (isLoading) {
     return (
