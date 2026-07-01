@@ -253,8 +253,8 @@ export default function Caderno() {
     }
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
+  const handleSelectAll = (checked: boolean | "indeterminate") => {
+    if (checked === true) {
       setSelectedItems(paginatedData);
     } else {
       setSelectedItems([]);
