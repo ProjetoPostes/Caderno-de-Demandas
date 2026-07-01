@@ -484,7 +484,7 @@ export default function Caderno() {
                             <Select onValueChange={field.onChange} value={field.value ?? undefined}>
                               <FormControl><SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger></FormControl>
                               <SelectContent>
-                                {tiposCartaOptions.map((item) => (<SelectItem key={item} value={item}>{item}</SelectItem>))}
+                                {tiposCartas.map((item) => (<SelectItem key={item} value={item}>{item}</SelectItem>))}
                               </SelectContent>
                             </Select>
                           </FormItem>
