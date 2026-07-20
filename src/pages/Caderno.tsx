@@ -39,6 +39,7 @@ import { EnviarOsObrasDialog } from "@/components/EnviarOsObrasDialog";
 import { BulkEditCadernoDialog } from "@/components/BulkEditCadernoDialog";
 import { maskCpf } from "@/lib/cpfMask";
 import { Caderno as CadernoDBType } from "@/types/database";
+import { CopyableInput } from "@/components/CopyableInput";
 
 const formSchema = z.object({
   numos: z.number(),
