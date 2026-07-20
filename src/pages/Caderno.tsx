@@ -271,6 +271,10 @@ export default function Caderno() {
   const tranches = [...new Set(data.map((d) => d.tranche).filter(Boolean))];
   const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))] as string[];
   const responsaveis = [...new Set(data.map((d) => d.responsavel).filter(Boolean))] as string[];
+  const criteriosFromData = [...new Set(data.map((d) => d.criterio).filter(Boolean))] as string[];
+  const criterios = [...new Set([...staticCriterios, ...criteriosFromData, ...(selectedItem?.criterio ? [selectedItem.criterio] : [])])];
+  const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))] as string[];
+  const responsaveis = [...new Set(data.map((d) => d.responsavel).filter(Boolean))] as string[];
 
   if (isLoading) {
     return (
