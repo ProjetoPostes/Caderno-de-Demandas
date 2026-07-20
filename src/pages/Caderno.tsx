@@ -106,7 +106,7 @@ export default function Caderno() {
     return await bulkUpdateCaderno({ ids, updates });
   };
 
-  const criterios = [
+  const staticCriterios = [
     "2- CadUnico",
     "PRONAF",
     "Nao possui criterio",
@@ -115,8 +115,8 @@ export default function Caderno() {
     "6- Assentamentos rurais",
     "Crédito Fundiario",
     "Quilombola",
-    "Indigena"
-  ]
+    "Indigena",
+  ];
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
