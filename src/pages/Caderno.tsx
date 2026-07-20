@@ -39,6 +39,7 @@ import { EnviarOsObrasDialog } from "@/components/EnviarOsObrasDialog";
 import { BulkEditCadernoDialog } from "@/components/BulkEditCadernoDialog";
 import { maskCpf } from "@/lib/cpfMask";
 import { Caderno as CadernoDBType } from "@/types/database";
+import { CopyableInput } from "@/components/CopyableInput";
 
 const formSchema = z.object({
   numos: z.number(),
@@ -105,7 +106,7 @@ export default function Caderno() {
     return await bulkUpdateCaderno({ ids, updates });
   };
 
-  const criterios = [
+  const staticCriterios = [
     "2- CadUnico",
     "PRONAF",
     "Nao possui criterio",
@@ -114,8 +115,8 @@ export default function Caderno() {
     "6- Assentamentos rurais",
     "Crédito Fundiario",
     "Quilombola",
-    "Indigena"
-  ]
+    "Indigena",
+  ];
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -270,6 +271,8 @@ export default function Caderno() {
   const tranches = [...new Set(data.map((d) => d.tranche).filter(Boolean))];
   const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))] as string[];
   const responsaveis = [...new Set(data.map((d) => d.responsavel).filter(Boolean))] as string[];
+  const criteriosFromData = [...new Set(data.map((d) => d.criterio).filter(Boolean))] as string[];
+  const criterios = [...new Set([...staticCriterios, ...criteriosFromData, ...(selectedItem?.criterio ? [selectedItem.criterio] : [])])];
 
   if (isLoading) {
     return (
@@ -435,26 +438,26 @@ export default function Caderno() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-3 gap-3">
-                      <FormField control={form.control} name="numos" render={({ field }) => (<FormItem><FormLabel>NUMOS</FormLabel><FormControl><Input {...field} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="numobra" render={({ field }) => (<FormItem><FormLabel>NUMOBRA</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
+                      <FormItem><FormLabel>NUMOS</FormLabel><CopyableInput value={String(selectedItem?.numos ?? "")} /></FormItem>
+                      <FormItem><FormLabel>NUMOBRA</FormLabel><CopyableInput value={selectedItem?.numobra} /></FormItem>
+                      <FormItem><FormLabel>Status</FormLabel><CopyableInput value={selectedItem?.status} /></FormItem>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
-                      <FormField control={form.control} name="nomelcd" render={({ field }) => (<FormItem><FormLabel>Nome LCD</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="regional" render={({ field }) => (<FormItem><FormLabel>Regional</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="controle_os" render={({ field }) => (<FormItem><FormLabel>Controle OS</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
+                      <FormItem><FormLabel>Nome LCD</FormLabel><CopyableInput value={selectedItem?.nomelcd} /></FormItem>
+                      <FormItem><FormLabel>Regional</FormLabel><CopyableInput value={selectedItem?.regional} /></FormItem>
+                      <FormItem><FormLabel>Controle OS</FormLabel><CopyableInput value={selectedItem?.controle_os} /></FormItem>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <FormField control={form.control} name="nomecli" render={({ field }) => (<FormItem><FormLabel>Nome Cliente</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="numcpf" render={({ field }) => (<FormItem><FormLabel>CPF</FormLabel><FormControl><Input value={maskCpf(field.value) ?? ""} disabled /></FormControl></FormItem>)} />
+                      <FormItem><FormLabel>Nome Cliente</FormLabel><CopyableInput value={selectedItem?.nomecli} /></FormItem>
+                      <FormItem><FormLabel>CPF</FormLabel><CopyableInput value={maskCpf(selectedItem?.numcpf)} /></FormItem>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
-                      <FormField control={form.control} name="dth_nascimento" render={({ field }) => (<FormItem><FormLabel>Dt. Nascimento</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="numtel" render={({ field }) => (<FormItem><FormLabel>Telefone</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                      <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
+                      <FormItem><FormLabel>Dt. Nascimento</FormLabel><CopyableInput value={selectedItem?.dth_nascimento} /></FormItem>
+                      <FormItem><FormLabel>Telefone</FormLabel><CopyableInput value={selectedItem?.numtel} /></FormItem>
+                      <FormItem><FormLabel>Email</FormLabel><CopyableInput value={selectedItem?.email} /></FormItem>
                     </div>
-                    <FormField control={form.control} name="dsclgr_os" render={({ field }) => (<FormItem><FormLabel>Logradouro</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
-                    <FormField control={form.control} name="complemento" render={({ field }) => (<FormItem><FormLabel>Complemento</FormLabel><FormControl><Input {...field} value={field.value ?? ""} disabled /></FormControl></FormItem>)} />
+                    <FormItem><FormLabel>Logradouro</FormLabel><CopyableInput value={selectedItem?.dsclgr_os} /></FormItem>
+                    <FormItem><FormLabel>Complemento</FormLabel><CopyableInput value={selectedItem?.complemento} /></FormItem>
                   </CardContent>
                 </Card>
 
