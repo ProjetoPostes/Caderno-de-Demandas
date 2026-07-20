@@ -30,6 +30,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { exportToExcel } from "@/lib/excelUtils";
 import { toast } from "sonner";
 import { maskCpf } from "@/lib/cpfMask";
+import { CopyableInput } from "@/components/CopyableInput";
 
 const ITEMS_PER_PAGE = 20;
 
