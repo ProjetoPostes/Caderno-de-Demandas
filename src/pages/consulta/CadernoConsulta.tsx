@@ -447,88 +447,65 @@ export default function CadernoConsulta() {
 
       {/* View Detail Drawer */}
       <Sheet open={detailDrawerOpen} onOpenChange={setDetailDrawerOpen}>
-        <SheetContent className="w-full sm:max-w-lg">
+        <SheetContent className="w-full sm:max-w-2xl">
           <SheetHeader>
-            <SheetTitle>Detalhes do Caderno</SheetTitle>
-            <SheetDescription>Visualização somente leitura</SheetDescription>
+            <SheetTitle>Detalhes do Caderno – OS {selectedItem?.numos}</SheetTitle>
+            <SheetDescription>Visualização somente leitura. Clique no ícone para copiar.</SheetDescription>
           </SheetHeader>
           {selectedItem && (
             <ScrollArea className="h-[calc(100vh-120px)] pr-4 mt-4">
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">NUMOS</Label>
-                    <p className="font-mono font-medium">{selectedItem.numos}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Num Obra</Label>
-                    <p className="font-mono font-medium">{selectedItem.numobra ?? "-"}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Status</Label>
-                    <Badge variant="outline">{selectedItem.status ?? "-"}</Badge>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Controle OS</Label>
-                    <Badge variant="secondary">{selectedItem.controle_os ?? "-"}</Badge>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Cliente</Label>
-                  <p className="font-medium">{selectedItem.nomecli ?? "-"}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">CPF</Label>
-                    <p className="font-mono text-sm">{selectedItem.numcpf ?? "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Regional</Label>
-                    <p className="font-medium">{selectedItem.regional ?? "-"}</p>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-muted-foreground">Endereço</Label>
-                  <p className="font-medium">{selectedItem.dsclgr_os ?? "-"}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Tranche</Label>
-                    <p className="font-medium">{selectedItem.tranche ?? "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Responsável</Label>
-                    <p className="font-medium">{selectedItem.responsavel ?? "-"}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Prioridade</Label>
-                    <p className="font-medium">{selectedItem.prioridade ?? "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Tipo Carta Enviada</Label>
-                    <p className="font-medium">{selectedItem.tipo_carta_enviada ?? "-"}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-muted-foreground">Telefone</Label>
-                    <p className="font-medium">{selectedItem.numtel ?? "-"}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">E-mail</Label>
-                    <p className="font-medium text-sm">{selectedItem.email ?? "-"}</p>
-                  </div>
-                </div>
-                {selectedItem.observacao && (
-                  <div>
-                    <Label className="text-muted-foreground">Observação</Label>
-                    <p className="font-medium">{selectedItem.observacao}</p>
-                  </div>
-                )}
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm">Identificação</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3">
+                    <div><Label className="text-xs text-muted-foreground">NUMOS</Label><CopyableInput value={String(selectedItem.numos)} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Num Obra</Label><CopyableInput value={selectedItem.numobra} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Status</Label><CopyableInput value={selectedItem.status} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Controle OS</Label><CopyableInput value={selectedItem.controle_os} /></div>
+                    <div><Label className="text-xs text-muted-foreground">LCD</Label><CopyableInput value={selectedItem.nomelcd} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Regional</Label><CopyableInput value={selectedItem.regional} /></div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm">Cliente</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">Nome</Label><CopyableInput value={selectedItem.nomecli} /></div>
+                    <div><Label className="text-xs text-muted-foreground">CPF</Label><CopyableInput value={maskCpf(selectedItem.numcpf)} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Nascimento</Label><CopyableInput value={selectedItem.dth_nascimento} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Telefone</Label><CopyableInput value={selectedItem.numtel} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Telefone 2</Label><CopyableInput value={selectedItem.numtel2} /></div>
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">E-mail</Label><CopyableInput value={selectedItem.email} /></div>
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">Endereço OS</Label><CopyableInput value={selectedItem.dsclgr_os} /></div>
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">Complemento</Label><CopyableInput value={selectedItem.complemento} /></div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm">Tratativa</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3">
+                    <div><Label className="text-xs text-muted-foreground">Critério</Label><CopyableInput value={selectedItem.criterio} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Base 5311</Label><CopyableInput value={selectedItem.base_5311} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Tipo Carta Enviada</Label><CopyableInput value={selectedItem.tipo_carta_enviada} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Data Carta</Label><CopyableInput value={selectedItem.data_carta} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Tranche</Label><CopyableInput value={selectedItem.tranche} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Prioridade</Label><CopyableInput value={selectedItem.prioridade} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Responsável</Label><CopyableInput value={selectedItem.responsavel} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Empreiteira</Label><CopyableInput value={selectedItem.empreiteira} /></div>
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">Motivo Improcedência</Label><CopyableInput value={selectedItem.motivo_improcedencia} multiline /></div>
+                    <div className="col-span-2"><Label className="text-xs text-muted-foreground">Observação</Label><CopyableInput value={selectedItem.observacao} multiline /></div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-sm">Datas</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3">
+                    <div><Label className="text-xs text-muted-foreground">Data Solicitação</Label><CopyableInput value={selectedItem.datasol} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Data Ter. Trab.</Label><CopyableInput value={selectedItem.datatertrab} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Data Impedimento</Label><CopyableInput value={selectedItem.dth_impedimento} /></div>
+                    <div><Label className="text-xs text-muted-foreground">Prazo</Label><CopyableInput value={selectedItem.prazo} /></div>
+                  </CardContent>
+                </Card>
               </div>
             </ScrollArea>
           )}
