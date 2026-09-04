@@ -387,8 +387,7 @@ export default function Caderno() {
                               <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
                                 {canEdit ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </Button>
-                              <Button onClick={() => navigate(`/analise/${(item as CadernoType & { id_os: string }).id_os}`)
-                                        }>
+                              <Button onClick={() => navigate(`/analise/${item.id}`)}>
                                 <ClipboardCheck className="h-4 w-4 mr-1" />Analisar
                               </Button>
                             </div>
