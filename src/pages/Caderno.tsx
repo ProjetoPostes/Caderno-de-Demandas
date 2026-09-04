@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCaderno } from "@/hooks/useCaderno";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Caderno as CadernoType } from "@/types/database";
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pencil, Search, X, ChevronLeft, ChevronRight, Download, Loader2, Eye, Send } from "lucide-react";
+import { Pencil, Search, X, ChevronLeft, ChevronRight, Download, Loader2, Eye, Send, ClipboardCheck } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -87,6 +88,7 @@ const ITEMS_PER_PAGE = 150;
 
 export default function Caderno() {
   const { data, isLoading, updateCaderno, bulkUpdateCaderno, isBulkUpdating } = useCaderno();
+  const navigate = useNavigate();
   const { canEdit, isAdmin, isOperadorChefe } = useUserRole();
   const canEditPrioridade = isAdmin || isOperadorChefe;
   const [search, setSearch] = useState("");
