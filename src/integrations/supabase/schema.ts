@@ -286,6 +286,16 @@ export type AppDatabase = {
       };
       get_caderno_full: { Args: { p_show_deleted?: boolean }; Returns: Json };
       get_despacho_full: { Args: { p_show_concluded?: boolean }; Returns: Json };
+      salvar_analise_os: {
+        Args: {
+          p_id_os: string;
+          p_dados: Json;
+          p_criterios?: number[];
+          p_concluir?: boolean;
+        };
+        Returns: string;
+      };
+
     };
     Enums: { app_role: AppRole };
     CompositeTypes: Record<string, never>;
