@@ -43,6 +43,7 @@ import { Caderno as CadernoDBType } from "@/types/database";
 import { CopyableInput } from "@/components/CopyableInput";
 
 const formSchema = z.object({
+  id_os: z.string().uuid("ID da OS inválido"),
   numos: z.number(),
   numobra: z.string().nullish(),
   status: z.string().nullish(),
