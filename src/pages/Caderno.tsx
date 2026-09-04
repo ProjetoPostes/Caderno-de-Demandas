@@ -170,7 +170,7 @@ export default function Caderno() {
   const handleEdit = (item: CadernoType) => {
     setSelectedItem(item);
     form.reset({
-      id:os: item.id_os,
+      id_os: item.id,
       numos: item.numos,
       numobra: item.numobra,
       status: item.status,
@@ -387,7 +387,7 @@ export default function Caderno() {
                               <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
                                 {canEdit ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </Button>
-                              <Button variant="ghost" size="sm" className="text-xs" onClick={() => navigate(`/analise/${item.original.id_os}`)}>
+                              <Button variant="ghost" size="sm" className="text-xs" onClick={() => navigate(`/analise/${item.id}`)}>
                                 <ClipboardCheck className="h-4 w-4 mr-1" />Analisar
                               </Button>
                             </div>
