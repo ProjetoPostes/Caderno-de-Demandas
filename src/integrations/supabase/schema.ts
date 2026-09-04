@@ -241,6 +241,10 @@ export type AppDatabase = {
       cliente: Table<ClienteRow>;
       obra: Table<ObraRow>;
       localidade: Table<LocalidadeRow>;
+      analise_os: Table<AnaliseOsRow>;
+      criterios_enquadramento: Table<CriterioEnquadramentoRow>;
+      analise_criterios: Table<AnaliseCriterioRow>;
+
       profiles: Table<ProfileRow>;
       user_roles: Table<UserRoleRow>;
       caderno: Table<CadernoRow>;
