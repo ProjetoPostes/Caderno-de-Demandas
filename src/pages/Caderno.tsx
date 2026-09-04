@@ -170,6 +170,7 @@ export default function Caderno() {
   const handleEdit = (item: CadernoType) => {
     setSelectedItem(item);
     form.reset({
+      id:os: item.id_os,
       numos: item.numos,
       numobra: item.numobra,
       status: item.status,
