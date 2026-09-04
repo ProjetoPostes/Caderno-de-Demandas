@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCaderno } from "@/hooks/useCaderno";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Caderno as CadernoType } from "@/types/database";
@@ -21,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pencil, Search, X, ChevronLeft, ChevronRight, Download, Loader2, Eye, Send } from "lucide-react";
+import { Pencil, Search, X, ChevronLeft, ChevronRight, Download, Loader2, Eye, Send, ClipboardCheck } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -87,6 +88,7 @@ const ITEMS_PER_PAGE = 150;
 
 export default function Caderno() {
   const { data, isLoading, updateCaderno, bulkUpdateCaderno, isBulkUpdating } = useCaderno();
+  const navigate = useNavigate();
   const { canEdit, isAdmin, isOperadorChefe } = useUserRole();
   const canEditPrioridade = isAdmin || isOperadorChefe;
   const [search, setSearch] = useState("");
@@ -379,10 +381,16 @@ export default function Caderno() {
                         <TableRow key={item.id}>
                           <TableCell><Checkbox checked={selectedItems.some((s) => s.id === item.id)} onCheckedChange={(checked) => handleSelectItem(item, !!checked)} /></TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
-                              {canEdit ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                                {canEdit ? <Pencil className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-xs" onClick={() => navigate(`/analise/${item.id}`)}>
+                                <ClipboardCheck className="h-4 w-4 mr-1" />Analisar
+                              </Button>
+                            </div>
                           </TableCell>
+
                           <TableCell className="font-mono text-xs">{item.numos}</TableCell>
                           <TableCell className="font-mono text-xs">{item.numobra ?? "-"}</TableCell>
                           <TableCell className="text-xs">{item.nomelcd ?? "-"}</TableCell>
