@@ -819,7 +819,8 @@ export default function AnaliseSolicitacao() {
               Concluir
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
+        </AlertDialogContent>
+
       </AlertDialog>
     </div>
   );
