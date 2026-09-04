@@ -34,7 +34,78 @@ export interface LocalidadeRow extends Timestamps {
   cod_lcd: string | null;
   nome_lcd: string | null;
   regional: string | null;
+  municipio: string | null;
+  codigo_ibge_municipio: string | null;
+  uf: string | null;
 }
+export interface AnaliseOsRow {
+  id_analise: string;
+  id_os: string;
+  versao: number;
+  status_analise: string | null;
+  analise_atual: boolean | null;
+  validacao_municipio: string | null;
+  observacao_municipio: string | null;
+  validacao_cpf: string | null;
+  casa: string | null;
+  configuracao_moradia: string | null;
+  enquadramento_beneficiario: string | null;
+  enquadramento_confirmado: boolean | null;
+  observacao_beneficiario: string | null;
+  coordenada_x_solicitacao: number | null;
+  coordenada_y_solicitacao: number | null;
+  coordenada_x_derivacao: number | null;
+  coordenada_y_derivacao: number | null;
+  tipo_coordenada: string | null;
+  fuso_utm: number | null;
+  hemisferio_utm: string | null;
+  distancia_prevista_m: number | null;
+  coordenadas_conferidas: boolean | null;
+  observacao_coordenadas: string | null;
+  orcamento_estimado: number | null;
+  numero_odi: string | null;
+  tipo_atendimento: string | null;
+  observacao_tecnica: string | null;
+  tipo_comunidade: string | null;
+  nome_comunidade: string | null;
+  comunidade_validada: boolean | null;
+  observacao_comunidade: string | null;
+  nome_unidade_consumidora: string | null;
+  nome_consumidor_validado: boolean | null;
+  numero_uc: string | null;
+  data_ligacao: string | null;
+  distancia_cadastro_ligacao_m: number | null;
+  critica_distancia: string | null;
+  observacao_unidade_consumidora: string | null;
+  resultado_analise: string | null;
+  observacoes_finais: string | null;
+  analista_responsavel_id: string | null;
+  data_analise: string | null;
+  analise_concluida: boolean | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  updated_by: string | null;
+  deleted_at: string | null;
+  deleted_by: string | null;
+}
+export interface CriterioEnquadramentoRow extends Timestamps {
+  id_criterio: number;
+  codigo: string | null;
+  descricao: string | null;
+  categoria: string | null;
+  ordem: number | null;
+  ativo: boolean | null;
+}
+export interface AnaliseCriterioRow {
+  id_analise: string;
+  id_criterio: number;
+  confirmado: boolean | null;
+  observacao: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
 export interface ProfileRow extends Timestamps {
   id: string;
   user_id: string;
