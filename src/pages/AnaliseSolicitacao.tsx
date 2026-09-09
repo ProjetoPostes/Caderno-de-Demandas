@@ -66,7 +66,6 @@ interface FormState {
   coordenadas_conferidas: boolean | null;
   observacao_coordenadas: string;
   orcamento_estimado: string;
-  numero_odi: string;
   tipo_atendimento: string;
   observacao_tecnica: string;
   tipo_comunidade: string;
@@ -106,7 +105,6 @@ const emptyForm = (): FormState => ({
   coordenadas_conferidas: null,
   observacao_coordenadas: "",
   orcamento_estimado: "",
-  numero_odi: "",
   tipo_atendimento: "",
   observacao_tecnica: "",
   tipo_comunidade: "",
@@ -230,7 +228,6 @@ export default function AnaliseSolicitacao() {
       coordenadas_conferidas: a.coordenadas_conferidas,
       observacao_coordenadas: txt(a.observacao_coordenadas),
       orcamento_estimado: formatMoeda(a.orcamento_estimado),
-      numero_odi: txt(a.numero_odi),
       tipo_atendimento: txt(a.tipo_atendimento),
       observacao_tecnica: txt(a.observacao_tecnica),
       tipo_comunidade: txt(a.tipo_comunidade),
@@ -360,7 +357,6 @@ export default function AnaliseSolicitacao() {
     coordenadas_conferidas: form.coordenadas_conferidas,
     observacao_coordenadas: nullIfEmpty(form.observacao_coordenadas),
     orcamento_estimado: parseMoeda(form.orcamento_estimado),
-    numero_odi: nullIfEmpty(form.numero_odi),
     tipo_atendimento: nullIfEmpty(form.tipo_atendimento),
     observacao_tecnica: nullIfEmpty(form.observacao_tecnica),
     tipo_comunidade: nullIfEmpty(form.tipo_comunidade),
