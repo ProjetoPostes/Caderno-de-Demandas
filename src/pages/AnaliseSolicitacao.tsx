@@ -66,7 +66,6 @@ interface FormState {
   coordenadas_conferidas: boolean | null;
   observacao_coordenadas: string;
   orcamento_estimado: string;
-  numero_odi: string;
   tipo_atendimento: string;
   observacao_tecnica: string;
   tipo_comunidade: string;
@@ -106,7 +105,6 @@ const emptyForm = (): FormState => ({
   coordenadas_conferidas: null,
   observacao_coordenadas: "",
   orcamento_estimado: "",
-  numero_odi: "",
   tipo_atendimento: "",
   observacao_tecnica: "",
   tipo_comunidade: "",
@@ -151,6 +149,18 @@ function parseMoeda(value: string): number | null {
 function formatMoeda(value: number | null | undefined): string {
   if (value == null) return "";
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371000; // raio da Terra em metros
+  const toRad = (valor: number) => (valor * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 const nullIfEmpty = (v: string): string | null => (v.trim() === "" ? null : v.trim());
@@ -218,7 +228,6 @@ export default function AnaliseSolicitacao() {
       coordenadas_conferidas: a.coordenadas_conferidas,
       observacao_coordenadas: txt(a.observacao_coordenadas),
       orcamento_estimado: formatMoeda(a.orcamento_estimado),
-      numero_odi: txt(a.numero_odi),
       tipo_atendimento: txt(a.tipo_atendimento),
       observacao_tecnica: txt(a.observacao_tecnica),
       tipo_comunidade: txt(a.tipo_comunidade),
@@ -246,6 +255,27 @@ export default function AnaliseSolicitacao() {
     criteriosHidratados.current = true;
     setSelecionados(criteriosAnalise.data);
   }, [analise.data?.id_analise, criteriosAnalise.data]);
+
+  // Cálculo automático da distância cadastro/ligação a partir das 4 coordenadas
+  useEffect(() => {
+    const xs = parseNumero(form.coordenada_x_solicitacao);
+    const ys = parseNumero(form.coordenada_y_solicitacao);
+    const xd = parseNumero(form.coordenada_x_derivacao);
+    const yd = parseNumero(form.coordenada_y_derivacao);
+    if (xs === null || ys === null || xd === null || yd === null) return;
+    const d = calcularDistancia(xs, ys, xd, yd);
+    const formatado = d.toFixed(2).replace(".", ",");
+    setForm((prev) =>
+      prev.distancia_cadastro_ligacao_m === formatado
+        ? prev
+        : { ...prev, distancia_cadastro_ligacao_m: formatado },
+    );
+  }, [
+    form.coordenada_x_solicitacao,
+    form.coordenada_y_solicitacao,
+    form.coordenada_x_derivacao,
+    form.coordenada_y_derivacao,
+  ]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -301,7 +331,6 @@ export default function AnaliseSolicitacao() {
     { id: "campo-enquadramento_confirmado", label: "Enquadramento confirmado", ok: form.enquadramento_confirmado !== null },
     { id: "campo-coordenadas_conferidas", label: "Coordenadas conferidas", ok: form.coordenadas_conferidas !== null },
     { id: "campo-comunidade_validada", label: "Comunidade validada", ok: form.comunidade_validada !== null },
-    { id: "campo-nome_consumidor_validado", label: "Nome do consumidor validado", ok: form.nome_consumidor_validado !== null },
     { id: "campo-resultado_analise", label: "Resultado da análise", ok: form.resultado_analise !== null },
     { id: "campo-analista", label: "Analista responsável", ok: form.analista_responsavel_id.trim() !== "" },
     { id: "campo-data_analise", label: "Data da análise", ok: form.data_analise.trim() !== "" },
@@ -327,7 +356,6 @@ export default function AnaliseSolicitacao() {
     coordenadas_conferidas: form.coordenadas_conferidas,
     observacao_coordenadas: nullIfEmpty(form.observacao_coordenadas),
     orcamento_estimado: parseMoeda(form.orcamento_estimado),
-    numero_odi: nullIfEmpty(form.numero_odi),
     tipo_atendimento: nullIfEmpty(form.tipo_atendimento),
     observacao_tecnica: nullIfEmpty(form.observacao_tecnica),
     tipo_comunidade: nullIfEmpty(form.tipo_comunidade),
@@ -415,7 +443,7 @@ export default function AnaliseSolicitacao() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Análise da Solicitação</h1>
           <p className="text-muted-foreground">
-            OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.municipio ?? "Município não informado"}
+            OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.nome_lcd ?? "Localidade não informada"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -430,12 +458,35 @@ export default function AnaliseSolicitacao() {
         {/* Identificação da Solicitação */}
         <Card>
           <CardHeader className="pb-3"><CardTitle className="text-sm">Identificação da Solicitação</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <div><Label>Nº OS</Label><CopyableInput value={String(dados.num_os)} /></div>
-            <div><Label>Data da solicitação</Label><CopyableInput value={dados.datasol} /></div>
-            <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
-            <div><Label>Status da OS</Label><CopyableInput value={dados.status} /></div>
-            <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Nº OS</Label><CopyableInput value={String(dados.num_os)} /></div>
+              <div><Label>Status da OS</Label><CopyableInput value={dados.status} /></div>
+              <div><Label>Data da solicitação</Label><CopyableInput value={dados.datasol} /></div>
+              <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
+              <div><Label>Localidade</Label><CopyableInput value={dados.nome_lcd} /></div>
+              <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
+              <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
+              <div><Label>Regional</Label><CopyableInput value={dados.regional} /></div>
+              <div id="campo-validacao_municipio">
+                <Label>Validação do município</Label>
+                <Select
+                  value={form.validacao_municipio ?? NULO}
+                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NULO}>Não informado</SelectItem>
+                    <SelectItem value="conforme">Conforme</SelectItem>
+                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Observação do município</Label>
+              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
+            </div>
           </CardContent>
         </Card>
 
@@ -521,32 +572,6 @@ export default function AnaliseSolicitacao() {
           <CardHeader className="pb-3"><CardTitle className="text-sm">Informações Geográficas</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Localidade</Label><CopyableInput value={dados.nome_lcd} /></div>
-              <div><Label>Município</Label><CopyableInput value={dados.municipio} /></div>
-              <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
-              <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
-              <div><Label>Regional</Label><CopyableInput value={dados.regional} /></div>
-              <div id="campo-validacao_municipio">
-                <Label>Validação do município</Label>
-                <Select
-                  value={form.validacao_municipio ?? NULO}
-                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NULO}>Não informado</SelectItem>
-                    <SelectItem value="conforme">Conforme</SelectItem>
-                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label>Observação do município</Label>
-              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Tipo de coordenada</Label>
                 <Select value={form.tipo_coordenada || NULO} onValueChange={(v) => set("tipo_coordenada", v === NULO ? "" : v)}>
@@ -607,7 +632,7 @@ export default function AnaliseSolicitacao() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Orçamento estimado (R$)</Label><Input value={form.orcamento_estimado} onChange={(e) => set("orcamento_estimado", e.target.value)} inputMode="decimal" placeholder="0,00" /></div>
-              <div><Label>Número ODI</Label><Input value={form.numero_odi} onChange={(e) => set("numero_odi", e.target.value)} /></div>
+              <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
               <div><Label>Tipo de atendimento</Label><Input value={form.tipo_atendimento} onChange={(e) => set("tipo_atendimento", e.target.value)} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
@@ -615,13 +640,7 @@ export default function AnaliseSolicitacao() {
               <Label>Observação técnica</Label>
               <Textarea value={form.observacao_tecnica} onChange={(e) => set("observacao_tecnica", e.target.value)} rows={2} />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Informações da Comunidade */}
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-sm">Informações da Comunidade</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+            <Separator />
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Tipo de comunidade</Label><Input value={form.tipo_comunidade} onChange={(e) => set("tipo_comunidade", e.target.value)} /></div>
               <div><Label>Nome da comunidade</Label><Input value={form.nome_comunidade} onChange={(e) => set("nome_comunidade", e.target.value)} /></div>
@@ -652,25 +671,15 @@ export default function AnaliseSolicitacao() {
           <CardHeader className="pb-3"><CardTitle className="text-sm">Dados da Unidade Consumidora</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Nome da unidade consumidora</Label><Input value={form.nome_unidade_consumidora} onChange={(e) => set("nome_unidade_consumidora", e.target.value)} /></div>
+              <div><Label>Nome da unidade consumidora</Label><CopyableInput value={form.nome_unidade_consumidora} /></div>
               <div id="campo-nome_consumidor_validado">
                 <Label>Nome do consumidor validado</Label>
-                <Select
-                  value={form.nome_consumidor_validado === null ? NULO : String(form.nome_consumidor_validado)}
-                  onValueChange={(v) => set("nome_consumidor_validado", v === NULO ? null : v === "true")}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NULO}>Não informado</SelectItem>
-                    <SelectItem value="true">Sim</SelectItem>
-                    <SelectItem value="false">Não</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CopyableInput value={form.nome_consumidor_validado === null ? null : form.nome_consumidor_validado ? "Sim" : "Não"} />
               </div>
-              <div><Label>Número da UC</Label><Input value={form.numero_uc} onChange={(e) => set("numero_uc", e.target.value)} /></div>
-              <div><Label>Data de ligação</Label><Input type="date" value={form.data_ligacao} onChange={(e) => set("data_ligacao", e.target.value)} /></div>
-              <div><Label>Distância cadastro/ligação (m)</Label><Input value={form.distancia_cadastro_ligacao_m} onChange={(e) => set("distancia_cadastro_ligacao_m", e.target.value)} inputMode="decimal" /></div>
-              <div><Label>Crítica de distância</Label><Input value={form.critica_distancia} onChange={(e) => set("critica_distancia", e.target.value)} /></div>
+              <div><Label>Número da UC</Label><CopyableInput value={form.numero_uc} /></div>
+              <div><Label>Data de ligação</Label><CopyableInput value={form.data_ligacao} /></div>
+              <div><Label>Distância cadastro/ligação (m)</Label><CopyableInput value={form.distancia_cadastro_ligacao_m} /></div>
+              <div><Label>Crítica de distância</Label><CopyableInput value={form.critica_distancia} /></div>
             </div>
             <div>
               <Label>Observação da unidade consumidora</Label>
