@@ -573,32 +573,6 @@ export default function AnaliseSolicitacao() {
           <CardHeader className="pb-3"><CardTitle className="text-sm">Informações Geográficas</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Localidade</Label><CopyableInput value={dados.nome_lcd} /></div>
-              <div><Label>Município</Label><CopyableInput value={dados.municipio} /></div>
-              <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
-              <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
-              <div><Label>Regional</Label><CopyableInput value={dados.regional} /></div>
-              <div id="campo-validacao_municipio">
-                <Label>Validação do município</Label>
-                <Select
-                  value={form.validacao_municipio ?? NULO}
-                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NULO}>Não informado</SelectItem>
-                    <SelectItem value="conforme">Conforme</SelectItem>
-                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div>
-              <Label>Observação do município</Label>
-              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Tipo de coordenada</Label>
                 <Select value={form.tipo_coordenada || NULO} onValueChange={(v) => set("tipo_coordenada", v === NULO ? "" : v)}>
