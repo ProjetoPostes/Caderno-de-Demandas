@@ -153,6 +153,18 @@ function formatMoeda(value: number | null | undefined): string {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371000; // raio da Terra em metros
+  const toRad = (valor: number) => (valor * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 const nullIfEmpty = (v: string): string | null => (v.trim() === "" ? null : v.trim());
 
 const CASA_OPCOES = ["sim", "nao"];
@@ -246,6 +258,27 @@ export default function AnaliseSolicitacao() {
     criteriosHidratados.current = true;
     setSelecionados(criteriosAnalise.data);
   }, [analise.data?.id_analise, criteriosAnalise.data]);
+
+  // Cálculo automático da distância cadastro/ligação a partir das 4 coordenadas
+  useEffect(() => {
+    const xs = parseNumero(form.coordenada_x_solicitacao);
+    const ys = parseNumero(form.coordenada_y_solicitacao);
+    const xd = parseNumero(form.coordenada_x_derivacao);
+    const yd = parseNumero(form.coordenada_y_derivacao);
+    if (xs === null || ys === null || xd === null || yd === null) return;
+    const d = calcularDistancia(xs, ys, xd, yd);
+    const formatado = d.toFixed(2).replace(".", ",");
+    setForm((prev) =>
+      prev.distancia_cadastro_ligacao_m === formatado
+        ? prev
+        : { ...prev, distancia_cadastro_ligacao_m: formatado },
+    );
+  }, [
+    form.coordenada_x_solicitacao,
+    form.coordenada_y_solicitacao,
+    form.coordenada_x_derivacao,
+    form.coordenada_y_derivacao,
+  ]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
