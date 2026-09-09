@@ -331,7 +331,6 @@ export default function AnaliseSolicitacao() {
     { id: "campo-enquadramento_confirmado", label: "Enquadramento confirmado", ok: form.enquadramento_confirmado !== null },
     { id: "campo-coordenadas_conferidas", label: "Coordenadas conferidas", ok: form.coordenadas_conferidas !== null },
     { id: "campo-comunidade_validada", label: "Comunidade validada", ok: form.comunidade_validada !== null },
-    { id: "campo-nome_consumidor_validado", label: "Nome do consumidor validado", ok: form.nome_consumidor_validado !== null },
     { id: "campo-resultado_analise", label: "Resultado da análise", ok: form.resultado_analise !== null },
     { id: "campo-analista", label: "Analista responsável", ok: form.analista_responsavel_id.trim() !== "" },
     { id: "campo-data_analise", label: "Data da análise", ok: form.data_analise.trim() !== "" },
