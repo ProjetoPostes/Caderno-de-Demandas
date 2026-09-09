@@ -256,7 +256,7 @@ export default function AnaliseSolicitacao() {
     setSelecionados(criteriosAnalise.data);
   }, [analise.data?.id_analise, criteriosAnalise.data]);
 
-  // Cálculo automático da distância cadastro/ligação a partir das 4 coordenadas
+  // Cálculo automático da distância prevista a partir das 4 coordenadas
   useEffect(() => {
     const xs = parseNumero(form.coordenada_x_solicitacao);
     const ys = parseNumero(form.coordenada_y_solicitacao);
@@ -265,11 +265,11 @@ export default function AnaliseSolicitacao() {
     if (xs === null || ys === null || xd === null || yd === null) return;
     const d = calcularDistancia(xs, ys, xd, yd);
     const formatado = d.toFixed(2).replace(".", ",");
-    setForm((prev) =>
-      prev.distancia_cadastro_ligacao_m === formatado
-        ? prev
-        : { ...prev, distancia_cadastro_ligacao_m: formatado },
-    );
+    setForm((prev) => {
+      if (prev.distancia_prevista_m === formatado) return prev;
+      setDirty(true);
+      return { ...prev, distancia_prevista_m: formatado };
+    });
   }, [
     form.coordenada_x_solicitacao,
     form.coordenada_y_solicitacao,
@@ -617,7 +617,7 @@ export default function AnaliseSolicitacao() {
                   </div>
                 </>
               )}
-              <div><Label>Distância prevista (m)</Label><Input value={form.distancia_prevista_m} onChange={(e) => set("distancia_prevista_m", e.target.value)} inputMode="decimal" /></div>
+              <div><Label>Distância prevista (m)</Label><CopyableInput value={form.distancia_prevista_m} /></div>
             </div>
             <div>
               <Label>Observação das coordenadas</Label>
@@ -674,11 +674,21 @@ export default function AnaliseSolicitacao() {
               <div><Label>Nome da unidade consumidora</Label><CopyableInput value={form.nome_unidade_consumidora} /></div>
               <div id="campo-nome_consumidor_validado">
                 <Label>Nome do consumidor validado</Label>
-                <CopyableInput value={form.nome_consumidor_validado === null ? null : form.nome_consumidor_validado ? "Sim" : "Não"} />
+                <Select
+                  value={form.nome_consumidor_validado === null ? NULO : String(form.nome_consumidor_validado)}
+                  onValueChange={(v) => set("nome_consumidor_validado", v === NULO ? null : v === "true")}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NULO}>Não informado</SelectItem>
+                    <SelectItem value="true">Sim</SelectItem>
+                    <SelectItem value="false">Não</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div><Label>Número da UC</Label><CopyableInput value={form.numero_uc} /></div>
               <div><Label>Data de ligação</Label><CopyableInput value={form.data_ligacao} /></div>
-              <div><Label>Distância cadastro/ligação (m)</Label><CopyableInput value={form.distancia_cadastro_ligacao_m} /></div>
+              <div><Label>Distância cadastro/ligação (m)</Label><Input value={form.distancia_cadastro_ligacao_m} onChange={(e) => set("distancia_cadastro_ligacao_m", e.target.value)} inputMode="decimal" /></div>
               <div><Label>Crítica de distância</Label><CopyableInput value={form.critica_distancia} /></div>
             </div>
             <div>
