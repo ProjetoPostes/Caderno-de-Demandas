@@ -444,7 +444,7 @@ export default function AnaliseSolicitacao() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Análise da Solicitação</h1>
           <p className="text-muted-foreground">
-            OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.municipio ?? "Município não informado"}
+            OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.nome_lcd ?? "Localidade não informada"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -459,12 +459,35 @@ export default function AnaliseSolicitacao() {
         {/* Identificação da Solicitação */}
         <Card>
           <CardHeader className="pb-3"><CardTitle className="text-sm">Identificação da Solicitação</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
-            <div><Label>Nº OS</Label><CopyableInput value={String(dados.num_os)} /></div>
-            <div><Label>Data da solicitação</Label><CopyableInput value={dados.datasol} /></div>
-            <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
-            <div><Label>Status da OS</Label><CopyableInput value={dados.status} /></div>
-            <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>Nº OS</Label><CopyableInput value={String(dados.num_os)} /></div>
+              <div><Label>Status da OS</Label><CopyableInput value={dados.status} /></div>
+              <div><Label>Data da solicitação</Label><CopyableInput value={dados.datasol} /></div>
+              <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
+              <div><Label>Localidade</Label><CopyableInput value={dados.nome_lcd} /></div>
+              <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
+              <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
+              <div><Label>Regional</Label><CopyableInput value={dados.regional} /></div>
+              <div id="campo-validacao_municipio">
+                <Label>Validação do município</Label>
+                <Select
+                  value={form.validacao_municipio ?? NULO}
+                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NULO}>Não informado</SelectItem>
+                    <SelectItem value="conforme">Conforme</SelectItem>
+                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Observação do município</Label>
+              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
+            </div>
           </CardContent>
         </Card>
 
