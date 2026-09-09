@@ -633,7 +633,7 @@ export default function AnaliseSolicitacao() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Orçamento estimado (R$)</Label><Input value={form.orcamento_estimado} onChange={(e) => set("orcamento_estimado", e.target.value)} inputMode="decimal" placeholder="0,00" /></div>
-              <div><Label>Número ODI</Label><Input value={form.numero_odi} onChange={(e) => set("numero_odi", e.target.value)} /></div>
+              <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
               <div><Label>Tipo de atendimento</Label><Input value={form.tipo_atendimento} onChange={(e) => set("tipo_atendimento", e.target.value)} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
@@ -641,13 +641,7 @@ export default function AnaliseSolicitacao() {
               <Label>Observação técnica</Label>
               <Textarea value={form.observacao_tecnica} onChange={(e) => set("observacao_tecnica", e.target.value)} rows={2} />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Informações da Comunidade */}
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-sm">Informações da Comunidade</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+            <Separator />
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Tipo de comunidade</Label><Input value={form.tipo_comunidade} onChange={(e) => set("tipo_comunidade", e.target.value)} /></div>
               <div><Label>Nome da comunidade</Label><Input value={form.nome_comunidade} onChange={(e) => set("nome_comunidade", e.target.value)} /></div>
