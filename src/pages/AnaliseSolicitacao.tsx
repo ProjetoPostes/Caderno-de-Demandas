@@ -672,25 +672,15 @@ export default function AnaliseSolicitacao() {
           <CardHeader className="pb-3"><CardTitle className="text-sm">Dados da Unidade Consumidora</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Nome da unidade consumidora</Label><Input value={form.nome_unidade_consumidora} onChange={(e) => set("nome_unidade_consumidora", e.target.value)} /></div>
+              <div><Label>Nome da unidade consumidora</Label><CopyableInput value={form.nome_unidade_consumidora} /></div>
               <div id="campo-nome_consumidor_validado">
                 <Label>Nome do consumidor validado</Label>
-                <Select
-                  value={form.nome_consumidor_validado === null ? NULO : String(form.nome_consumidor_validado)}
-                  onValueChange={(v) => set("nome_consumidor_validado", v === NULO ? null : v === "true")}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NULO}>Não informado</SelectItem>
-                    <SelectItem value="true">Sim</SelectItem>
-                    <SelectItem value="false">Não</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CopyableInput value={form.nome_consumidor_validado === null ? null : form.nome_consumidor_validado ? "Sim" : "Não"} />
               </div>
-              <div><Label>Número da UC</Label><Input value={form.numero_uc} onChange={(e) => set("numero_uc", e.target.value)} /></div>
-              <div><Label>Data de ligação</Label><Input type="date" value={form.data_ligacao} onChange={(e) => set("data_ligacao", e.target.value)} /></div>
-              <div><Label>Distância cadastro/ligação (m)</Label><Input value={form.distancia_cadastro_ligacao_m} onChange={(e) => set("distancia_cadastro_ligacao_m", e.target.value)} inputMode="decimal" /></div>
-              <div><Label>Crítica de distância</Label><Input value={form.critica_distancia} onChange={(e) => set("critica_distancia", e.target.value)} /></div>
+              <div><Label>Número da UC</Label><CopyableInput value={form.numero_uc} /></div>
+              <div><Label>Data de ligação</Label><CopyableInput value={form.data_ligacao} /></div>
+              <div><Label>Distância cadastro/ligação (m)</Label><CopyableInput value={form.distancia_cadastro_ligacao_m} /></div>
+              <div><Label>Crítica de distância</Label><CopyableInput value={form.critica_distancia} /></div>
             </div>
             <div>
               <Label>Observação da unidade consumidora</Label>
