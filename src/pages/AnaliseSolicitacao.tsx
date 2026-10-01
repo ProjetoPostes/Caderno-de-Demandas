@@ -163,6 +163,16 @@ function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
+function classificarDistancia(distancia: number | null): string {
+  if (distancia === null || distancia < 0) return "";
+  if (distancia <= 60) return "Até 60 metros";
+  if (distancia <= 100) return "De 60 a 100 metros";
+  if (distancia <= 500) return "De 100 a 500 metros";
+  if (distancia <= 1000) return "De 500 metros a 1 km";
+  if (distancia <= 2000) return "De 1 a 2 km";
+  return "Mais de 2 km";
+}
+
 const nullIfEmpty = (v: string): string | null => (v.trim() === "" ? null : v.trim());
 
 const CASA_OPCOES = ["sim", "nao"];
@@ -276,6 +286,15 @@ export default function AnaliseSolicitacao() {
     form.coordenada_x_derivacao,
     form.coordenada_y_derivacao,
   ]);
+
+  // Classificação automática e sem lacunas da distância calculada.
+  useEffect(() => {
+    const classificacao = classificarDistancia(parseNumero(form.distancia_prevista_m));
+    setForm((prev) => {
+      if (prev.critica_distancia === classificacao) return prev;
+      return { ...prev, critica_distancia: classificacao };
+    });
+  }, [form.distancia_prevista_m]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -633,7 +652,7 @@ export default function AnaliseSolicitacao() {
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Orçamento estimado (R$)</Label><Input value={form.orcamento_estimado} onChange={(e) => set("orcamento_estimado", e.target.value)} inputMode="decimal" placeholder="0,00" /></div>
               <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
-              <div><Label>Tipo de atendimento</Label><Input value={form.tipo_atendimento} onChange={(e) => set("tipo_atendimento", e.target.value)} /></div>
+              <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
             <div>

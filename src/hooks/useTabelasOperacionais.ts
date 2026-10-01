@@ -269,21 +269,46 @@ export function useObraOsList(idObra: number | null) {
     queryKey: ["obra-os-list", idObra],
     enabled: idObra !== null,
     queryFn: async () => {
+      if (idObra === null) return [];
       const { data, error } = await supabase
         .from("caderno")
-        .select("id_os,num_os,status,controle_os,id_cliente,cliente:id_cliente(nome,cpf)")
+        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
         .is("deleted_at", null)
-        .eq("id_obra", idObra!)
+        .eq("id_obra", idObra)
         .order("num_os", { ascending: true })
         .limit(500);
       if (error) throw error;
-      return (data ?? []) as unknown as Array<{
+      const registros = (data ?? []) as unknown as Array<{
         id_os: string;
         num_os: number;
         status: string | null;
         controle_os: string | null;
+        tranche: string | null;
+        datasol: string | null;
+        datatertrab: string | null;
         cliente: { nome: string | null; cpf: string | null } | null;
+        localidade: { municipio: string | null; nome_lcd: string | null } | null;
       }>;
+
+      if (registros.length === 0) return [];
+      const { data: analises, error: analisesError } = await supabase
+        .from("analise_os")
+        .select("id_os,resultado_analise")
+        .in("id_os", registros.map((registro) => registro.id_os))
+        .eq("analise_atual", true)
+        .is("deleted_at", null);
+      if (analisesError) throw analisesError;
+
+      const resultados = new Map(
+        ((analises ?? []) as Array<{ id_os: string; resultado_analise: string | null }>).map((item) => [
+          item.id_os,
+          item.resultado_analise,
+        ]),
+      );
+      return registros.map((registro) => ({
+        ...registro,
+        resultado_analise: resultados.get(registro.id_os) ?? null,
+      }));
     },
   });
 }
