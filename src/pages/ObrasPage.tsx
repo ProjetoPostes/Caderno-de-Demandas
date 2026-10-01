@@ -1,15 +1,33 @@
 import { useState, useMemo } from "react";
-import { Building2, Loader2 } from "lucide-react";
+import { Building2, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { useObras, useObraOsCounts, useObraOsList } from "@/hooks/useTabelasOperacionais";
-import { maskCpf } from "@/lib/cpfMask";
 import type { Obra } from "@/types/database";
 
 const PAGE_SIZE = 20;
+const DESCRICAO_INICIAL = "CONSTRUÇÃO DE 3736M DE REDE MT MONOFÁSICA COM INSTALAÇÃO DE 01 TRANSFORMADOR DE 15 KVA EM RDR 19,9 KW";
+
+function formatarData(valor: string | null | undefined) {
+  if (!valor) return "—";
+  const data = new Date(`${valor.slice(0, 10)}T00:00:00`);
+  return Number.isNaN(data.getTime()) ? valor : data.toLocaleDateString("pt-BR");
+}
+
+function rotuloResultado(resultado: string | null) {
+  if (resultado === "aprovado") return "Aprovado";
+  if (resultado === "reprovado") return "Não aprovado";
+  return "Pendente";
+}
+
+function varianteResultado(resultado: string | null): "default" | "destructive" | "secondary" {
+  if (resultado === "aprovado") return "default";
+  if (resultado === "reprovado") return "destructive";
+  return "secondary";
+}
 
 export default function ObrasPage({ standalone = false }: { standalone?: boolean }) {
   const [search, setSearch] = useState("");
@@ -25,6 +43,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
 
   const [selected, setSelected] = useState<Obra | null>(null);
   const { data: osList, isLoading: loadingOsList } = useObraOsList(selected?.id_obra ?? null);
+  const primeiraOs = osList?.[0];
 
   return (
     <>
@@ -69,62 +88,109 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
       />
 
       <Dialog open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0">
+          <DialogHeader className="border-b bg-muted/30 px-6 py-5 pr-12">
+            <DialogTitle className="flex items-center gap-2 text-base">
               <Building2 className="h-5 w-5" />
-              Obra {selected?.num_obra ?? "-"}
+              Detalhes da obra
             </DialogTitle>
-            <DialogDescription>
-              Status: {selected?.status ?? "-"} · SIGCO: {selected?.sigco ?? "-"}
-            </DialogDescription>
+            <DialogDescription>Informações consolidadas da obra e dos clientes vinculados.</DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden">
-            <div className="mb-2 text-xs text-muted-foreground">
-              {loadingOsList ? "Carregando..." : `${osList?.length ?? 0} OS(s) vinculada(s)`}
-            </div>
-            <ScrollArea className="h-[60vh] border rounded">
-              {loadingOsList ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <ScrollArea className="max-h-[calc(90vh-82px)]">
+            <div className="space-y-6 p-6">
+              <section className="grid gap-x-8 gap-y-3 border-b pb-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Nº Obra</p>
+                  <p className="mt-1 font-mono text-sm font-semibold">{selected?.num_obra ?? "—"}</p>
                 </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">NUMOS</TableHead>
-                      <TableHead className="text-xs">Cliente</TableHead>
-                      <TableHead className="text-xs">CPF</TableHead>
-                      <TableHead className="text-xs">Status</TableHead>
-                      <TableHead className="text-xs">Controle</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(osList ?? []).length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-6 text-xs">
-                          Nenhuma OS para esta obra
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      (osList ?? []).map((os) => (
-                        <TableRow key={os.id_os}>
-                          <TableCell className="font-mono text-xs">{os.num_os}</TableCell>
-                          <TableCell className="text-xs">{os.cliente?.nome ?? "-"}</TableCell>
-                          <TableCell className="font-mono text-xs">{os.cliente?.cpf ? maskCpf(os.cliente.cpf) : "-"}</TableCell>
-                          <TableCell className="text-xs">{os.status ?? "-"}</TableCell>
-                          <TableCell className="text-xs">
-                            <Badge variant="outline" className="text-xs">{os.controle_os ?? "-"}</Badge>
-                          </TableCell>
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Tranche</p>
+                  <p className="mt-1 text-sm font-medium">{primeiraOs?.tranche ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Nome envolvido</p>
+                  <p className="mt-1 text-sm font-medium">{primeiraOs?.cliente?.nome ?? "—"}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Município</p>
+                  <p className="mt-1 text-sm font-medium">{primeiraOs?.localidade?.municipio ?? primeiraOs?.localidade?.nome_lcd ?? "—"}</p>
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Informações da obra</h3>
+                <div className="grid overflow-hidden rounded-md border sm:grid-cols-2 lg:grid-cols-5">
+                  {[
+                    ["Status", selected?.status ?? "Indefinido"],
+                    ["Data Início", formatarData(primeiraOs?.datasol)],
+                    ["Data de Fim", formatarData(primeiraOs?.datatertrab)],
+                    ["Valor orçado", "—"],
+                    ["Valor realizado", "—"],
+                  ].map(([label, value], index) => (
+                    <div key={label} className={`min-h-16 bg-muted/30 p-3 ${index > 0 ? "border-t sm:border-l sm:border-t-0" : ""}`}>
+                      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+                      <p className="mt-1 text-sm font-semibold">{value}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Descrição da obra</h3>
+                <div className="rounded-md border bg-muted/20 p-3 text-sm leading-relaxed">
+                  {DESCRICAO_INICIAL}
+                </div>
+              </section>
+
+              <section>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+                    <Users className="h-4 w-4" /> Clientes
+                  </h3>
+                  <span className="text-xs text-muted-foreground">
+                    {loadingOsList ? "Carregando..." : `${osList?.length ?? 0} vinculado(s)`}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-md border">
+                  {loadingOsList ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/40">
+                          <TableHead className="text-xs uppercase">Cliente</TableHead>
+                          <TableHead className="w-48 text-xs uppercase">Status validação</TableHead>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              )}
-            </ScrollArea>
-          </div>
+                      </TableHeader>
+                      <TableBody>
+                        {(osList ?? []).length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={2} className="py-8 text-center text-xs text-muted-foreground">
+                              Nenhum cliente vinculado a esta obra
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          (osList ?? []).map((os) => (
+                            <TableRow key={os.id_os}>
+                              <TableCell className="text-sm font-medium">{os.cliente?.nome ?? "Cliente não informado"}</TableCell>
+                              <TableCell>
+                                <Badge variant={varianteResultado(os.resultado_analise)} className="whitespace-nowrap">
+                                  {rotuloResultado(os.resultado_analise)}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
+              </section>
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </>

@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Operational detail views must derive display-only aggregates from existing Supabase records and must not persist placeholders, because the external schema is authoritative.
