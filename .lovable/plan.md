@@ -1,7 +1,7 @@
 # Ajustes na Análise e no formulário de Obras
 
 ## Objetivo
-Ajustar somente os campos solicitados na tela de análise e substituir o diálogo atual de Obras por uma visualização compacta de detalhes, preservando a integração existente.
+Ajustar somente os campos solicitados na tela de análise e substituir o diálogo atual de Obras por uma visualização compacta de detalhes, seguindo a referência enviada, preservando a integração existente.
 
 ## Implementação
 
@@ -14,9 +14,9 @@ Ajustar somente os campos solicitados na tela de análise e substituir o diálog
 ### Tela de Obras
 - Ao clicar em uma obra, abrir um formulário de detalhes organizado em:
   - cabeçalho compacto: Nº Obra, Tranche, Nome envolvido e Município;
-  - informações da obra: Status, Data Início, Data de Fim, Valor orçado e Valor realizado;
+  - informações da obra em uma faixa horizontal compacta: Status, Data Início, Data de Fim, Valor orçado e Valor realizado;
   - descrição da obra com o texto inicial fornecido;
-  - seção CLIENTES com cliente e status da validação em badges.
+  - seção CLIENTES em tabela simples, com cliente e status da validação em badges, seguindo a hierarquia visual da referência.
 - Reaproveitar as OSs vinculadas à obra para listar clientes reais.
 - Buscar o resultado da análise atual de cada OS para exibir **Aprovado**, **Não aprovado** ou **Pendente**; quando não houver análise ou resultado, usar **Pendente**.
 - Usar os dados existentes da obra e da primeira OS vinculada para os campos disponíveis. Campos ainda inexistentes no esquema receberão os valores iniciais informados, apenas na apresentação, sem criar ou alterar tabelas.
