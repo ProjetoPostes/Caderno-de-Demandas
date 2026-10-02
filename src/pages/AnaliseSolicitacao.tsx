@@ -272,7 +272,14 @@ export default function AnaliseSolicitacao() {
     const ys = parseNumero(form.coordenada_y_solicitacao);
     const xd = parseNumero(form.coordenada_x_derivacao);
     const yd = parseNumero(form.coordenada_y_derivacao);
-    if (xs === null || ys === null || xd === null || yd === null) return;
+    if (xs === null || ys === null || xd === null || yd === null) {
+      setForm((prev) => {
+        if (prev.distancia_prevista_m === "") return prev;
+        setDirty(true);
+        return { ...prev, distancia_prevista_m: "" };
+      });
+      return;
+    }
     const d = calcularDistancia(xs, ys, xd, yd);
     const formatado = d.toFixed(2).replace(".", ",");
     setForm((prev) => {
