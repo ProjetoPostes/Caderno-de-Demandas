@@ -103,12 +103,21 @@ export default function Caderno() {
   const navigate = useNavigate();
   const { canEdit, isAdmin, isOperadorChefe } = useUserRole();
   const canEditPrioridade = isAdmin || isOperadorChefe;
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [filterRegional, setFilterRegional] = useState<string>("all");
-  const [filterTranche, setFilterTranche] = useState<string>("all");
-  const [filterTipoCarta, setFilterTipoCarta] = useState<string>("all");
-  const [filterPendencia, setFilterPendencia] = useState<string>("all");
+  const [search, setSearch] = useState(() => sessionStorage.getItem("caderno:search") ?? "");
+  const [filterStatus, setFilterStatus] = useState<string>(() => sessionStorage.getItem("caderno:filterStatus") ?? "all");
+  const [filterRegional, setFilterRegional] = useState<string>(() => sessionStorage.getItem("caderno:filterRegional") ?? "all");
+  const [filterTranche, setFilterTranche] = useState<string>(() => sessionStorage.getItem("caderno:filterTranche") ?? "all");
+  const [filterTipoCarta, setFilterTipoCarta] = useState<string>(() => sessionStorage.getItem("caderno:filterTipoCarta") ?? "all");
+  const [filterPendencia, setFilterPendencia] = useState<string>(() => sessionStorage.getItem("caderno:filterPendencia") ?? "all");
+
+  useEffect(() => {
+    sessionStorage.setItem("caderno:search", search);
+    sessionStorage.setItem("caderno:filterStatus", filterStatus);
+    sessionStorage.setItem("caderno:filterRegional", filterRegional);
+    sessionStorage.setItem("caderno:filterTranche", filterTranche);
+    sessionStorage.setItem("caderno:filterTipoCarta", filterTipoCarta);
+    sessionStorage.setItem("caderno:filterPendencia", filterPendencia);
+  }, [search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia]);
   const { data: analisesAtuais } = useAnalisesAtuaisPendencias();
   const analisesPorOs = useMemo(
     () => new Map((analisesAtuais ?? []).map((a) => [a.id_os, a])),
