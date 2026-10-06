@@ -177,7 +177,19 @@ const nullIfEmpty = (v: string): string | null => (v.trim() === "" ? null : v.tr
 
 const CASA_OPCOES = ["sim", "nao"];
 const CONFIG_MORADIA_OPCOES = ["sim", "nao"];
-const ENQUADRAMENTO_OPCOES = ["sim", "nao"];
+const ENQUADRAMENTO_OPCOES = [
+  "Assentamento",
+  "Ater",
+  "CádÚnico",
+  "Crédito Fundiário",
+  "Espaço coletivo",
+  "Igreja",
+  "Indígena",
+  "Pendente de análise",
+  "Pronaf",
+  "Quilombola",
+  "Não possui critério",
+];
 
 interface CampoObrigatorio {
   id: string;
@@ -567,7 +579,10 @@ export default function AnaliseSolicitacao() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NULO}>Não informado</SelectItem>
-                    {ENQUADRAMENTO_OPCOES.map((o) => (<SelectItem key={o} value={o}>{o === "sim" ? "Sim" : "Não"}</SelectItem>))}
+                    {form.enquadramento_beneficiario && !ENQUADRAMENTO_OPCOES.includes(form.enquadramento_beneficiario) && (
+                      <SelectItem value={form.enquadramento_beneficiario}>{form.enquadramento_beneficiario}</SelectItem>
+                    )}
+                    {ENQUADRAMENTO_OPCOES.map((o) => (<SelectItem key={o} value={o}>{o}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>

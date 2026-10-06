@@ -164,3 +164,40 @@ export function useSalvarAnalise() {
     },
   });
 }
+
+export interface AnalisePendenciaRow {
+  id_os: string;
+  validacao_municipio: string | null;
+  validacao_cpf: string | null;
+  enquadramento_beneficiario: string | null;
+  coordenadas_conferidas: boolean | null;
+  comunidade_validada: boolean | null;
+  nome_consumidor_validado: boolean | null;
+  casa: string | null;
+}
+
+/** Análises atuais de todas as OSs, usadas apenas para filtros de pendência. */
+export function useAnalisesAtuaisPendencias() {
+  return useQuery({
+    queryKey: ["analises-atuais-pendencias"],
+    queryFn: async (): Promise<AnalisePendenciaRow[]> => {
+      const rows: AnalisePendenciaRow[] = [];
+      const page = 1000;
+      for (let from = 0; ; from += page) {
+        const { data, error } = await supabase
+          .from("analise_os")
+          .select(
+            "id_os, validacao_municipio, validacao_cpf, enquadramento_beneficiario, coordenadas_conferidas, comunidade_validada, nome_consumidor_validado, casa",
+          )
+          .eq("analise_atual", true)
+          .is("deleted_at", null)
+          .range(from, from + page - 1);
+        if (error) throw error;
+        const chunk = (data as unknown as AnalisePendenciaRow[]) ?? [];
+        rows.push(...chunk);
+        if (chunk.length < page) break;
+      }
+      return rows;
+    },
+  });
+}

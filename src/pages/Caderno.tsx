@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useAnalisesAtuaisPendencias } from "@/hooks/useAnaliseOs";
 import { useNavigate } from "react-router-dom";
 import { useCaderno } from "@/hooks/useCaderno";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -87,6 +88,16 @@ type FormData = z.infer<typeof formSchema>;
 
 const ITEMS_PER_PAGE = 150;
 
+const PENDENCIAS = [
+  { value: "municipio", label: "Município" },
+  { value: "cpf", label: "CPF" },
+  { value: "enquadramento", label: "Enquadramento" },
+  { value: "coordenadas", label: "Coordenadas" },
+  { value: "comunidade", label: "Comunidade" },
+  { value: "consumidor", label: "Consumidor" },
+  { value: "casa", label: "Casa" },
+];
+
 export default function Caderno() {
   const { data, isLoading, updateCaderno, bulkUpdateCaderno, isBulkUpdating } = useCaderno();
   const navigate = useNavigate();
@@ -97,6 +108,12 @@ export default function Caderno() {
   const [filterRegional, setFilterRegional] = useState<string>("all");
   const [filterTranche, setFilterTranche] = useState<string>("all");
   const [filterTipoCarta, setFilterTipoCarta] = useState<string>("all");
+  const [filterPendencia, setFilterPendencia] = useState<string>("all");
+  const { data: analisesAtuais } = useAnalisesAtuaisPendencias();
+  const analisesPorOs = useMemo(
+    () => new Map((analisesAtuais ?? []).map((a) => [a.id_os, a])),
+    [analisesAtuais],
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CadernoType | null>(null);
@@ -148,8 +165,25 @@ export default function Caderno() {
     if (filterTipoCarta !== "all") {
       result = result.filter((item) => item.tipo_carta_enviada === filterTipoCarta);
     }
+    if (filterPendencia !== "all") {
+      result = result.filter((item) => {
+        const a = analisesPorOs.get(item.id);
+        if (!a) return true; // sem análise: tudo pendente
+        switch (filterPendencia) {
+          case "municipio": return a.validacao_municipio === null;
+          case "cpf": return a.validacao_cpf === null;
+          case "enquadramento":
+            return !a.enquadramento_beneficiario || a.enquadramento_beneficiario.toLowerCase().startsWith("pendente");
+          case "coordenadas": return a.coordenadas_conferidas === null;
+          case "comunidade": return a.comunidade_validada === null;
+          case "consumidor": return a.nome_consumidor_validado === null;
+          case "casa": return !a.casa;
+          default: return true;
+        }
+      });
+    }
     return result;
-  }, [data, search, filterStatus, filterRegional, filterTranche, filterTipoCarta]);
+  }, [data, search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia, analisesPorOs]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -164,6 +198,7 @@ export default function Caderno() {
     setFilterRegional("all");
     setFilterTranche("all");
     setFilterTipoCarta("all");
+    setFilterPendencia("all");
     setCurrentPage(1);
   };
 
@@ -324,6 +359,13 @@ export default function Caderno() {
                 <SelectContent>
                   <SelectItem value="all">Todos Tipos Carta</SelectItem>
                   {tiposCartas.map((t) => (<SelectItem key={t} value={t!}>{t}</SelectItem>))}
+                </SelectContent>
+              </Select>
+              <Select value={filterPendencia} onValueChange={setFilterPendencia}>
+                <SelectTrigger className="w-[190px]"><SelectValue placeholder="Pendente de validação" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas validações</SelectItem>
+                  {PENDENCIAS.map((p) => (<SelectItem key={p.value} value={p.value}>Pendente: {p.label}</SelectItem>))}
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon" onClick={clearFilters}><X className="h-4 w-4" /></Button>
