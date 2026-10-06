@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useAnalisesAtuaisPendencias } from "@/hooks/useAnaliseOs";
 import { useNavigate } from "react-router-dom";
 import { useCaderno } from "@/hooks/useCaderno";
