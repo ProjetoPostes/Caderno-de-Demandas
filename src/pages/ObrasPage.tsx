@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { Building2, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { useObras, useObraOsCounts, useObraOsList } from "@/hooks/useTabelasOperacionais";
@@ -97,7 +96,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
             <DialogDescription>Informações consolidadas da obra e dos clientes vinculados.</DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[calc(90vh-82px)]">
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-6 p-6">
               <section className="grid gap-x-8 gap-y-3 border-b pb-5 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
@@ -190,7 +189,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
                 </div>
               </section>
             </div>
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </>
