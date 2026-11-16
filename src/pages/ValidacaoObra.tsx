@@ -93,7 +93,7 @@ export default function ValidacaoObra() {
   const [categoria, setCategoria] = useState<string>("");
   const [tipoId, setTipoId] = useState<string>("");
   const [quantidade, setQuantidade] = useState("");
-  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
   const categorias = useMemo(() => Array.from(new Set(tipos.map((t) => t.categoria ?? "Sem categoria"))).sort(), [tipos]);
   const tiposFiltrados = tipos.filter((t) => (t.categoria ?? "Sem categoria") === categoria);
 
@@ -102,7 +102,7 @@ export default function ValidacaoObra() {
     const q = Number(quantidade.replace(",", "."));
     if (!tipoId || !quantidade || Number.isNaN(q) || q <= 0) { toast.error("Selecione o item e informe uma quantidade válida"); return; }
     try {
-      await salvarItem.mutateAsync({ id: editandoId ?? undefined, tipo_quantitativo_id: Number(tipoId), quantidade: q });
+      await salvarItem.mutateAsync({ id: editandoId ?? undefined, tipo_quantitativo_id: tipoId, quantidade: q });
       toast.success(editandoId ? "Item alterado" : "Item adicionado");
       limparItem();
     } catch (e) {
@@ -110,7 +110,7 @@ export default function ValidacaoObra() {
       toast.error(`Erro ao salvar item: ${(e as { message?: string }).message ?? ""}`);
     }
   };
-  const editar = (id: number) => {
+  const editar = (id: string) => {
     const it = itens.find((i) => i.id === id);
     if (!it) return;
     const t = tipos.find((x) => x.id === it.tipo_quantitativo_id);
@@ -119,7 +119,7 @@ export default function ValidacaoObra() {
     setQuantidade(String(it.quantidade).replace(".", ","));
     setEditandoId(id);
   };
-  const excluir = async (id: number) => {
+  const excluir = async (id: string) => {
     if (!confirm("Excluir este item?")) return;
     try { await excluirItem.mutateAsync(id); toast.success("Item excluído"); if (editandoId === id) limparItem(); }
     catch (e) { console.error(e); toast.error(`Erro ao excluir: ${(e as { message?: string }).message ?? ""}`); }
