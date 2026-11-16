@@ -15,12 +15,20 @@ import {
   useExcluirQuantitativo, useObraDetalhe, useQuantitativosObra, useSalvarQuantitativo,
   useSalvarValidacaoObra, useTiposQuantitativos,
 } from "@/hooks/useValidacaoObra";
+import {
+  FileText,
+  Zap,
+  CheckCircle2,
+  XCircle,
+  Clock3
+} from "lucide-react";
 
 const DESCRICAO_INICIAL = "CONSTRUÇÃO DE 3736M DE REDE MT MONOFÁSICA COM INSTALAÇÃO DE 01 TRANSFORMADOR DE 15 KVA EM RDR 19,9 KW";
 const OPCOES_TIPO_ATENDIMENTO = ["Instalação de equipamentos", "Melhoria", "Melhoria / Propriedade rural", "Associações", "Indígenas", "Propriedade Rural", "Propriedade Urbana", "Quilombolas", "Torre de Telecomunicações"];
 const OPCOES_ANALISE_OBRA = ["Análise", "Divergência", "Pronto para cadastro", "Não cadastrar"];
 const OPCOES_CADASTRO_ENBPAR = ["Cadastrado", "Não cadastrado", "Pendente"];
 const NULO = "__nulo__";
+
 
 const brl = (v: number | null | undefined) =>
   v === null || v === undefined ? "—" : Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -92,13 +100,15 @@ export default function ValidacaoObra() {
   const { data: itens = [], isLoading: loadingItens } = useQuantitativosObra(idObra);
     // Total acumulado em todas as OSs vinculadas à obra
   const totaisOs = useMemo(() => {
-    if (!osList) return { padrao: 0, kit: 0 };
+    if (!osList) return { padrao: 0, kit: 0, tranche: 0, resultado_analise: 0 };
     return osList.reduce(
       (acc, os) => ({
         padrao: acc.padrao + (Number((os as any).num_padrao) || 0),
         kit: acc.kit + (Number((os as any).num_kit) || 0),
+        tranche: acc.tranche + (Number((os as any).tranche) || 0),
+        resultado_analise: acc.resultado_analise + (Number((os as any).resultado_analise) || 0)
       }),
-      { padrao: 0, kit: 0 }
+      { padrao: 0, kit: 0, tranche: 0, resultado_analise: 0 }
     );
   }, [osList]);
   
@@ -114,7 +124,7 @@ export default function ValidacaoObra() {
       if (nome.includes("padrão") || nome.includes("padrao")) padrao += qtd;
       if (nome.includes("kit")) kit += qtd;
     });
-  
+    
     return { padrao, kit };
   }, [itens]);
   
@@ -312,7 +322,113 @@ export default function ValidacaoObra() {
           </div>
         </section>
 
+        
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        
+          {/* Total de OSs */}
+          <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-1 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs text-muted-foreground font-medium">
+                  Total de OSs
+                </CardTitle>
+                <div className="rounded-full bg-blue-100 p-2 text-blue-600">
+                  <FileText className="h-4 w-4" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-3xl font-bold text-slate-800 dark:text-foreground">
+                {osList?.length ?? 0}
+              </div>
+            </CardContent>
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-blue-500" />
+          </Card>
+        
+          {/* Em Tranche */}
+          <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-1 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs text-muted-foreground font-medium">
+                  Em Tranche
+                </CardTitle>
+                <div className="rounded-full bg-indigo-100 p-2 text-indigo-600">
+                  <Zap className="h-4 w-4" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-3xl font-bold text-primary">
+                {totaisOs.tranche}
+              </div>
+            </CardContent>
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-indigo-500" />
+          </Card>
+        
+          {/* Aprovadas */}
+          <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-1 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs text-muted-foreground font-medium">
+                  Aprovadas
+                </CardTitle>
+                <div className="rounded-full bg-emerald-100 p-2 text-emerald-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-3xl font-bold text-emerald-600">
+                {totaisOs.resultado_analise == "Aprovado"}
+              </div>
+            </CardContent>
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-emerald-500" />
+          </Card>
+        
+          {/* Reprovadas */}
+          <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-1 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs text-muted-foreground font-medium">
+                  Reprovadas
+                </CardTitle>
+                <div className="rounded-full bg-red-100 p-2 text-red-600">
+                  <XCircle className="h-4 w-4" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-3xl font-bold text-destructive">
+                {totaisOs.resultado_analise == "Não aprovado"}
+              </div>
+            </CardContent>
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-red-500" />
+          </Card>
+        
+          {/* Pendentes */}
+          <Card className="relative overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <CardHeader className="pb-1 pt-4 px-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs text-muted-foreground font-medium">
+                  Pendentes
+                </CardTitle>
+                <div className="rounded-full bg-amber-100 p-2 text-amber-600">
+                  <Clock3 className="h-4 w-4" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-3xl font-bold text-amber-500">
+                {totaisOs.resultado_analise == "Pendente"}
+              </div>
+            </CardContent>
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-amber-500" />
+          </Card>
+        
+        </div>
+        
         <section>
+          
           <div className="mb-3 flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground"><Users className="h-4 w-4" /> Clientes</h3>
             <span className="text-xs text-muted-foreground">{loadingOs ? "Carregando..." : `${osList?.length ?? 0} vinculado(s) · clique para abrir a análise`}</span>
