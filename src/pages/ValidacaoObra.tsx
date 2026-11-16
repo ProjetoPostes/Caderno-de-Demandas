@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useObraOsList } from "@/hooks/useTabelasOperacionais";
@@ -100,15 +101,20 @@ export default function ValidacaoObra() {
   const { data: itens = [], isLoading: loadingItens } = useQuantitativosObra(idObra);
     // Total acumulado em todas as OSs vinculadas à obra
   const totaisOs = useMemo(() => {
-    if (!osList) return { padrao: 0, kit: 0, tranche: 0, resultado_analise: 0 };
+    if (!osList) return { padrao: 0, kit: 0, tranche: 0, aprovadas: 0, reprovadas: 0, pendentes: 0 };
     return osList.reduce(
-      (acc, os) => ({
-        padrao: acc.padrao + (Number((os as any).num_padrao) || 0),
-        kit: acc.kit + (Number((os as any).num_kit) || 0),
-        tranche: acc.tranche + (Number((os as any).tranche) || 0),
-        resultado_analise: acc.resultado_analise + (Number((os as any).resultado_analise) || 0)
-      }),
-      { padrao: 0, kit: 0, tranche: 0, resultado_analise: 0 }
+      (acc, os) => {
+        const resultado = os.resultado_analise;
+        return {
+          padrao: acc.padrao + (Number(os.num_padrao) || 0),
+          kit: acc.kit + (Number(os.num_kit) || 0),
+          tranche: acc.tranche + (Number(os.tranche) || 0),
+          aprovadas: acc.aprovadas + (resultado === "aprovado" ? 1 : 0),
+          reprovadas: acc.reprovadas + (resultado === "reprovado" ? 1 : 0),
+          pendentes: acc.pendentes + (resultado !== "aprovado" && resultado !== "reprovado" ? 1 : 0),
+        };
+      },
+      { padrao: 0, kit: 0, tranche: 0, aprovadas: 0, reprovadas: 0, pendentes: 0 }
     );
   }, [osList]);
   
@@ -379,7 +385,7 @@ export default function ValidacaoObra() {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="text-3xl font-bold text-emerald-600">
-                {totaisOs.resultado_analise == "Aprovado"}
+                {totaisOs.aprovadas}
               </div>
             </CardContent>
             <div className="absolute bottom-0 left-0 h-1 w-full bg-emerald-500" />
@@ -399,7 +405,7 @@ export default function ValidacaoObra() {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="text-3xl font-bold text-destructive">
-                {totaisOs.resultado_analise == "Não aprovado"}
+                {totaisOs.reprovadas}
               </div>
             </CardContent>
             <div className="absolute bottom-0 left-0 h-1 w-full bg-red-500" />
@@ -419,7 +425,7 @@ export default function ValidacaoObra() {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="text-3xl font-bold text-amber-500">
-                {totaisOs.resultado_analise == "Pendente"}
+                {totaisOs.pendentes}
               </div>
             </CardContent>
             <div className="absolute bottom-0 left-0 h-1 w-full bg-amber-500" />
