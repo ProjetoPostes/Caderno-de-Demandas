@@ -14,6 +14,7 @@ import Painel from "./pages/Painel";
 import PainelCaderno from "./pages/PainelCaderno";
 import Despacho from "./pages/Despacho";
 import Caderno from "./pages/Caderno";
+import ValidacaoObra from "./pages/ValidacaoObra";
 import AnaliseSolicitacao from "./pages/AnaliseSolicitacao";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -316,6 +317,17 @@ const App = () => (
                   <ProtectedRoute>
                     <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
                       <AnaliseSolicitacao />
+                    </RoleProtectedRoute>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/obras/:idObra"
+                element={
+                  <ProtectedRoute>
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <ValidacaoObra />
                     </RoleProtectedRoute>
                   </ProtectedRoute>
                 }
