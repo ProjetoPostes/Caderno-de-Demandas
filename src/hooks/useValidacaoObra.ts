@@ -18,16 +18,16 @@ export interface ObraValidacao {
 }
 
 export interface TipoQuantitativo {
-  id: number;
+  id: string;
   nome: string;
   categoria: string | null;
   unidade: string | null;
 }
 
 export interface QuantitativoObra {
-  id: number;
+  id: string;
   obra_id: number;
-  tipo_quantitativo_id: number;
+  tipo_quantitativo_id: string;
   quantidade: number;
   tipo: TipoQuantitativo | null;
 }
@@ -84,25 +84,43 @@ export function useQuantitativosObra(idObra: number | null) {
 
 export function useSalvarQuantitativo(idObra: number) {
   const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: async (item: { id?: number; tipo_quantitativo_id: number; quantidade: number }) => {
-      const payload = { obra_id: idObra, tipo_quantitativo_id: item.tipo_quantitativo_id, quantidade: item.quantidade };
+    mutationFn: async (item: {
+      id?: string;
+      tipo_quantitativo_id: string;
+      quantidade: number;
+    }) => {
+      const payload = {
+        obra_id: idObra,
+        tipo_quantitativo_id: item.tipo_quantitativo_id,
+        quantidade: item.quantidade,
+      };
+
       const { error } = item.id
         ? await supabase.from("quantitativos_obras").update(payload).eq("id", item.id)
         : await supabase.from("quantitativos_obras").insert(payload);
+
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["quantitativos-obra", idObra] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["quantitativos-obra", idObra] }),
   });
 }
 
 export function useExcluirQuantitativo(idObra: number) {
   const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: async (id: number) => {
-      const { error } = await supabase.from("quantitativos_obras").delete().eq("id", id);
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("quantitativos_obras")
+        .delete()
+        .eq("id", id);
+
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["quantitativos-obra", idObra] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["quantitativos-obra", idObra] }),
   });
 }
