@@ -34,6 +34,34 @@ const varianteResultado = (r: string | null): "default" | "destructive" | "secon
   r === "aprovado" ? "default" : r === "reprovado" ? "destructive" : "secondary";
 const comAtual = (lista: string[], atual: string | null) => (atual && !lista.includes(atual) ? [...lista, atual] : lista);
 
+// Total acumulado em todas as OSs vinculadas à obra
+const totaisOs = useMemo(() => {
+  if (!osList) return { padrao: 0, kit: 0 };
+  return osList.reduce(
+    (acc, os) => ({
+      padrao: acc.padrao + (Number((os as any).num_padrao) || 0),
+      kit: acc.kit + (Number((os as any).num_kit) || 0),
+    }),
+    { padrao: 0, kit: 0 }
+  );
+}, [osList]);
+
+// Total já registrado na tabela de quantitativos da obra
+const totaisQuantitativosObra = useMemo(() => {
+  let padrao = 0;
+  let kit = 0;
+
+  itens.forEach((it) => {
+    const nome = it.tipo?.nome?.toLowerCase() ?? "";
+    const qtd = Number(it.quantidade) || 0;
+
+    if (nome.includes("padrão") || nome.includes("padrao")) padrao += qtd;
+    if (nome.includes("kit")) kit += qtd;
+  });
+
+  return { padrao, kit };
+}, [itens]);
+
 function Dropdown({ label, value, options, onChange }: { label: string; value: string | null; options: string[]; onChange: (v: string | null) => void }) {
   return (
     <div className="space-y-1">
@@ -100,7 +128,18 @@ export default function ValidacaoObra() {
   const limparItem = () => { setCategoria(""); setTipoId(""); setQuantidade(""); setEditandoId(null); };
   const handleSalvarItem = async () => {
     const q = Number(quantidade.replace(",", "."));
+    const itemSelecionado = tipos.find((t) => t.id === tipoId);
+    const nomeItem = itemSelecionado?.nome?.toLowerCase() ?? "";
     if (!tipoId || !quantidade || Number.isNaN(q) || q <= 0) { toast.error("Selecione o item e informe uma quantidade válida"); return; }
+    if (nomeItem.includes("padrão") || nomeItem.includes("padrao")) {
+      if (q !== totaisOs.padrao) {
+        // Alerta informativo ou bloqueio conforme sua preferência
+        toast.error(`Atenção: A quantidade informada (${q}) difere do total de padrões das OSs (${totaisOs.padrao}).`); return; }
+    }
+    if (nomeItem.includes("kit")) {
+      if (q !== totaisOs.kit) {
+        toast.error(`Atenção: A quantidade informada (${q}) difere do total de kits das OSs (${totaisOs.kit}).`); return; } 
+    }
     try {
       await salvarItem.mutateAsync({ id: editandoId ?? undefined, tipo_quantitativo_id: tipoId, quantidade: q });
       toast.success(editandoId ? "Item alterado" : "Item adicionado");
@@ -188,6 +227,31 @@ export default function ValidacaoObra() {
             </Button>
           </div>
         </section>
+
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className={`p-3 rounded-md border ${
+            totaisQuantitativosObra.padrao === totaisOs.padrao 
+              ? "bg-emerald-500/10 border-emerald-500/30" 
+              : "bg-amber-500/10 border-amber-500/30"
+          }`}>
+            <p className="text-xs font-medium text-muted-foreground">Padrões</p>
+            <p className="text-sm font-semibold">
+              OSs: <span className="font-mono">{totaisOs.padrao}</span> | Na Obra: <span className="font-mono">{totaisQuantitativosObra.padrao}</span>
+            </p>
+          </div>
+        
+          <div className={`p-3 rounded-md border ${
+            totaisQuantitativosObra.kit === totaisOs.kit 
+              ? "bg-emerald-500/10 border-emerald-500/30" 
+              : "bg-amber-500/10 border-amber-500/30"
+          }`}>
+            <p className="text-xs font-medium text-muted-foreground">Kits</p>
+            <p className="text-sm font-semibold">
+              OSs: <span className="font-mono">{totaisOs.kit}</span> | Na Obra: <span className="font-mono">{totaisQuantitativosObra.kit}</span>
+            </p>
+          </div>
+        </div>
+
 
         <section className="rounded-md border bg-card p-4">
           <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Quantitativos da obra</h3>
