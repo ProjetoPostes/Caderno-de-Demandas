@@ -17,7 +17,7 @@ import {
 } from "@/hooks/useValidacaoObra";
 
 const DESCRICAO_INICIAL = "CONSTRUÇÃO DE 3736M DE REDE MT MONOFÁSICA COM INSTALAÇÃO DE 01 TRANSFORMADOR DE 15 KVA EM RDR 19,9 KW";
-const OPCOES_TIPO_ATENDIMENTO = ["Instalação de equipamentos", "Melhoria", "Melhoria / Propriedade rural"];
+const OPCOES_TIPO_ATENDIMENTO = ["Instalação de equipamentos", "Melhoria", "Melhoria / Propriedade rural", "Associações", "Indígenas", "Propriedade Rural", "Propriedade Urbana", "Quilombolas", "Torre de Telecomunicações"];
 const OPCOES_ANALISE_OBRA = ["Análise", "Divergência", "Pronto para cadastro", "Não cadastrar"];
 const OPCOES_CADASTRO_ENBPAR = ["Cadastrado", "Não cadastrado", "Pendente"];
 const NULO = "__nulo__";
