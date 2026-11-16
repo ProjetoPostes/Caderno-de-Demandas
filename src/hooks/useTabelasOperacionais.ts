@@ -272,7 +272,7 @@ export function useObraOsList(idObra: number | null) {
       if (idObra === null) return [];
       const { data, error } = await supabase
         .from("caderno")
-        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd),num_padrao, num_kit")
+        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
         .is("deleted_at", null)
         .eq("id_obra", idObra)
         .order("num_os", { ascending: true })
@@ -293,7 +293,7 @@ export function useObraOsList(idObra: number | null) {
       if (registros.length === 0) return [];
       const { data: analises, error: analisesError } = await supabase
         .from("analise_os")
-        .select("id_os,resultado_analise")
+        .select("id_os,resultado_analise,num_padrao, num_kit")
         .in("id_os", registros.map((registro) => registro.id_os))
         .eq("analise_atual", true)
         .is("deleted_at", null);
