@@ -678,8 +678,32 @@ export default function AnaliseSolicitacao() {
               <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
-            <div><Label>Padrão</Label><Input value={form.num_padrao} onChange={(e) => set("num_padrao", e.target.value)} /></div>
-            <div><Label>Padrão</Label><Input value={form.num_kit} onChange={(e) => set("num_kit", e.target.value)} /></div>
+            <div>
+              <Label htmlFor="num_padrao">Padrão</Label>
+              <Input
+                id="num_padrao"
+                value={form.num_padrao}
+                onChange={(e) => {
+                  const apenasNumeros = e.target.value.replace(/\D/g, "");
+                  set("num_padrao", apenasNumeros);
+                }}
+                inputMode="numeric"
+                placeholder="0"
+              />
+            </div>
+            <div>
+              <Label htmlFor="num_kit">Padrão</Label>
+              <Input
+                id="num_kit"
+                value={form.num_kit}
+                onChange={(e) => {
+                  const apenasNumeros = e.target.value.replace(/\D/g, "");
+                  set("num_kit", apenasNumeros);
+                }}
+                inputMode="numeric"
+                placeholder="0"
+              />
+            </div>
             <div>
               <Label>Observação técnica</Label>
               <Textarea value={form.observacao_tecnica} onChange={(e) => set("observacao_tecnica", e.target.value)} rows={2} />
