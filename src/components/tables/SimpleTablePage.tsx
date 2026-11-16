@@ -31,6 +31,7 @@ export interface ColumnFilter {
   field: string;
   label: string;
   placeholder?: string;
+  options?: string[];
 }
 
 interface Props<T> {
@@ -131,17 +132,45 @@ export function SimpleTablePage<T>({
 
           {columnFilters && columnFilters.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {columnFilters.map((f) => (
-                <Input
-                  key={f.field}
-                  placeholder={f.placeholder ?? f.label}
-                  value={filterValues?.[f.field] ?? ""}
-                  onChange={(e) => onFilterChange?.(f.field, e.target.value)}
-                  className="h-8 text-sm"
-                />
-              ))}
+              {columnFilters.map((f) => {
+                // Se tiver opções, renderiza um Dropdown
+                if (f.options && f.options.length > 0) {
+                  const val = filterValues?.[f.field] ?? "";
+                  return (
+                    <Select
+                      key={f.field}
+                      value={val || "__ALL__"}
+                      onValueChange={(v) => onFilterChange?.(f.field, v === "__ALL__" ? "" : v)}
+                    >
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder={f.label} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__ALL__">Todos ({f.label})</SelectItem>
+                        {f.options.map((opt) => (
+                          <SelectItem key={opt} value={opt} className="text-xs">
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }
+          
+                // Senão, continua sendo o Input de texto comum
+                return (
+                  <Input
+                    key={f.field}
+                    placeholder={f.placeholder ?? f.label}
+                    value={filterValues?.[f.field] ?? ""}
+                    onChange={(e) => onFilterChange?.(f.field, e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                );
+              })}
             </div>
           )}
+
         </CardContent>
       </Card>
 
