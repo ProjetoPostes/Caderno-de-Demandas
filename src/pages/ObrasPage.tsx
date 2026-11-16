@@ -40,9 +40,9 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         columnFilters={[
           { field: "num_obra", label: "Num Obra" },
           { field: "status", label: "Status" },
-          { field: "analise_obra", label: "Analise" },
-          { field: "cadastro_enbpar", label: "EnbPar" },
-          { field: "etapa", label: "Etapa" },
+          { field: "analise_obra", label: "Analise", options: ["Análise", "Divergência", "Pronto para cadastro", "Não cadastrar"] },
+          { field: "cadastro_enbpar", label: "EnbPar", options: ["Cadastrado", "Não cadastrado", "Pendente", "Não informado"] },
+          { field: "etapa", label: "Etapa", options: ["Etapa 01", "Etapa 02", "Etapa 03", "Etapa 04", "Etapa 05", "Etapa 06", "Não se aplica"] },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}
