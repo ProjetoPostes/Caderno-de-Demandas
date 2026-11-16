@@ -40,6 +40,9 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         columnFilters={[
           { field: "num_obra", label: "Num Obra" },
           { field: "status", label: "Status" },
+          { field: "analise_obra", label: "Analise" },
+          { field: "cadastro_enbpar", label: "EnbPar" },
+          { field: "etapa", label: "Etapa" },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}
@@ -53,6 +56,9 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
           { header: "Num Obra", sortField: "num_obra", className: "text-xs", cell: (o) => <span className="font-mono text-xs">{o.num_obra ?? "-"}</span> },
           { header: "Status", sortField: "status", className: "text-xs", cell: (o) => <Badge variant="outline" className="text-xs">{o.status ?? "-"}</Badge> },
           { header: "SIGCO", sortField: "sigco", className: "text-xs", cell: (o) => <span className="text-xs">{o.sigco ?? "-"}</span> },
+          { header: "Analise", sortField: "analise_obra", className: "text-xs", cell: (o) => <span className="text-xs">{o.analise_obra ?? "-"}</span> },
+          { header: "EnbPar", sortField: "cadastro_enbpar", className: "text-xs", cell: (o) => <span className="text-xs">{o.cadastro_enbpar ?? "-"}</span> },
+          { header: "Etapa", sortField: "etapa", className: "text-xs", cell: (o) => <span className="text-xs">{o.etapa ?? "-"}</span> },
           { header: "OSs", className: "text-xs text-center", cell: (o) => (
             <div className="text-center">
               <Badge variant={(counts?.[o.id_obra] ?? 0) > 0 ? "default" : "outline"} className="text-xs">
