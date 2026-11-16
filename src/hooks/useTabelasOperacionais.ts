@@ -299,18 +299,25 @@ export function useObraOsList(idObra: number | null) {
         .is("deleted_at", null);
       if (analisesError) throw analisesError;
 
-      const resultados = new Map(
-        ((analises ?? []) as Array<{ id_os: string; resultado_analise: string | null }>).map((item) => [
-          item.id_os,
-          item.resultado_analise,
-        ]),
+      const mapaAnalises = new Map(
+        ((analises ?? []) as Array<{
+          id_os: string;
+          resultado_analise: string | null;
+          num_padrao: number | null;
+          num_kit: number | null;
+        }>).map((item) => [item.id_os, item]),
       );
-      return registros.map((registro) => ({
-        ...registro,
-        resultado_analise: resultados.get(registro.id_os) ?? null,
-        num_padrao: Number(analise?.num_padrao) || 0,
-        num_kit: Number(analise?.num_kit) || 0,
-      }));
+      
+      return registros.map((registro) => {
+        const analise = mapaAnalises.get(registro.id_os);
+      
+        return {
+          ...registro,
+          resultado_analise: analise?.resultado_analise ?? null,
+          num_padrao: Number(analise?.num_padrao) || 0,
+          num_kit: Number(analise?.num_kit) || 0,
+        };
+      });
     },
   });
 }
