@@ -54,7 +54,7 @@ export default function ValidacaoObra() {
   const idObra = idParam ? Number(idParam) : null;
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: perfil } = useProfile();
+  const { profile: perfil } = useProfile();
   const nomeUsuario = (perfil as { full_name?: string | null; username?: string | null } | null | undefined)?.full_name
     || (perfil as { username?: string | null } | null | undefined)?.username || user?.email || "";
 
