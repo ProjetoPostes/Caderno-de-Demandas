@@ -520,6 +520,7 @@ export default function AnaliseSolicitacao() {
                   </SelectContent>
                 </Select>
               </div>
+              <div><Label>Municipio Validado</Label><Input value={form.nome_municipio_validado} onChange={(e) => set("nome_municipio_validado", e.target.value)} /></div>
             </div>
             <div>
               <Label>Observação do município</Label>
@@ -677,6 +678,8 @@ export default function AnaliseSolicitacao() {
               <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
+            <div><Label>Padrão</Label><Input value={form.num_padrao} onChange={(e) => set("num_padrao", e.target.value)} /></div>
+            <div><Label>Padrão</Label><Input value={form.num_kit} onChange={(e) => set("num_kit", e.target.value)} /></div>
             <div>
               <Label>Observação técnica</Label>
               <Textarea value={form.observacao_tecnica} onChange={(e) => set("observacao_tecnica", e.target.value)} rows={2} />
