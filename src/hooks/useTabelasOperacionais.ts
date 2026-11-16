@@ -272,7 +272,7 @@ export function useObraOsList(idObra: number | null) {
       if (idObra === null) return [];
       const { data, error } = await supabase
         .from("caderno")
-        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
+        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd),num_padrao, num_kit")
         .is("deleted_at", null)
         .eq("id_obra", idObra)
         .order("num_os", { ascending: true })
@@ -308,6 +308,8 @@ export function useObraOsList(idObra: number | null) {
       return registros.map((registro) => ({
         ...registro,
         resultado_analise: resultados.get(registro.id_os) ?? null,
+        num_padrao: Number(analise?.num_padrao) || 0,
+        num_kit: Number(analise?.num_kit) || 0,
       }));
     },
   });
