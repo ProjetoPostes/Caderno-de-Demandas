@@ -256,6 +256,7 @@ export default function ValidacaoObra() {
               <TableHeader><TableRow className="bg-muted/40">
                 <TableHead className="text-xs uppercase">Cliente</TableHead>
                 <TableHead className="text-xs uppercase">OS</TableHead>
+                 <TableHead className="text-xs uppercase">Tranche</TableHead>
                 <TableHead className="w-48 text-xs uppercase">Status validação</TableHead>
               </TableRow></TableHeader>
               <TableBody>
@@ -265,6 +266,7 @@ export default function ValidacaoObra() {
                   <TableRow key={os.id_os} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/analise/${os.id_os}`)}>
                     <TableCell className="text-sm font-medium">{os.cliente?.nome ?? "Cliente não informado"}</TableCell>
                     <TableCell className="font-mono text-xs">{os.num_os}</TableCell>
+                    <TableCell className="font-mono text-xs">{os.tranche}</TableCell>
                     <TableCell><Badge variant={varianteResultado(os.resultado_analise)}>{rotuloResultado(os.resultado_analise)}</Badge></TableCell>
                   </TableRow>
                 ))}
