@@ -27,7 +27,7 @@ export const fmtCoord = (v?: number | string | null): string => {
 
 /**
  * Monta o link do Google Maps com as duas coordenadas separadas por vírgula e
- * sempre com "." como separador decimal. Retorna null se faltar alguma coordenada.
+ * sempre com "." como separador decimal. Retorna null se faltar alguma coordenada.  https://www.google.com/maps/search/-8.415267,+-47.769244/@-8.415267,-47.7718189,17z?entry=ttu&g_ep=EgoyMDI2MTExNi4wIKXMDSoASAFQAw%3D%3D
  */
 export const coordsDoMapa = (
   lat?: number | string | null,
@@ -40,6 +40,6 @@ export const coordsDoMapa = (
     lat: a,
     lng: b,
     texto: `${a}, ${b}`,
-    url: `https://www.google.com/maps?q=${encodeURIComponent(`${a},${b}`)}`,
+    url: `https://www.google.com/maps/search/${encodeURIComponent(`${a},${b}`)}/@${encodeURIComponent(`${a},${b}`)}`,
   };
 };
