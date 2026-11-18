@@ -4,10 +4,15 @@ import { Star, Copy, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa } from "@/lib/coords";
+import { podeEditarCoordenadas } from "@/lib/prioritarioValidation";
 import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
@@ -27,6 +32,13 @@ type PrioritarioRowExt = Prioritario & {
   endereco?: string | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  cpf_correto?: string | null;
+  nome_correto?: string | null;
+  nome_municipio_correto?: string | null;
+  nome_cliente_ligado?: string | null;
+  "Responsável"?: string | null;
+  coordenada_validada?: boolean | null;
+  municipio_coord?: string | null;
 };
 
 // Contagens apenas para exibição (derivadas dos registros existentes)
@@ -116,7 +128,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
   const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
   const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
-  const temCoord = !!mapa;
+  const coordenadasEditaveis = podeEditarCoordenadas(selected?.coordenada_validada);
+  const alterarCampo = (campo: keyof PrioritarioRowExt, valor: string | boolean | null) => {
+    setSelected((atual) => atual ? { ...atual, [campo]: valor } : null);
+  };
 
   return (
     <>
@@ -237,10 +252,52 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   </Secao>
                 </div>
 
+                <Secao icon={<ClipboardCheck className="h-4 w-4" />} titulo="Correção dos dados">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {([
+                      ["cpf_correto", "CPF correto"],
+                      ["nome_correto", "Nome correto"],
+                      ["nome_municipio_correto", "Nome do município correto"],
+                      ["nome_cliente_ligado", "Nome do cliente ligado"],
+                      ["Responsável", "Responsável"],
+                    ] as const).map(([campo, label]) => (
+                      <div key={campo} className="min-w-0 space-y-2">
+                        <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
+                        <Input id={`prioritario-${campo}`} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
+                      </div>
+                    ))}
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
+                      <Select value={selected.coordenada_validada == null ? "nao-informado" : selected.coordenada_validada ? "sim" : "nao"} onValueChange={(valor) => alterarCampo("coordenada_validada", valor === "nao-informado" ? null : valor === "sim")}>
+                        <SelectTrigger id="prioritario-coordenada-validada"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </Secao>
+
                 <Secao icon={<MapPin className="h-4 w-4" />} titulo="Localização">
                   <div className="grid gap-3 md:grid-cols-3">
                     <div className="md:col-span-2"><Campo label="Endereço" value={selected.endereco} copy /></div>
                     <Campo label="Coordenadas" value={mapa?.texto ?? null} copy mono />
+                  </div>
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-latitude">Latitude</Label>
+                      <Input id="prioritario-latitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-longitude">Longitude</Label>
+                      <Input id="prioritario-longitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-municipio-coord">Município da coordenada</Label>
+                      <Input id="prioritario-municipio-coord" readOnly value={selected.municipio_coord ?? ""} />
+                    </div>
                   </div>
                   {mapa && (
                     <Button asChild variant="outline" size="sm" className="mt-3">
@@ -252,7 +309,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                 </Secao>
 
                 <Secao icon={<StickyNote className="h-4 w-4" />} titulo="Observações">
-                  <p className="whitespace-pre-wrap text-sm">{selected.observacao || <span className="text-muted-foreground">Sem observações</span>}</p>
+                  <Label htmlFor="prioritario-observacao" className="sr-only">Observação</Label>
+                  <Textarea id="prioritario-observacao" value={selected.observacao ?? ""} onChange={(event) => alterarCampo("observacao", event.target.value)} />
                   <div className="mt-3 text-[11px] text-muted-foreground">Cadastrado em {new Date(selected.created_at).toLocaleString("pt-BR")}</div>
                 </Secao>
               </div>
