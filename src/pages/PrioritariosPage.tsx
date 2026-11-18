@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
+import { coordsDoMapa } from "@/lib/coords";
 import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
@@ -114,7 +115,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
 
   const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
-  const temCoord = selected?.latitude != null && selected?.longitude != null && selected.latitude !== "" && selected.longitude !== "";
+  const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
+  const temCoord = !!mapa;
 
   return (
     <>
@@ -238,11 +240,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                 <Secao icon={<MapPin className="h-4 w-4" />} titulo="Localização">
                   <div className="grid gap-3 md:grid-cols-3">
                     <div className="md:col-span-2"><Campo label="Endereço" value={selected.endereco} copy /></div>
-                    <Campo label="Coordenadas" value={temCoord ? `${selected.latitude}, ${selected.longitude}` : null} copy mono />
+                    <Campo label="Coordenadas" value={mapa?.texto ?? null} copy mono />
                   </div>
-                  {temCoord && (
+                  {mapa && (
                     <Button asChild variant="outline" size="sm" className="mt-3">
-                      <a href={`https://www.google.com/maps?q=${selected.latitude},${selected.longitude}`} target="_blank" rel="noreferrer">
+                      <a href={mapa.url} target="_blank" rel="noreferrer">
                         <MapPin className="mr-1 h-3.5 w-3.5" /> Abrir no mapa
                       </a>
                     </Button>
