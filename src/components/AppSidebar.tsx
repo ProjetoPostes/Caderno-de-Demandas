@@ -29,6 +29,11 @@ const painelItems = [
     url: "/tratativas/painel-caderno",
     icon: BarChart3,
   },
+  {
+    title: "Dashboard Obras",
+    url: "/tratativas/dashboard-obras",
+    icon: Building2,
+  },
 ];
 
 const tabelasItems = [

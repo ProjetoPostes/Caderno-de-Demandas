@@ -28,6 +28,7 @@ import AuditLogsPage from "./pages/AuditLogsPage";
 import PendingApprovalPage from "./pages/PendingApprovalPage";
 import UserApprovalPage from "./pages/UserApprovalPage";
 import ObrasPage from "./pages/ObrasPage";
+import DashboardObras from "./pages/DashboardObras";
 import LocalidadesPage from "./pages/LocalidadesPage";
 import PrioritariosPage from "./pages/PrioritariosPage";
 import HistoricoOsPage from "./pages/HistoricoOsPage";
@@ -123,6 +124,14 @@ const App = () => (
                   element={
                     <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
                       <ClientesPage />
+                    </RoleProtectedRoute>
+                  }
+                />
+                <Route
+                  path="dashboard-obras"
+                  element={
+                    <RoleProtectedRoute allowedRoles={["admin", "operador_chefe", "operador", "consultor"]}>
+                      <DashboardObras />
                     </RoleProtectedRoute>
                   }
                 />
