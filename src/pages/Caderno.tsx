@@ -108,6 +108,7 @@ export default function Caderno() {
   const [filterRegional, setFilterRegional] = useState<string>(() => sessionStorage.getItem("caderno:filterRegional") ?? "all");
   const [filterTranche, setFilterTranche] = useState<string>(() => sessionStorage.getItem("caderno:filterTranche") ?? "all");
   const [filterTipoCarta, setFilterTipoCarta] = useState<string>(() => sessionStorage.getItem("caderno:filterTipoCarta") ?? "all");
+  const [filterObra, setFilterObra] = useState<string>(() => sessionStorage.getItem("caderno:filterObra") ?? "");
   const [filterPendencia, setFilterPendencia] = useState<string>(() => sessionStorage.getItem("caderno:filterPendencia") ?? "all");
 
   useEffect(() => {
@@ -117,7 +118,8 @@ export default function Caderno() {
     sessionStorage.setItem("caderno:filterTranche", filterTranche);
     sessionStorage.setItem("caderno:filterTipoCarta", filterTipoCarta);
     sessionStorage.setItem("caderno:filterPendencia", filterPendencia);
-  }, [search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia]);
+    sessionStorage.setItem("caderno:filterObra", filterObra);
+  }, [filterObra, search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia]);
   const { data: analisesAtuais } = useAnalisesAtuaisPendencias();
   const analisesPorOs = useMemo(
     () => new Map((analisesAtuais ?? []).map((a) => [a.id_os, a])),
@@ -168,6 +170,10 @@ export default function Caderno() {
     if (filterRegional !== "all") {
       result = result.filter((item) => item.regional === filterRegional);
     }
+    if (filterObra.trim()) {
+      const obra = filterObra.trim();
+      result = result.filter((item) => String(item.numobra ?? "").includes(obra));
+    }
     if (filterTranche !== "all") {
       result = result.filter((item) => item.tranche === filterTranche);
     }
@@ -192,7 +198,7 @@ export default function Caderno() {
       });
     }
     return result;
-  }, [data, search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia, analisesPorOs]);
+  }, [data, filterObra, search, filterStatus, filterRegional, filterTranche, filterTipoCarta, filterPendencia, analisesPorOs]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -342,6 +348,7 @@ export default function Caderno() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Buscar por OS, Nome ou CPF..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
               </div>
+              <Input placeholder="Nº Obra" value={filterObra} onChange={(e) => setFilterObra(e.target.value)} className="w-[150px]" />
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
                 <SelectContent>

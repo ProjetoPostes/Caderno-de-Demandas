@@ -49,7 +49,22 @@ export function useObras(params: ListParams = {}) {
         const s = search.trim();
         q = q.or(`num_obra.ilike.%${s}%,status.ilike.%${s}%`);
       }
-      q = applyFilters(q, filters);
+      const { tranche, ...outrosFiltros } = filters ?? {};
+      q = applyFilters(q, outrosFiltros);
+      if (tranche && tranche.trim()) {
+        // A tranche vem das OSs (caderno) vinculadas à obra
+        const { data: osTranche, error: trError } = await supabase
+          .from("caderno")
+          .select("id_obra")
+          .is("deleted_at", null)
+          .ilike("tranche", `%${tranche.trim()}%`)
+          .not("id_obra", "is", null)
+          .limit(10000);
+        if (trError) throw trError;
+        const ids = [...new Set((osTranche ?? []).map((r: { id_obra: number | null }) => r.id_obra).filter((v): v is number => v !== null))];
+        if (ids.length === 0) return { rows: [], total: 0 };
+        q = q.in("id_obra", ids);
+      }
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;
@@ -270,14 +285,21 @@ export function useObraOsList(idObra: number | null) {
     enabled: idObra !== null,
     queryFn: async () => {
       if (idObra === null) return [];
-      const { data, error } = await supabase
-        .from("caderno")
-        .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
-        .is("deleted_at", null)
-        .eq("id_obra", idObra)
-        .order("num_os", { ascending: true })
-        .limit(500);
-      if (error) throw error;
+      // Busca todas as OSs da obra em blocos (sem corte de quantidade)
+      const BLOCO = 1000;
+      const data: unknown[] = [];
+      for (let inicio = 0; ; inicio += BLOCO) {
+        const { data: parte, error } = await supabase
+          .from("caderno")
+          .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
+          .is("deleted_at", null)
+          .eq("id_obra", idObra)
+          .order("num_os", { ascending: true })
+          .range(inicio, inicio + BLOCO - 1);
+        if (error) throw error;
+        data.push(...(parte ?? []));
+        if (!parte || parte.length < BLOCO) break;
+      }
       const registros = (data ?? []) as unknown as Array<{
         id_os: string;
         num_os: number;

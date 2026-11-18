@@ -44,6 +44,8 @@ export interface AnaliseOsRow {
   versao: number;
   status_analise: string | null;
   analise_atual: boolean | null;
+  num_padrao?: number | null;
+  num_kit?: number | null;
   validacao_municipio: string | null;
   observacao_municipio: string | null;
   validacao_cpf: string | null;

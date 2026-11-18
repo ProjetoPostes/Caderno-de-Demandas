@@ -238,8 +238,8 @@ export default function AnaliseSolicitacao() {
     }
     setForm({
       nome_municipio_validado: "",
-      num_padrao: "",
-      num_kit: "",
+      num_padrao: a.num_padrao != null ? String(a.num_padrao) : "",
+      num_kit: a.num_kit != null ? String(a.num_kit) : "",
       validacao_municipio: (a.validacao_municipio as TriState) ?? null,
       observacao_municipio: txt(a.observacao_municipio),
       validacao_cpf: (a.validacao_cpf as TriState) ?? null,
@@ -384,6 +384,8 @@ export default function AnaliseSolicitacao() {
   ];
 
   const montarDados = (): Record<string, Json> => ({
+    num_padrao: parseNumero(form.num_padrao),
+    num_kit: parseNumero(form.num_kit),
     validacao_municipio: form.validacao_municipio,
     observacao_municipio: nullIfEmpty(form.observacao_municipio),
     validacao_cpf: form.validacao_cpf,
@@ -701,7 +703,7 @@ export default function AnaliseSolicitacao() {
               />
             </div>
             <div>
-              <Label htmlFor="num_kit">Padrão</Label>
+              <Label htmlFor="num_kit">Kit</Label>
               <Input
                 id="num_kit"
                 value={form.num_kit}
