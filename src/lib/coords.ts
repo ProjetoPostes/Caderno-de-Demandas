@@ -40,6 +40,6 @@ export const coordsDoMapa = (
     lat: a,
     lng: b,
     texto: `${a}, ${b}`,
-    url: `https://www.google.com/maps/search/${encodeURIComponent(`${a},${b}`)}/@${encodeURIComponent(`${a},${b}`)}`,
+    url: `https://www.google.com/maps/search/${encodeURIComponent(`${a},${b}`)}`,
   };
 };
