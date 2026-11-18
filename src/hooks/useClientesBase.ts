@@ -17,7 +17,7 @@ export function useClientesBase() {
     queryKey: ["clientes-base"],
     queryFn: async (): Promise<ClienteBase[]> => {
       const all: ClienteBase[] = [];
-      const size = 1000;
+      const size = 10000;
       for (let from = 0; ; from += size) {
         const { data, error } = await supabase
           .from("cliente")
