@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Adicionar acesso ao Google Earth e Maps na análise, com conversão UTM em WGS84; acesso autenticado e destinos externos não verificados.
+- [x] Exigir tipo de coordenada e, para UTM, fuso e hemisfério; 15 testes passaram e compilação sem erros.
+
 - [x] Tornar Tipo de atendimento somente leitura na Análise.
 - [x] Calcular e exibir Crítica de distância pelas faixas definidas.
 - [x] Reformular os detalhes de Obras conforme a referência enviada.

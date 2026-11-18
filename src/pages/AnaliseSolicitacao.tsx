@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Globe, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +31,7 @@ import {
 import { CopyableInput } from "@/components/CopyableInput";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
+import { localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/schema";
 import {
@@ -205,19 +206,46 @@ export default function AnaliseSolicitacao() {
   const [dirty, setDirty] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [consultandoMunicipio, setConsultandoMunicipio] = useState(false);
+  const [erroCoordenadas, setErroCoordenadas] = useState<string | null>(null);
+
+  const validarCoordenadasObrigatorias = () => {
+    const erro = validarTipoCoordenada(form);
+    setErroCoordenadas(erro);
+    if (erro) {
+      toast.error(erro);
+      document.getElementById("campo-tipo_coordenada")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    return !erro;
+  };
+
+  const abrirCoordenadas = (destino: "earth" | "maps") => {
+    try {
+      const ponto = localizarCoordenadas(form);
+      setErroCoordenadas(null);
+      window.open(destino === "earth" ? ponto.earthUrl : ponto.mapsUrl, "_blank", "noopener,noreferrer");
+    } catch (e) {
+      const mensagem = e instanceof Error ? e.message : "Coordenadas inválidas.";
+      setErroCoordenadas(mensagem);
+      toast.error(mensagem);
+    }
+  };
 
   const consultarMunicipio = async () => {
-    const latitude = parseNumero(form.coordenada_x_solicitacao);
-    const longitude = parseNumero(form.coordenada_y_solicitacao);
-    if (latitude === null || longitude === null) {
-      toast.error("Preencha as coordenadas X e Y da solicitação antes de consultar.");
+    let ponto;
+    try {
+      ponto = localizarCoordenadas(form);
+      setErroCoordenadas(null);
+    } catch (e) {
+      const mensagem = e instanceof Error ? e.message : "Coordenadas inválidas.";
+      setErroCoordenadas(mensagem);
+      toast.error(mensagem);
       return;
     }
     setConsultandoMunicipio(true);
     try {
       const { data: municipio, error } = await supabase.rpc("consultar_municipio_coordenada", {
-        p_latitude: latitude,
-        p_longitude: longitude,
+        p_latitude: ponto.latitude,
+        p_longitude: ponto.longitude,
       });
       if (error) throw error;
       const nome =
@@ -413,6 +441,7 @@ export default function AnaliseSolicitacao() {
 
   const executarSalvamento = async (concluir: boolean) => {
     if (!idOs || salvar.isPending) return;
+    if (!validarCoordenadasObrigatorias()) return;
     try {
       await salvar.mutateAsync({
         idOs,
@@ -433,6 +462,7 @@ export default function AnaliseSolicitacao() {
   };
 
   const handleConcluir = () => {
+    if (!validarCoordenadasObrigatorias()) return;
     const pendentes = obrigatorios.filter((c) => !c.ok);
     if (pendentes.length > 0) {
       toast.error(`Preencha antes de concluir: ${pendentes.map((p) => p.label).join(", ")}`);
@@ -593,10 +623,10 @@ export default function AnaliseSolicitacao() {
           <CardHeader className="pb-3"><CardTitle className="text-sm">Informações Geográficas</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Tipo de coordenada</Label>
+              <div id="campo-tipo_coordenada">
+                <Label htmlFor="tipo-coordenada">Tipo de coordenada *</Label>
                 <Select value={form.tipo_coordenada || NULO} onValueChange={(v) => set("tipo_coordenada", v === NULO ? "" : v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="tipo-coordenada" aria-required="true" aria-invalid={!!erroCoordenadas && !form.tipo_coordenada}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NULO}>Não informado</SelectItem>
                     <SelectItem value="utm">UTM</SelectItem>
@@ -618,9 +648,15 @@ export default function AnaliseSolicitacao() {
                   </SelectContent>
                 </Select>
               </div>
-              <div><Label>Coordenada X (solicitação)</Label><Input value={form.coordenada_x_solicitacao} onChange={(e) => set("coordenada_x_solicitacao", e.target.value)} inputMode="decimal" /></div>
-              <div><Label>Coordenada Y (solicitação)</Label><Input value={form.coordenada_y_solicitacao} onChange={(e) => set("coordenada_y_solicitacao", e.target.value)} inputMode="decimal" /></div>
-              <div className="col-span-2">
+              <div><Label htmlFor="coordenada-x">Coordenada X (solicitação)</Label><Input id="coordenada-x" value={form.coordenada_x_solicitacao} onChange={(e) => set("coordenada_x_solicitacao", e.target.value)} inputMode="decimal" /></div>
+              <div><Label htmlFor="coordenada-y">Coordenada Y (solicitação)</Label><Input id="coordenada-y" value={form.coordenada_y_solicitacao} onChange={(e) => set("coordenada_y_solicitacao", e.target.value)} inputMode="decimal" /></div>
+              <div className="col-span-2 flex flex-wrap gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => abrirCoordenadas("earth")}>
+                  <Globe className="mr-2 h-4 w-4" />Abrir no Google Earth
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => abrirCoordenadas("maps")}>
+                  <MapPin className="mr-2 h-4 w-4" />Abrir no Google Maps
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -629,9 +665,10 @@ export default function AnaliseSolicitacao() {
                   disabled={consultandoMunicipio}
                 >
                   {consultandoMunicipio ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
-                  Consultar município pelas coordenadas
+                  Consultar município
                 </Button>
               </div>
+              {erroCoordenadas && <p role="alert" className="col-span-2 text-sm text-destructive">{erroCoordenadas}</p>}
               <div id="campo-validacao_municipio">
                 <Label>Validação do município</Label>
                 <Select
@@ -649,11 +686,11 @@ export default function AnaliseSolicitacao() {
               <div><Label>Municipio Validado</Label><Input value={form.nome_municipio_validado} onChange={(e) => set("nome_municipio_validado", e.target.value)} /></div>
               {form.tipo_coordenada === "utm" && (
                 <>
-                  <div><Label>Fuso UTM</Label><Input value={form.fuso_utm} onChange={(e) => set("fuso_utm", e.target.value)} inputMode="numeric" /></div>
+                  <div><Label htmlFor="fuso-utm">Fuso UTM *</Label><Input id="fuso-utm" required type="number" min={1} max={60} step={1} value={form.fuso_utm} onChange={(e) => set("fuso_utm", e.target.value)} inputMode="numeric" /></div>
                   <div>
-                    <Label>Hemisfério UTM</Label>
+                    <Label htmlFor="hemisferio-utm">Hemisfério UTM *</Label>
                     <Select value={form.hemisferio_utm || NULO} onValueChange={(v) => set("hemisferio_utm", v === NULO ? "" : v)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="hemisferio-utm" aria-required="true"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value={NULO}>Não informado</SelectItem>
                         <SelectItem value="N">N</SelectItem>
