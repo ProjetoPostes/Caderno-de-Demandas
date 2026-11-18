@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Loader2, Save, XCircle, MinusCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CopyableInput } from "@/components/CopyableInput";
+import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/schema";
@@ -60,8 +61,6 @@ interface FormState {
   observacao_beneficiario: string;
   coordenada_x_solicitacao: string;
   coordenada_y_solicitacao: string;
-  coordenada_x_derivacao: string;
-  coordenada_y_derivacao: string;
   tipo_coordenada: string;
   fuso_utm: string;
   hemisferio_utm: string;
@@ -102,8 +101,6 @@ const emptyForm = (): FormState => ({
   observacao_beneficiario: "",
   coordenada_x_solicitacao: "",
   coordenada_y_solicitacao: "",
-  coordenada_x_derivacao: "",
-  coordenada_y_derivacao: "",
   tipo_coordenada: "",
   fuso_utm: "",
   hemisferio_utm: "",
@@ -157,18 +154,6 @@ function formatMoeda(value: number | null | undefined): string {
   return value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371000; // raio da Terra em metros
-  const toRad = (valor: number) => (valor * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
 function classificarDistancia(distancia: number | null): string {
   if (distancia === null || distancia < 0) return "";
   if (distancia <= 60) return "Até 60 metros";
@@ -219,6 +204,40 @@ export default function AnaliseSolicitacao() {
   const [selecionados, setSelecionados] = useState<number[]>([]);
   const [dirty, setDirty] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [consultandoMunicipio, setConsultandoMunicipio] = useState(false);
+
+  const consultarMunicipio = async () => {
+    const latitude = parseNumero(form.coordenada_x_solicitacao);
+    const longitude = parseNumero(form.coordenada_y_solicitacao);
+    if (latitude === null || longitude === null) {
+      toast.error("Preencha as coordenadas X e Y da solicitação antes de consultar.");
+      return;
+    }
+    setConsultandoMunicipio(true);
+    try {
+      const { data: municipio, error } = await supabase.rpc("consultar_municipio_coordenada", {
+        p_latitude: latitude,
+        p_longitude: longitude,
+      });
+      if (error) throw error;
+      const nome =
+        typeof municipio === "string"
+          ? municipio
+          : municipio && typeof municipio === "object"
+            ? String((municipio as Record<string, unknown>).nome ?? (municipio as Record<string, unknown>).municipio ?? "")
+            : "";
+      if (!nome) {
+        toast.warning("Nenhum município encontrado para essas coordenadas.");
+        return;
+      }
+      set("nome_municipio_validado", nome);
+      toast.success(`Município identificado: ${nome}`);
+    } catch (e) {
+      toast.error(`Erro ao consultar município: ${e instanceof Error ? e.message : "erro desconhecido"}`);
+    } finally {
+      setConsultandoMunicipio(false);
+    }
+  };
   const hidratado = useRef(false);
   const criteriosHidratados = useRef(false);
 
@@ -250,8 +269,6 @@ export default function AnaliseSolicitacao() {
       observacao_beneficiario: txt(a.observacao_beneficiario),
       coordenada_x_solicitacao: num(a.coordenada_x_solicitacao),
       coordenada_y_solicitacao: num(a.coordenada_y_solicitacao),
-      coordenada_x_derivacao: num(a.coordenada_x_derivacao),
-      coordenada_y_derivacao: num(a.coordenada_y_derivacao),
       tipo_coordenada: txt(a.tipo_coordenada),
       fuso_utm: a.fuso_utm == null ? "" : String(a.fuso_utm),
       hemisferio_utm: txt(a.hemisferio_utm),
@@ -286,34 +303,6 @@ export default function AnaliseSolicitacao() {
     criteriosHidratados.current = true;
     setSelecionados(criteriosAnalise.data);
   }, [analise.data?.id_analise, criteriosAnalise.data]);
-
-  // Cálculo automático da distância prevista a partir das 4 coordenadas
-  useEffect(() => {
-    const xs = parseNumero(form.coordenada_x_solicitacao);
-    const ys = parseNumero(form.coordenada_y_solicitacao);
-    const xd = parseNumero(form.coordenada_x_derivacao);
-    const yd = parseNumero(form.coordenada_y_derivacao);
-    if (xs === null || ys === null || xd === null || yd === null) {
-      setForm((prev) => {
-        if (prev.distancia_prevista_m === "") return prev;
-        setDirty(true);
-        return { ...prev, distancia_prevista_m: "" };
-      });
-      return;
-    }
-    const d = calcularDistancia(xs, ys, xd, yd);
-    const formatado = d.toFixed(2).replace(".", ",");
-    setForm((prev) => {
-      if (prev.distancia_prevista_m === formatado) return prev;
-      setDirty(true);
-      return { ...prev, distancia_prevista_m: formatado };
-    });
-  }, [
-    form.coordenada_x_solicitacao,
-    form.coordenada_y_solicitacao,
-    form.coordenada_x_derivacao,
-    form.coordenada_y_derivacao,
-  ]);
 
   // Classificação automática e sem lacunas da distância calculada.
   useEffect(() => {
@@ -396,8 +385,6 @@ export default function AnaliseSolicitacao() {
     observacao_beneficiario: nullIfEmpty(form.observacao_beneficiario),
     coordenada_x_solicitacao: parseNumero(form.coordenada_x_solicitacao),
     coordenada_y_solicitacao: parseNumero(form.coordenada_y_solicitacao),
-    coordenada_x_derivacao: parseNumero(form.coordenada_x_derivacao),
-    coordenada_y_derivacao: parseNumero(form.coordenada_y_derivacao),
     tipo_coordenada: nullIfEmpty(form.tipo_coordenada),
     fuso_utm: form.tipo_coordenada === "utm" ? parseNumero(form.fuso_utm) : null,
     hemisferio_utm: form.tipo_coordenada === "utm" ? nullIfEmpty(form.hemisferio_utm) : null,
@@ -517,25 +504,6 @@ export default function AnaliseSolicitacao() {
               <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
               <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
               <div><Label>Regional</Label><CopyableInput value={dados.regional} /></div>
-              <div id="campo-validacao_municipio">
-                <Label>Validação do município</Label>
-                <Select
-                  value={form.validacao_municipio ?? NULO}
-                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NULO}>Não informado</SelectItem>
-                    <SelectItem value="conforme">Conforme</SelectItem>
-                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div><Label>Municipio Validado</Label><Input value={form.nome_municipio_validado} onChange={(e) => set("nome_municipio_validado", e.target.value)} /></div>
-            </div>
-            <div>
-              <Label>Observação do município</Label>
-              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
             </div>
           </CardContent>
         </Card>
@@ -652,8 +620,33 @@ export default function AnaliseSolicitacao() {
               </div>
               <div><Label>Coordenada X (solicitação)</Label><Input value={form.coordenada_x_solicitacao} onChange={(e) => set("coordenada_x_solicitacao", e.target.value)} inputMode="decimal" /></div>
               <div><Label>Coordenada Y (solicitação)</Label><Input value={form.coordenada_y_solicitacao} onChange={(e) => set("coordenada_y_solicitacao", e.target.value)} inputMode="decimal" /></div>
-              <div><Label>Coordenada X (derivação)</Label><Input value={form.coordenada_x_derivacao} onChange={(e) => set("coordenada_x_derivacao", e.target.value)} inputMode="decimal" /></div>
-              <div><Label>Coordenada Y (derivação)</Label><Input value={form.coordenada_y_derivacao} onChange={(e) => set("coordenada_y_derivacao", e.target.value)} inputMode="decimal" /></div>
+              <div className="col-span-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={consultarMunicipio}
+                  disabled={consultandoMunicipio}
+                >
+                  {consultandoMunicipio ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MapPin className="mr-2 h-4 w-4" />}
+                  Consultar município pelas coordenadas
+                </Button>
+              </div>
+              <div id="campo-validacao_municipio">
+                <Label>Validação do município</Label>
+                <Select
+                  value={form.validacao_municipio ?? NULO}
+                  onValueChange={(v) => set("validacao_municipio", v === NULO ? null : (v as TriState))}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NULO}>Não informado</SelectItem>
+                    <SelectItem value="conforme">Conforme</SelectItem>
+                    <SelectItem value="nao_conforme">Não conforme</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>Municipio Validado</Label><Input value={form.nome_municipio_validado} onChange={(e) => set("nome_municipio_validado", e.target.value)} /></div>
               {form.tipo_coordenada === "utm" && (
                 <>
                   <div><Label>Fuso UTM</Label><Input value={form.fuso_utm} onChange={(e) => set("fuso_utm", e.target.value)} inputMode="numeric" /></div>
@@ -675,6 +668,10 @@ export default function AnaliseSolicitacao() {
             <div>
               <Label>Observação das coordenadas</Label>
               <Textarea value={form.observacao_coordenadas} onChange={(e) => set("observacao_coordenadas", e.target.value)} rows={2} />
+            </div>
+            <div>
+              <Label>Observação do município</Label>
+              <Textarea value={form.observacao_municipio} onChange={(e) => set("observacao_municipio", e.target.value)} rows={2} />
             </div>
           </CardContent>
         </Card>

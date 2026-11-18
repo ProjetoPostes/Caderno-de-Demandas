@@ -297,6 +297,10 @@ export type AppDatabase = {
         };
         Returns: string;
       };
+      consultar_municipio_coordenada: {
+        Args: { p_latitude: number; p_longitude: number };
+        Returns: string | null;
+      };
 
     };
     Enums: { app_role: AppRole };
