@@ -53,15 +53,22 @@ export function useObras(params: ListParams = {}) {
       q = applyFilters(q, outrosFiltros);
       if (tranche && tranche.trim()) {
         // A tranche vem das OSs (caderno) vinculadas à obra
-        const { data: osTranche, error: trError } = await supabase
-          .from("caderno")
-          .select("id_obra")
-          .is("deleted_at", null)
-          .ilike("tranche", `%${tranche.trim()}%`)
-          .not("id_obra", "is", null)
-          .limit(10000);
-        if (trError) throw trError;
-        const ids = [...new Set((osTranche ?? []).map((r: { id_obra: number | null }) => r.id_obra).filter((v): v is number => v !== null))];
+        // Busca paginada (PostgREST corta em 1000) com valor exato, igual ao Caderno
+        const BLOCO = 1000;
+        const idSet = new Set<number>();
+        for (let inicio = 0; ; inicio += BLOCO) {
+          const { data: parte, error: trError } = await supabase
+            .from("caderno")
+            .select("id_obra")
+            .is("deleted_at", null)
+            .eq("tranche", tranche.trim())
+            .not("id_obra", "is", null)
+            .range(inicio, inicio + BLOCO - 1);
+          if (trError) throw trError;
+          (parte ?? []).forEach((r: { id_obra: number | null }) => { if (r.id_obra !== null) idSet.add(r.id_obra); });
+          if (!parte || parte.length < BLOCO) break;
+        }
+        const ids = [...idSet];
         if (ids.length === 0) return { rows: [], total: 0 };
         q = q.in("id_obra", ids);
       }
@@ -182,6 +189,30 @@ export function useLocalidadeMutations() {
   });
 
   return { create, update, remove };
+}
+
+// ---------- TRANCHES (valores reais do caderno) ----------
+export function useTranchesCaderno() {
+  return useQuery({
+    queryKey: ["tranches-caderno"],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<string[]> => {
+      const BLOCO = 1000;
+      const set = new Set<string>();
+      for (let inicio = 0; ; inicio += BLOCO) {
+        const { data, error } = await supabase
+          .from("caderno")
+          .select("tranche")
+          .is("deleted_at", null)
+          .not("tranche", "is", null)
+          .range(inicio, inicio + BLOCO - 1);
+        if (error) throw error;
+        (data ?? []).forEach((r: { tranche: string | null }) => { if (r.tranche) set.add(r.tranche); });
+        if (!data || data.length < BLOCO) break;
+      }
+      return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+    },
+  });
 }
 
 // ---------- PRIORITARIO ----------

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
-import { useObras, useObraOsCounts } from "@/hooks/useTabelasOperacionais";
+import { useObras, useObraOsCounts, useTranchesCaderno } from "@/hooks/useTabelasOperacionais";
 import type { Obra } from "@/types/database";
 
 const PAGE_SIZE = 20;
@@ -14,6 +14,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
 
+  const { data: tranchesOpcoes } = useTranchesCaderno();
   const { data, isLoading } = useObras({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
   const rows = data?.rows ?? [];
   const idObras = useMemo(() => rows.map((o) => o.id_obra), [rows]);
@@ -40,7 +41,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         columnFilters={[
           { field: "num_obra", label: "Num Obra" },
           { field: "status", label: "Status" },
-          { field: "tranche", label: "Tranche" },
+          { field: "tranche", label: "Tranche", options: tranchesOpcoes ?? [] },
           { field: "analise_obra", label: "Analise", options: ["Análise", "Divergência", "Pronto para cadastro", "Não cadastrar"] },
           { field: "cadastro_enbpar", label: "EnbPar", options: ["Cadastrado", "Não cadastrado", "Pendente", "Não informado"] },
           { field: "etapa", label: "Etapa", options: ["Etapa 01", "Etapa 02", "Etapa 03", "Etapa 04", "Etapa 05", "Etapa 06", "Não se aplica"] },

@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { Star } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Star, Copy, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
-import { RowDetailDrawer } from "@/components/tables/RowDetailDrawer";
 import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
+import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
 import type { Prioritario } from "@/types/database";
 
 const PAGE_SIZE = 20;
 
-// Extended row — DB has more columns than the typed schema reveals
 type PrioritarioRowExt = Prioritario & {
   controle?: string | null;
   tranche?: string | null;
@@ -18,7 +22,84 @@ type PrioritarioRowExt = Prioritario & {
   check_po?: string | null;
   criterio?: string | null;
   motivo_impedimento?: string | null;
+  manter_retirar?: string | null;
+  endereco?: string | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
 };
+
+// Contagens apenas para exibição (derivadas dos registros existentes)
+function usePrioritariosKpis() {
+  return useQuery({
+    queryKey: ["prioritarios-kpis"],
+    queryFn: async () => {
+      const count = async (fn?: (q: any) => any) => {
+        let q: any = supabase.from("prioritario").select("id", { count: "exact", head: true });
+        if (fn) q = fn(q);
+        const { count: c, error } = await q;
+        if (error) throw error;
+        return c ?? 0;
+      };
+      const [total, comTranche, checkPo, impedimento] = await Promise.all([
+        count(),
+        count((q) => q.not("tranche", "is", null)),
+        count((q) => q.not("check_po", "is", null).neq("check_po", "")),
+        count((q) => q.not("motivo_impedimento", "is", null).neq("motivo_impedimento", "")),
+      ]);
+      return { total, comTranche, checkPo, impedimento };
+    },
+  });
+}
+
+const copiar = (v?: string | null) => {
+  if (!v) return;
+  navigator.clipboard.writeText(v);
+  toast.success("Copiado");
+};
+
+const iniciais = (nome?: string | null) =>
+  (nome ?? "?").split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+
+function Kpi({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value?: number; tone: string }) {
+  return (
+    <Card>
+      <CardContent className="flex items-center gap-3 p-3">
+        <div className={`flex h-9 w-9 items-center justify-center rounded-md ${tone}`}>{icon}</div>
+        <div>
+          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="text-lg font-semibold leading-tight">{value?.toLocaleString("pt-BR") ?? "–"}</div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Campo({ label, value, copy, mono }: { label: string; value?: string | null; copy?: boolean; mono?: boolean }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-0.5 flex items-center gap-1">
+        <span className={`truncate text-sm ${mono ? "font-mono" : ""}`}>{value || "-"}</span>
+        {copy && value && (
+          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copiar(value)}>
+            <Copy className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Secao({ icon, titulo, children, className = "" }: { icon: React.ReactNode; titulo: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-lg border bg-card p-4 ${className}`}>
+      <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {icon} {titulo}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export default function PrioritariosPage({ standalone = false }: { standalone?: boolean }) {
   const [search, setSearch] = useState("");
@@ -28,13 +109,22 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [page, setPage] = useState(1);
 
   const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
+  const { data: kpis } = usePrioritariosKpis();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
 
-  const cell = (v?: string | null) => <span className="text-xs">{v ?? "-"}</span>;
+  const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
+  const temCoord = selected?.latitude != null && selected?.longitude != null && selected.latitude !== "" && selected.longitude !== "";
 
   return (
     <>
+      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Kpi icon={<Users className="h-4 w-4" />} label="Prioritários" value={kpis?.total} tone="bg-primary/10 text-primary" />
+        <Kpi icon={<Star className="h-4 w-4" />} label="Com tranche" value={kpis?.comTranche} tone="bg-secondary text-secondary-foreground" />
+        <Kpi icon={<CheckCircle2 className="h-4 w-4" />} label="Check PO" value={kpis?.checkPo} tone="bg-accent text-accent-foreground" />
+        <Kpi icon={<AlertTriangle className="h-4 w-4" />} label="Com impedimento" value={kpis?.impedimento} tone="bg-destructive/10 text-destructive" />
+      </div>
+
       <SimpleTablePage<PrioritarioRowExt>
         standalone={standalone}
         title="Prioritários"
@@ -48,7 +138,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         onPageChange={setPage}
         search={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
-        searchPlaceholder="Buscar..."
+        searchPlaceholder="Buscar por nome, CPF..."
         columnFilters={[
           { field: "controle", label: "Controle" },
           { field: "tranche", label: "Tranche" },
@@ -69,39 +159,105 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         onRowClick={(p) => setSelected(p)}
         rowKey={(p) => p.id}
         columns={[
-          { header: "Controle", sortField: "controle", className: "text-xs", cell: (p) => cell(p.controle) },
-          { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => cell(p.tranche) },
-          { header: "Identificação", sortField: "identificacao", className: "text-xs", cell: (p) => cell(p.identificacao) },
-          { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => cell(p.alocacao) },
-          { header: "Nome", sortField: "nome", className: "text-xs", cell: (p) => <span className="text-xs font-medium">{p.nome ?? "-"}</span> },
-          { header: "CPF Corrigido", sortField: "cpf_corrigido", className: "text-xs", cell: (p) => <span className="font-mono text-xs">{p.cpf_corrigido ? maskCpf(p.cpf_corrigido) : "-"}</span> },
-          { header: "Check PO", sortField: "check_po", className: "text-xs", cell: (p) => p.check_po ? <Badge variant="outline" className="text-xs">{p.check_po}</Badge> : <span className="text-xs">-</span> },
-          { header: "Critério", sortField: "criterio", className: "text-xs", cell: (p) => cell(p.criterio) },
-          { header: "Motivo Impedimento", sortField: "motivo_impedimento", className: "text-xs", cell: (p) => cell(p.motivo_impedimento) },
+          {
+            header: "Cliente", sortField: "nome", className: "text-xs",
+            cell: (p) => (
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">{iniciais(p.nome)}</div>
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-medium">{p.nome ?? "-"}</div>
+                  <div className="font-mono text-[11px] text-muted-foreground">{p.cpf_corrigido ? maskCpf(p.cpf_corrigido) : "sem CPF"}</div>
+                </div>
+              </div>
+            ),
+          },
+          { header: "Controle", sortField: "controle", className: "text-xs", cell: (p) => muted(p.controle) },
+          { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <Badge variant="secondary" className="text-[11px]">{p.tranche}</Badge> : muted(null) },
+          { header: "Identificação", sortField: "identificacao", className: "text-xs", cell: (p) => muted(p.identificacao) },
+          { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <Badge variant="outline" className="text-[11px]">{p.alocacao}</Badge> : muted(null) },
+          { header: "Check PO", sortField: "check_po", className: "text-xs", cell: (p) => p.check_po ? <Badge className="text-[11px]">{p.check_po}</Badge> : muted(null) },
+          { header: "Critério", sortField: "criterio", className: "text-xs", cell: (p) => muted(p.criterio) },
+          {
+            header: "Impedimento", sortField: "motivo_impedimento", className: "text-xs",
+            cell: (p) => p.motivo_impedimento
+              ? <span className="flex max-w-[180px] items-center gap-1 text-xs text-destructive"><AlertTriangle className="h-3 w-3 shrink-0" /><span className="truncate">{p.motivo_impedimento}</span></span>
+              : muted(null),
+          },
         ]}
       />
 
-      <RowDetailDrawer
-        open={!!selected}
-        onOpenChange={(v) => !v && setSelected(null)}
-        title={selected?.nome ?? "Prioritário"}
-        subtitle={selected?.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : ""}
-        canEdit={false}
-        canDelete={false}
-        fields={selected ? [
-          { label: "Controle", value: selected.controle ?? null },
-          { label: "Tranche", value: selected.tranche ?? null },
-          { label: "Identificação", value: selected.identificacao ?? null },
-          { label: "Alocação", value: selected.alocacao ?? null },
-          { label: "Nome", value: selected.nome },
-          { label: "CPF Corrigido", value: selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : null },
-          { label: "Check PO", value: selected.check_po ?? null },
-          { label: "Critério", value: selected.criterio ?? null },
-          { label: "Motivo Impedimento", value: selected.motivo_impedimento ?? null, full: true },
-          { label: "Observação", value: selected.observacao, full: true },
-          { label: "Cadastrado", value: new Date(selected.created_at).toLocaleString("pt-BR") },
-        ] : []}
-      />
+      <Dialog open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
+        <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col overflow-hidden p-0">
+          {selected && (
+            <>
+              <DialogHeader className="border-b bg-muted/40 p-5">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-base font-semibold text-primary-foreground">{iniciais(selected.nome)}</div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <DialogTitle className="truncate text-lg">{selected.nome ?? "Prioritário"}</DialogTitle>
+                    <DialogDescription className="font-mono">{selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : "Sem CPF"}</DialogDescription>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {selected.tranche && <Badge variant="secondary">Tranche {selected.tranche}</Badge>}
+                      {selected.check_po ? <Badge>PO: {selected.check_po}</Badge> : <Badge variant="outline">PO pendente</Badge>}
+                      {selected.motivo_impedimento && <Badge variant="destructive">Com impedimento</Badge>}
+                    </div>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
+                {selected.motivo_impedimento && (
+                  <div className="flex gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+                    <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-destructive">Motivo do impedimento</div>
+                      <p className="mt-1 text-sm">{selected.motivo_impedimento}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Secao icon={<IdCard className="h-4 w-4" />} titulo="Identificação">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Campo label="CPF" value={selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : null} copy mono />
+                      <Campo label="Controle" value={selected.controle} copy />
+                      <Campo label="Identificação" value={selected.identificacao} copy />
+                      <Campo label="Alocação" value={selected.alocacao} />
+                    </div>
+                  </Secao>
+                  <Secao icon={<ClipboardCheck className="h-4 w-4" />} titulo="Validação">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Campo label="Critério" value={selected.criterio} />
+                      <Campo label="Check PO" value={selected.check_po} />
+                      <Campo label="Manter / Retirar" value={selected.manter_retirar} />
+                      <Campo label="Tranche" value={selected.tranche} />
+                    </div>
+                  </Secao>
+                </div>
+
+                <Secao icon={<MapPin className="h-4 w-4" />} titulo="Localização">
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="md:col-span-2"><Campo label="Endereço" value={selected.endereco} copy /></div>
+                    <Campo label="Coordenadas" value={temCoord ? `${selected.latitude}, ${selected.longitude}` : null} copy mono />
+                  </div>
+                  {temCoord && (
+                    <Button asChild variant="outline" size="sm" className="mt-3">
+                      <a href={`https://www.google.com/maps?q=${selected.latitude},${selected.longitude}`} target="_blank" rel="noreferrer">
+                        <MapPin className="mr-1 h-3.5 w-3.5" /> Abrir no mapa
+                      </a>
+                    </Button>
+                  )}
+                </Secao>
+
+                <Secao icon={<StickyNote className="h-4 w-4" />} titulo="Observações">
+                  <p className="whitespace-pre-wrap text-sm">{selected.observacao || <span className="text-muted-foreground">Sem observações</span>}</p>
+                  <div className="mt-3 text-[11px] text-muted-foreground">Cadastrado em {new Date(selected.created_at).toLocaleString("pt-BR")}</div>
+                </Secao>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
