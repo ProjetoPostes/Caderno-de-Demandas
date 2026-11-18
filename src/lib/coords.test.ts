@@ -29,13 +29,13 @@ describe("fmtCoord", () => {
 describe("coordsDoMapa", () => {
   test("monta o link com ponto decimal e vírgula entre as coordenadas", () => {
     const mapa = coordsDoMapa("-5,123456", "-48,987654");
-    expect(mapa?.url).toBe("https://www.google.com/maps?q=-5.123456%2C-48.987654");
+    expect(mapa?.url).toBe("https://www.google.com/maps/search/-5.123456%2C-48.987654");
     expect(mapa?.texto).toBe("-5.123456, -48.987654");
   });
 
   test("aceita números normais", () => {
     const mapa = coordsDoMapa(-5.123456, -48.987654);
-    expect(mapa?.url).toBe("https://www.google.com/maps?q=-5.123456%2C-48.987654");
+    expect(mapa?.url).toBe("https://www.google.com/maps/search/-5.123456%2C-48.987654");
   });
 
   test("retorna null quando falta uma coordenada", () => {

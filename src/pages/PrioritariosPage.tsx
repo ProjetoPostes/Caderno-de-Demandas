@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Star, Copy, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa } from "@/lib/coords";
-import { podeEditarCoordenadas } from "@/lib/prioritarioValidation";
+import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
@@ -129,8 +129,26 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
   const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
   const coordenadasEditaveis = podeEditarCoordenadas(selected?.coordenada_validada);
+  const qc = useQueryClient();
+  const [erros, setErros] = useState<Record<string, string>>({});
+  const [salvando, setSalvando] = useState(false);
   const alterarCampo = (campo: keyof PrioritarioRowExt, valor: string | boolean | null) => {
     setSelected((atual) => atual ? { ...atual, [campo]: valor } : null);
+    setErros((e) => { const { [campo as string]: _, ...resto } = e; return resto; });
+  };
+  const erro = (campo: string) => erros[campo] ? <p className="text-xs text-destructive">{erros[campo]}</p> : null;
+  const salvar = async () => {
+    if (!selected) return;
+    const { erros: novos, payload } = validarCorrecao(selected);
+    setErros(novos);
+    if (Object.keys(novos).length) { toast.error("Corrija os campos destacados antes de salvar"); return; }
+    setSalvando(true);
+    const { error } = await (supabase.from("prioritario") as any).update(payload).eq("id", selected.id);
+    setSalvando(false);
+    if (error) { toast.error(`Erro ao salvar: ${error.message}`); return; }
+    toast.success("Alterações salvas");
+    qc.invalidateQueries({ queryKey: ["prioritarios"] });
+    qc.invalidateQueries({ queryKey: ["prioritarios-kpis"] });
   };
 
   return (
@@ -173,7 +191,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         sortDir={sortDir}
         onSortChange={(f, d) => { setSortField(f); setSortDir(d); }}
         onClear={() => { setSearch(""); setFilters({}); setPage(1); }}
-        onRowClick={(p) => setSelected(p)}
+        onRowClick={(p) => { setErros({}); setSelected(p); }}
         rowKey={(p) => p.id}
         columns={[
           {
@@ -263,7 +281,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     ] as const).map(([campo, label]) => (
                       <div key={campo} className="min-w-0 space-y-2">
                         <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
-                        <Input id={`prioritario-${campo}`} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
+                        <Input id={`prioritario-${campo}`} aria-invalid={!!erros[campo]} className={erros[campo] ? "border-destructive" : ""} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
+                        {erro(campo)}
                       </div>
                     ))}
                     <div className="space-y-2">
@@ -276,6 +295,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                           <SelectItem value="nao">Não</SelectItem>
                         </SelectContent>
                       </Select>
+                      {erro("coordenada_validada")}
                     </div>
                   </div>
                 </Secao>
@@ -289,10 +309,12 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-latitude">Latitude</Label>
                       <Input id="prioritario-latitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
+                      {erro("latitude")}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-longitude">Longitude</Label>
                       <Input id="prioritario-longitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
+                      {erro("longitude")}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-municipio-coord">Município da coordenada</Label>
@@ -313,6 +335,12 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <Textarea id="prioritario-observacao" value={selected.observacao ?? ""} onChange={(event) => alterarCampo("observacao", event.target.value)} />
                   <div className="mt-3 text-[11px] text-muted-foreground">Cadastrado em {new Date(selected.created_at).toLocaleString("pt-BR")}</div>
                 </Secao>
+                <div className="flex justify-end gap-2 border-t pt-4">
+                  <Button variant="outline" onClick={() => setSelected(null)} disabled={salvando}>Cancelar</Button>
+                  <Button onClick={salvar} disabled={salvando}>
+                    {salvando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />} Salvar alterações
+                  </Button>
+                </div>
               </div>
             </>
           )}
