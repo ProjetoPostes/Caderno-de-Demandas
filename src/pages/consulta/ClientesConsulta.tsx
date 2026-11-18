@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCaderno } from "@/hooks/useCaderno";
 import { useDespacho } from "@/hooks/useDespacho";
+import { useClientesBase, normCpf } from "@/hooks/useClientesBase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function ClientesConsulta() {
   const navigate = useNavigate();
   const { data: cadernoData, isLoading: isLoadingCaderno } = useCaderno(1000);
   const { data: despachoData, isLoading: isLoadingDespacho } = useDespacho(true);
+  const { data: clientesBase = [], isLoading: isLoadingBase } = useClientesBase();
   const [search, setSearch] = useState("");
   const [filterRegional, setFilterRegional] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,11 +46,26 @@ export default function ClientesConsulta() {
   const clientes = useMemo(() => {
     const clienteMap = new Map<string, Cliente>();
 
+    // Todos os clientes da tabela cliente
+    clientesBase.forEach((c) => {
+      const key = normCpf(c.cpf) || `id-${c.id_cliente}`;
+      const tel = Array.isArray(c.telefone) ? c.telefone.filter(Boolean).join(", ") : c.telefone;
+      clienteMap.set(key, {
+        cpf: c.cpf ?? "",
+        nome: c.nome ?? "Sem nome",
+        email: c.email,
+        telefone: tel || null,
+        regional: null,
+        osCaderno: [],
+        osDespacho: [],
+      });
+    });
+
     // Process Caderno records
     cadernoData.forEach((item) => {
       if (!item.numcpf) return;
       
-      const existing = clienteMap.get(item.numcpf) || {
+      const existing = clienteMap.get(normCpf(item.numcpf)) || {
         cpf: item.numcpf,
         nome: item.nomecli ?? "Sem nome",
         email: item.email,
@@ -70,14 +87,14 @@ export default function ClientesConsulta() {
       if (item.numtel) existing.telefone = item.numtel;
       if (item.regional) existing.regional = item.regional;
 
-      clienteMap.set(item.numcpf, existing);
+      clienteMap.set(normCpf(item.numcpf), existing);
     });
 
     // Process Despacho records
     despachoData.forEach((item) => {
       if (!item.numcpf) return;
 
-      const existing = clienteMap.get(item.numcpf) || {
+      const existing = clienteMap.get(normCpf(item.numcpf)) || {
         cpf: item.numcpf,
         nome: item.nomecli ?? "Sem nome",
         email: item.email,
@@ -98,11 +115,11 @@ export default function ClientesConsulta() {
       if (item.telefone) existing.telefone = item.telefone;
       if (item.regional) existing.regional = item.regional;
 
-      clienteMap.set(item.numcpf, existing);
+      clienteMap.set(normCpf(item.numcpf), existing);
     });
 
     return Array.from(clienteMap.values());
-  }, [cadernoData, despachoData]);
+  }, [clientesBase, cadernoData, despachoData]);
 
   const regionais = useMemo(() => {
     return [...new Set(clientes.map((c) => c.regional).filter(Boolean))];
@@ -149,7 +166,7 @@ export default function ClientesConsulta() {
     setDetailDialogOpen(true);
   };
 
-  const isLoading = isLoadingCaderno || isLoadingDespacho;
+  const isLoading = isLoadingCaderno || isLoadingDespacho || isLoadingBase;
 
   if (isLoading) {
     return (
@@ -275,7 +292,7 @@ export default function ClientesConsulta() {
                   </TableRow>
                 ) : (
                   paginatedClientes.map((cliente) => (
-                    <TableRow key={cliente.cpf}>
+                    <TableRow key={cliente.cpf || cliente.nome}>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => handleViewCliente(cliente)}>
                           <Eye className="h-4 w-4" />
