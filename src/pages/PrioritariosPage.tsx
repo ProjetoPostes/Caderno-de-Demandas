@@ -15,6 +15,8 @@ import { coordsDoMapa } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import { maskCpf } from "@/lib/cpfMask";
 import type { Prioritario } from "@/types/database";
 
@@ -130,6 +132,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
   const coordenadasEditaveis = podeEditarCoordenadas(selected?.coordenada_validada);
   const qc = useQueryClient();
+  const { user } = useAuth();
+  const { profile: perfil } = useProfile();
+  const p2 = perfil as { full_name?: string | null; username?: string | null } | null | undefined;
+  const nomeUsuario = p2?.full_name || p2?.username || user?.email || "";
   const [erros, setErros] = useState<Record<string, string>>({});
   const [salvando, setSalvando] = useState(false);
   const alterarCampo = (campo: keyof PrioritarioRowExt, valor: string | boolean | null) => {
@@ -139,7 +145,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const erro = (campo: string) => erros[campo] ? <p className="text-xs text-destructive">{erros[campo]}</p> : null;
   const salvar = async () => {
     if (!selected) return;
-    const { erros: novos, payload } = validarCorrecao(selected);
+    const { erros: novos, payload } = validarCorrecao({ ...selected, "Responsável": nomeUsuario });
     setErros(novos);
     if (Object.keys(novos).length) { toast.error("Corrija os campos destacados antes de salvar"); return; }
     setSalvando(true);
@@ -147,6 +153,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
     setSalvando(false);
     if (error) { toast.error(`Erro ao salvar: ${error.message}`); return; }
     toast.success("Alterações salvas");
+    setSelected((a) => a ? { ...a, ...payload } as PrioritarioRowExt : a);
     qc.invalidateQueries({ queryKey: ["prioritarios"] });
     qc.invalidateQueries({ queryKey: ["prioritarios-kpis"] });
   };
@@ -277,7 +284,6 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       ["nome_correto", "Nome correto"],
                       ["nome_municipio_correto", "Nome do município correto"],
                       ["nome_cliente_ligado", "Nome do cliente ligado"],
-                      ["Responsável", "Responsável"],
                     ] as const).map(([campo, label]) => (
                       <div key={campo} className="min-w-0 space-y-2">
                         <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
@@ -285,6 +291,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                         {erro(campo)}
                       </div>
                     ))}
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-responsavel">Responsável</Label>
+                      <Input id="prioritario-responsavel" readOnly className="bg-muted/40" value={nomeUsuario || selected["Responsável"] || ""} />
+                      {erro("Responsável")}
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
                       <Select value={selected.coordenada_validada == null ? "nao-informado" : selected.coordenada_validada ? "sim" : "nao"} onValueChange={(valor) => alterarCampo("coordenada_validada", valor === "nao-informado" ? null : valor === "sim")}>
