@@ -41,41 +41,19 @@ export function useObras(params: ListParams = {}) {
   return useQuery({
     queryKey: ["obras", { page, pageSize, search, sortField, sortDir, filters }],
     queryFn: async (): Promise<Paged<Obra>> => {
-      let q = supabase
-        .from("obra")
-        .select("*", { count: "exact" })
-        .is("deleted_at", null);
-      if (search.trim()) {
-        const s = search.trim();
-        q = q.or(`num_obra.ilike.%${s}%,status.ilike.%${s}%`);
-      }
       const { tranche, ...outrosFiltros } = filters ?? {};
-      q = applyFilters(q, outrosFiltros);
-      if (tranche && tranche.trim()) {
-        // A tranche vem das OSs (caderno) vinculadas à obra
-        // Busca paginada (PostgREST corta em 1000) com valor exato, igual ao Caderno
-        const BLOCO = 1000;
-        const idSet = new Set<number>();
-        for (let inicio = 0; ; inicio += BLOCO) {
-          const { data: parte, error: trError } = await supabase
-            .from("caderno")
-            .select("id_obra")
-            .is("deleted_at", null)
-            .eq("tranche", tranche.trim())
-            .not("id_obra", "is", null)
-            .range(inicio, inicio + BLOCO - 1);
-          if (trError) throw trError;
-          (parte ?? []).forEach((r: { id_obra: number | null }) => { if (r.id_obra !== null) idSet.add(r.id_obra); });
-          if (!parte || parte.length < BLOCO) break;
-        }
-        const ids = [...idSet];
-        if (ids.length === 0) return { rows: [], total: 0 };
-        q = q.in("id_obra", ids);
-      }
-      q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
-      const { data, error, count } = await q;
+      const { data, error } = await supabase.rpc("get_obras_filtradas", {
+        p_tranche: tranche?.trim() || null,
+        p_search: search.trim() || null,
+        p_filters: outrosFiltros,
+        p_page: page,
+        p_page_size: pageSize,
+        p_sort_field: sortField,
+        p_sort_dir: sortDir,
+      });
       if (error) throw error;
-      return { rows: (data ?? []) as Obra[], total: count ?? 0 };
+      const resultado = data as Paged<Obra> | null;
+      return { rows: resultado?.rows ?? [], total: resultado?.total ?? 0 };
     },
   });
 }

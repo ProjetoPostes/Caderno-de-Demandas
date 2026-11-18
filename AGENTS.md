@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Operational detail views must derive display-only aggregates from existing Supabase records and must not persist placeholders, because the external schema is authoritative.
+- `useObras` must delegate filtering, sorting and pagination to the existing `get_obras_filtradas` RPC; OS counts remain independent so selecting a tranche does not reduce a work's active OS total.
