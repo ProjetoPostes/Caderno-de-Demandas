@@ -47,6 +47,9 @@ type TriState = "conforme" | "nao_conforme" | null;
 type Resultado = "aprovado" | "reprovado" | "pendente_complementacao" | null;
 
 interface FormState {
+  nome_municipio_validado: string;
+  num_padrao: string;
+  num_kit: string;
   validacao_municipio: TriState;
   observacao_municipio: string;
   validacao_cpf: TriState;
@@ -86,6 +89,9 @@ interface FormState {
 }
 
 const emptyForm = (): FormState => ({
+  nome_municipio_validado: "",
+  num_padrao: "",
+  num_kit: "",
   validacao_municipio: null,
   observacao_municipio: "",
   validacao_cpf: null,
@@ -231,6 +237,9 @@ export default function AnaliseSolicitacao() {
       return;
     }
     setForm({
+      nome_municipio_validado: "",
+      num_padrao: "",
+      num_kit: "",
       validacao_municipio: (a.validacao_municipio as TriState) ?? null,
       observacao_municipio: txt(a.observacao_municipio),
       validacao_cpf: (a.validacao_cpf as TriState) ?? null,

@@ -172,6 +172,9 @@ export interface Notifications {
 }
 
 export interface Obra {
+  analise_obra?: string | null;
+  cadastro_enbpar?: string | null;
+  etapa?: string | null;
   created_at: string;
   deleted_at: string | null;
   deleted_by: string | null;
