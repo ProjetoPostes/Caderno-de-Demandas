@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { buscarTodos } from "@/lib/buscarTodos";
 import { canonicalizarDecisao } from "@/lib/prioritarioCores";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
 import type {
@@ -176,21 +177,12 @@ export function useTranchesCaderno() {
     queryKey: ["tranches-caderno"],
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<string[]> => {
-      const BLOCO = 1000;
       const set = new Set<string>();
-      for (let inicio = 0; ; ) {
-        const { data, error } = await supabase
-          .from("caderno")
-          .select("tranche")
-          .is("deleted_at", null)
-          .not("tranche", "is", null)
-          .order("id_os", { ascending: true })
-          .range(inicio, inicio + BLOCO - 1);
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-        data.forEach((r: { tranche: string | null }) => { if (r.tranche) set.add(r.tranche); });
-        inicio += data.length;
-      }
+      const rows = await buscarTodos<{ tranche: string | null }>((head) =>
+        head
+          ? supabase.from("caderno").select("id_os", { count: "exact", head: true }).is("deleted_at", null).not("tranche", "is", null)
+          : supabase.from("caderno").select("tranche").is("deleted_at", null).not("tranche", "is", null).order("id_os", { ascending: true }));
+      rows.forEach((r) => { if (r.tranche) set.add(r.tranche); });
       return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
   });
@@ -202,22 +194,12 @@ function useValoresDistintosPrioritario(campo: "tranche" | "alocacao" | "decisao
     queryKey: ["prioritario-valores", chave],
     staleTime: 5 * 60 * 1000,
     queryFn: async (): Promise<string[]> => {
-      const BLOCO = 1000;
       const set = new Set<string>();
-      // O servidor pode limitar linhas por resposta abaixo de BLOCO; avança pelo
-      // tamanho real recebido e só para quando vier vazio.
-      for (let inicio = 0; ; ) {
-        const { data, error } = await supabase
-          .from("prioritario")
-          .select(campo)
-          .not(campo, "is", null)
-          .order("id", { ascending: true })
-          .range(inicio, inicio + BLOCO - 1);
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-        data.forEach((r: Record<string, string | null>) => { const v = r[campo]; if (v) set.add(v); });
-        inicio += data.length;
-      }
+      const rows = await buscarTodos<Record<string, string | null>>((head) =>
+        head
+          ? supabase.from("prioritario").select("id", { count: "exact", head: true }).not(campo, "is", null)
+          : supabase.from("prioritario").select(campo).not(campo, "is", null).order("id", { ascending: true }));
+      rows.forEach((r) => { const v = r[campo]; if (v) set.add(v); });
       return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
   });
@@ -493,17 +475,12 @@ export function useMunicipiosLocalidade() {
     queryKey: ["municipios-localidade"],
     staleTime: 10 * 60 * 1000,
     queryFn: async () => {
-      const BLOCO = 1000;
       const nomes = new Set<string>();
-      for (let inicio = 0; ; ) {
-        const { data, error } = await supabase
-          .from("localidade").select("nome_lcd").order("nome_lcd", { ascending: true })
-          .range(inicio, inicio + BLOCO - 1);
-        if (error) throw error;
-        for (const r of (data ?? []) as Array<{ nome_lcd: string | null }>) if (r.nome_lcd?.trim()) nomes.add(r.nome_lcd.trim());
-        if (!data || data.length === 0) break;
-        inicio += data.length;
-      }
+      const rows = await buscarTodos<{ nome_lcd: string | null }>((head) =>
+        head
+          ? supabase.from("localidade").select("nome_lcd", { count: "exact", head: true })
+          : supabase.from("localidade").select("nome_lcd").order("nome_lcd", { ascending: true }));
+      for (const r of rows) if (r.nome_lcd?.trim()) nomes.add(r.nome_lcd.trim());
       return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
     },
   });

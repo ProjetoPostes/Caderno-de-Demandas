@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buscarTodos } from "@/lib/buscarTodos";
 import type {
   AnaliseOsRow,
   CriterioEnquadramentoRow,
@@ -181,24 +182,11 @@ export function useAnalisesAtuaisPendencias() {
   return useQuery({
     queryKey: ["analises-atuais-pendencias"],
     queryFn: async (): Promise<AnalisePendenciaRow[]> => {
-      const rows: AnalisePendenciaRow[] = [];
-      const page = 1000;
-      for (let from = 0; ; ) {
-        const { data, error } = await supabase
-          .from("analise_os")
-          .select(
-            "id_os, validacao_municipio, validacao_cpf, enquadramento_beneficiario, coordenadas_conferidas, comunidade_validada, nome_consumidor_validado, casa",
-          )
-          .eq("analise_atual", true)
-          .is("deleted_at", null)
-          .order("id_os", { ascending: true })
-          .range(from, from + page - 1);
-        if (error) throw error;
-        const chunk = (data as unknown as AnalisePendenciaRow[]) ?? [];
-        if (chunk.length === 0) break;
-        rows.push(...chunk);
-        from += chunk.length;
-      }
+      const sel = "id_os, validacao_municipio, validacao_cpf, enquadramento_beneficiario, coordenadas_conferidas, comunidade_validada, nome_consumidor_validado, casa";
+      const rows = await buscarTodos<AnalisePendenciaRow>((head) =>
+        head
+          ? supabase.from("analise_os").select("id_os", { count: "exact", head: true }).eq("analise_atual", true).is("deleted_at", null)
+          : supabase.from("analise_os").select(sel).eq("analise_atual", true).is("deleted_at", null).order("id_os", { ascending: true }));
       return rows;
     },
   });
