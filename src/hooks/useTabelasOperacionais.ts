@@ -392,11 +392,21 @@ export function useObraOsList(idObra: number | null) {
 }
 
 // ---------- OSs DO CLIENTE (prioritário) ----------
-export function usePrioritarioOsList(idCliente: number | null | undefined) {
+export function usePrioritarioOsList(idClienteInformado: number | null | undefined, cpf?: string | null) {
   return useQuery({
-    queryKey: ["prioritario-os-list", idCliente],
-    enabled: idCliente != null,
+    queryKey: ["prioritario-os-list", idClienteInformado, cpf],
+    enabled: idClienteInformado != null || !!cpf?.trim(),
     queryFn: async () => {
+      let idCliente = idClienteInformado ?? null;
+      if (idCliente == null && cpf?.trim()) {
+        const d = cpf.replace(/\D/g, "");
+        const fmt = d.length === 11 ? `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}` : d;
+        const { data: cli, error: e } = await supabase
+          .from("cliente").select("id_cliente").is("deleted_at", null)
+          .in("cpf", Array.from(new Set([cpf.trim(), d, fmt]))).limit(1);
+        if (e) throw e;
+        idCliente = (cli?.[0] as { id_cliente: number } | undefined)?.id_cliente ?? null;
+      }
       if (idCliente == null) return [];
       const BLOCO = 1000;
       const data: unknown[] = [];
@@ -445,6 +455,27 @@ export function useHistoricoOs(params: ListParams = {}) {
       const { data, error, count } = await q;
       if (error) throw error;
       return { rows: (data ?? []) as historico_os[], total: count ?? 0 };
+    },
+  });
+}
+
+// ---------- MUNICÍPIOS (localidade.nome_lcd) ----------
+export function useMunicipiosLocalidade() {
+  return useQuery({
+    queryKey: ["municipios-localidade"],
+    staleTime: 10 * 60 * 1000,
+    queryFn: async () => {
+      const BLOCO = 1000;
+      const nomes = new Set<string>();
+      for (let inicio = 0; ; inicio += BLOCO) {
+        const { data, error } = await supabase
+          .from("localidade").select("nome_lcd").order("nome_lcd", { ascending: true })
+          .range(inicio, inicio + BLOCO - 1);
+        if (error) throw error;
+        for (const r of (data ?? []) as Array<{ nome_lcd: string | null }>) if (r.nome_lcd?.trim()) nomes.add(r.nome_lcd.trim());
+        if (!data || data.length < BLOCO) break;
+      }
+      return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
     },
   });
 }

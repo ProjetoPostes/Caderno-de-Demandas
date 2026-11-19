@@ -15,7 +15,7 @@ import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePa
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, type CorBadge } from "@/lib/prioritarioCores";
-import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, usePrioritarioOsList } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -151,7 +151,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [erros, setErros] = useState<Record<string, string>>({});
   const [salvando, setSalvando] = useState(false);
   const [consultandoMunicipio, setConsultandoMunicipio] = useState(false);
-  const { data: osList, isLoading: loadingOs } = usePrioritarioOsList(selected?.id_cliente);
+  const { data: osList, isLoading: loadingOs } = usePrioritarioOsList(selected?.id_cliente, selected?.cpf_corrigido);
+  const { data: municipios = [] } = useMunicipiosLocalidade();
   const validarMunicipio = async () => {
     if (!selected) return;
     const latitude = Number(fmtCoord(selected.latitude));
@@ -334,7 +335,6 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     {([
                       ["cpf_correto", "CPF correto"],
                       ["nome_correto", "Nome correto"],
-                      ["nome_municipio_correto", "Nome do município correto"],
                       ["nome_cliente_ligado", "Nome do cliente ligado"],
                     ] as const).map(([campo, label]) => (
                       <div key={campo} className="min-w-0 space-y-2">
@@ -343,6 +343,20 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                         {erro(campo)}
                       </div>
                     ))}
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-nome_municipio_correto">Nome do município correto</Label>
+                      <Select value={selected.nome_municipio_correto || "nao-informado"} onValueChange={(v) => alterarCampo("nome_municipio_correto", v === "nao-informado" ? "" : v)}>
+                        <SelectTrigger id="prioritario-nome_municipio_correto" className={erros.nome_municipio_correto ? "border-destructive" : ""}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          {selected.nome_municipio_correto && !municipios.includes(selected.nome_municipio_correto) && (
+                            <SelectItem value={selected.nome_municipio_correto}>{selected.nome_municipio_correto}</SelectItem>
+                          )}
+                          {municipios.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      {erro("nome_municipio_correto")}
+                    </div>
                     <div className="min-w-0 space-y-2">
                       <Label htmlFor="prioritario-responsavel">Responsável</Label>
                       <Input id="prioritario-responsavel" readOnly className="bg-muted/40" value={nomeUsuario || selected["Responsável"] || ""} />
