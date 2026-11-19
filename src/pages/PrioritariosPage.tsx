@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText } from "lucide-react";
+import { ArrowLeft, Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
@@ -202,6 +201,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
   return (
     <>
+      {!selected && (<>
       <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Kpi icon={<Users className="h-4 w-4" />} label="Prioritários" value={kpis?.total} tone="bg-primary/10 text-primary" />
         <Kpi icon={<Star className="h-4 w-4" />} label="Com tranche" value={kpis?.comTranche} tone="bg-secondary text-secondary-foreground" />
@@ -240,9 +240,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         sortDir={sortDir}
         onSortChange={(f, d) => { setSortField(f); setSortDir(d); }}
         onClear={() => { setSearch(""); setFilters({}); setPage(1); }}
-        onRowClick={(p) => { setErros({}); setSelected(p); }}
+        onRowClick={(p) => { setErros({}); setSelected(p); window.scrollTo(0, 0); }}
         rowKey={(p) => p.id}
         columns={[
+          { header: "Controle", sortField: "controle", className: "text-xs", cell: (p) => muted(p.controle) },
           {
             header: "Cliente", sortField: "nome", className: "text-xs",
             cell: (p) => (
@@ -255,31 +256,27 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
               </div>
             ),
           },
-          { header: "Controle", sortField: "controle", className: "text-xs", cell: (p) => muted(p.controle) },
           { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <Badge variant="secondary" className="text-[11px]">{p.tranche}</Badge> : muted(null) },
-          { header: "Identificação", sortField: "identificacao", className: "text-xs", cell: (p) => muted(p.identificacao) },
           { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <Badge variant="outline" className="text-[11px]">{p.alocacao}</Badge> : muted(null) },
-          { header: "Check PO", sortField: "check_po", className: "text-xs", cell: (p) => p.check_po ? <Badge className="text-[11px]">{p.check_po}</Badge> : muted(null) },
-          { header: "Critério", sortField: "criterio", className: "text-xs", cell: (p) => muted(p.criterio) },
-          {
-            header: "Impedimento", sortField: "motivo_impedimento", className: "text-xs",
-            cell: (p) => p.motivo_impedimento
-              ? <span className="flex max-w-[180px] items-center gap-1 text-xs text-destructive"><AlertTriangle className="h-3 w-3 shrink-0" /><span className="truncate">{p.motivo_impedimento}</span></span>
-              : muted(null),
-          },
+          { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <Badge variant={p.coordenada_validada ? "default" : "destructive"} className="text-[11px]">{p.coordenada_validada ? "Sim" : "Não"}</Badge> },
+          { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <Badge variant="outline" className="text-[11px]">{p.decisao}</Badge> : muted(null) },
         ]}
       />
+      </>)}
 
-      <Dialog open={!!selected} onOpenChange={(v) => !v && setSelected(null)}>
-        <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col overflow-hidden p-0">
-          {selected && (
+      {selected && (
+        <div className={standalone ? "p-6" : ""}>
+          <Button variant="ghost" size="sm" className="mb-3" onClick={() => setSelected(null)}>
+            <ArrowLeft className="mr-1 h-4 w-4" /> Voltar para Prioritários
+          </Button>
+          <div className="overflow-hidden rounded-lg border bg-card">
             <>
-              <DialogHeader className="border-b bg-muted/40 p-5">
+              <div className="border-b bg-muted/40 p-5">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-base font-semibold text-primary-foreground">{iniciais(selected.nome)}</div>
                   <div className="min-w-0 flex-1 text-left">
-                    <DialogTitle className="truncate text-lg">{selected.nome ?? "Prioritário"}</DialogTitle>
-                    <DialogDescription className="font-mono">{selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : "Sem CPF"}</DialogDescription>
+                    <h2 className="truncate text-lg font-semibold">{selected.nome ?? "Prioritário"}</h2>
+                    <p className="font-mono text-sm text-muted-foreground">{selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : "Sem CPF"}</p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {selected.tranche && <Badge variant="secondary">Tranche {selected.tranche}</Badge>}
                       {selected.check_po ? <Badge>PO: {selected.check_po}</Badge> : <Badge variant="outline">PO pendente</Badge>}
@@ -287,9 +284,9 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     </div>
                   </div>
                 </div>
-              </DialogHeader>
+              </div>
 
-              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
+              <div className="space-y-4 p-5">
                 {selected.motivo_impedimento && (
                   <div className="flex gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4">
                     <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
@@ -458,16 +455,16 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <div className="mt-3 text-[11px] text-muted-foreground">Cadastrado em {new Date(selected.created_at).toLocaleString("pt-BR")}</div>
                 </Secao>
                 <div className="flex justify-end gap-2 border-t pt-4">
-                  <Button variant="outline" onClick={() => setSelected(null)} disabled={salvando}>Cancelar</Button>
+                  <Button variant="outline" onClick={() => setSelected(null)} disabled={salvando}>Voltar</Button>
                   <Button onClick={salvar} disabled={salvando}>
                     {salvando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />} Salvar alterações
                   </Button>
                 </div>
               </div>
             </>
-          )}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </>
   );
 }
