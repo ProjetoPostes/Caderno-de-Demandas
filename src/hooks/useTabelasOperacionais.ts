@@ -234,7 +234,14 @@ export function usePrioritarios(params: ListParams = {}) {
         const s = search.trim();
         q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
       }
-      q = applyFilters(q, filters);
+      const { coordenada_validada: cv, nome_cliente_ligado: ncl, decisao, ...outros } = filters ?? {};
+      if (cv === "Sim") q = q.eq("coordenada_validada", true);
+      else if (cv === "Não") q = q.eq("coordenada_validada", false);
+      else if (cv === "Não informado") q = q.is("coordenada_validada", null);
+      if (ncl === "Preenchido") q = q.not("nome_cliente_ligado", "is", null).neq("nome_cliente_ligado", "");
+      else if (ncl === "Vazio") q = q.or("nome_cliente_ligado.is.null,nome_cliente_ligado.eq.");
+      if (decisao?.trim()) q = q.eq("decisao", decisao.trim());
+      q = applyFilters(q, outros);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;

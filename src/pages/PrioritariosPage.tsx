@@ -43,6 +43,7 @@ type PrioritarioRowExt = Prioritario & {
   "Responsável"?: string | null;
   coordenada_validada?: boolean | null;
   municipio_coord?: string | null;
+  atendimento?: string | null;
 };
 
 // Contagens apenas para exibição (derivadas dos registros existentes)
@@ -228,6 +229,9 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { field: "nome", label: "Nome" },
           { field: "cpf_corrigido", label: "CPF Corrigido" },
           { field: "check_po", label: "Check PO" },
+          { field: "coordenada_validada", label: "Coordenada validada", options: ["Sim", "Não", "Não informado"] },
+          { field: "nome_cliente_ligado", label: "Nome do cliente ligado", options: ["Preenchido", "Vazio"] },
+          { field: "decisao", label: "Decisão", options: ["Mantido", "Retirado", "Substituir"] },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}
@@ -344,6 +348,17 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                         </SelectContent>
                       </Select>
                       {erro("coordenada_validada")}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-atendimento">Atendimento</Label>
+                      <Select value={selected.atendimento ?? "nao-informado"} onValueChange={(valor) => alterarCampo("atendimento", valor === "nao-informado" ? null : valor)}>
+                        <SelectTrigger id="prioritario-atendimento"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="Atendido">Atendido</SelectItem>
+                          <SelectItem value="Não atendido">Não atendido</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </Secao>
