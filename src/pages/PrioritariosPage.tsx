@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
-import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, type CorBadge } from "@/lib/prioritarioCores";
+import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
 import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, useDecisoesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -267,7 +267,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <BadgeCor cor={corTranche(p.tranche)}>{p.tranche}</BadgeCor> : muted(null) },
           { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <BadgeCor cor={corAlocacao(p.alocacao)}>{p.alocacao}</BadgeCor> : muted(null) },
           { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <BadgeCor cor={corCoordenadaValidada(p.coordenada_validada)}>{p.coordenada_validada ? "Sim" : "Não"}</BadgeCor> },
-          { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <BadgeCor cor={corDecisao(p.decisao)}>{p.decisao}</BadgeCor> : muted(null) },
+          { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <BadgeCor cor={corDecisao(p.decisao)}>{canonicalizarDecisao(p.decisao)}</BadgeCor> : muted(null) },
         ]}
       />
       </>)}
@@ -293,7 +293,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                           Coordenada {selected.coordenada_validada ? "validada" : "não validada"}
                         </BadgeCor>
                       )}
-                      {selected.decisao && <BadgeCor cor={corDecisao(selected.decisao)}>{selected.decisao}</BadgeCor>}
+                      {selected.decisao && <BadgeCor cor={corDecisao(selected.decisao)}>{canonicalizarDecisao(selected.decisao)}</BadgeCor>}
                       {selected.check_po ? <Badge>PO: {selected.check_po}</Badge> : <Badge variant="outline">PO pendente</Badge>}
                       {selected.motivo_impedimento && <Badge variant="destructive">Com impedimento</Badge>}
                     </div>
@@ -388,7 +388,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-decisao">Decisão</Label>
-                      <Select value={selected.decisao ?? "nao-informado"} onValueChange={(valor) => alterarCampo("decisao", valor === "nao-informado" ? null : valor)}>
+                      <Select value={canonicalizarDecisao(selected.decisao) ?? "nao-informado"} onValueChange={(valor) => alterarCampo("decisao", valor === "nao-informado" ? null : valor)}>
                         <SelectTrigger id="prioritario-decisao"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="nao-informado">Não informado</SelectItem>

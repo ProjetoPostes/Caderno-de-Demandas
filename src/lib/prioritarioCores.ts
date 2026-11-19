@@ -66,6 +66,19 @@ export function corDecisao(decisao?: string | null): CorBadge | null {
 }
 
 /**
+ * Forma canônica da Decisão, independente da caixa usada no banco
+ * ("MANTIDO" -> "Mantido"). Valores desconhecidos são mantidos como estão.
+ */
+export function canonicalizarDecisao(decisao?: string | null): string | null {
+  if (!decisao?.trim()) return null;
+  const chave = normalizar(decisao);
+  if (chave === "mantido") return "Mantido";
+  if (chave === "retirado") return "Retirado";
+  if (chave === "substituir") return "Substituir";
+  return decisao.trim();
+}
+
+/**
  * Monta a consulta de cor por tranche. As tranches conhecidas recebem cores
  * distintas da paleta, em ordem estável (ordenada); valores fora da lista
  * caem em uma cor determinística por hash.

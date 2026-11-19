@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { canonicalizarDecisao } from "@/lib/prioritarioCores";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
 import type {
   ObraFormData,
@@ -226,7 +227,10 @@ export function useAlocacoesPrioritario() {
 }
 
 export function useDecisoesPrioritario() {
-  return useValoresDistintosPrioritario("decisao", "decisao");
+  const query = useValoresDistintosPrioritario("decisao", "decisao");
+  // O banco pode gravar em caixas diferentes ("MANTIDO"); exibe a forma canônica.
+  const data = query.data?.map((v) => canonicalizarDecisao(v) ?? v);
+  return { ...query, data: data ? [...new Set(data)] : data };
 }
 
 export function usePrioritarios(params: ListParams = {}) {
@@ -246,7 +250,7 @@ export function usePrioritarios(params: ListParams = {}) {
       if (ncl === "Preenchido") q = q.not("nome_cliente_ligado", "is", null).neq("nome_cliente_ligado", "");
       else if (ncl === "Vazio") q = q.or("nome_cliente_ligado.is.null,nome_cliente_ligado.eq.");
       if (decisao === "Não informado") q = q.is("decisao", null);
-      else if (decisao?.trim()) q = q.eq("decisao", decisao.trim());
+      else if (decisao?.trim()) q = q.ilike("decisao", decisao.trim());
       q = applyFilters(q, outros);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
