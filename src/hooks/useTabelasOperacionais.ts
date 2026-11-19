@@ -194,6 +194,36 @@ export function useTranchesCaderno() {
 }
 
 // ---------- PRIORITARIO ----------
+function useValoresDistintosPrioritario(campo: "tranche" | "alocacao", chave: string) {
+  return useQuery({
+    queryKey: ["prioritario-valores", chave],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async (): Promise<string[]> => {
+      const BLOCO = 1000;
+      const set = new Set<string>();
+      for (let inicio = 0; ; inicio += BLOCO) {
+        const { data, error } = await supabase
+          .from("prioritario")
+          .select(campo)
+          .not(campo, "is", null)
+          .range(inicio, inicio + BLOCO - 1);
+        if (error) throw error;
+        (data ?? []).forEach((r: Record<string, string | null>) => { const v = r[campo]; if (v) set.add(v); });
+        if (!data || data.length < BLOCO) break;
+      }
+      return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+    },
+  });
+}
+
+export function useTranchesPrioritario() {
+  return useValoresDistintosPrioritario("tranche", "tranche");
+}
+
+export function useAlocacoesPrioritario() {
+  return useValoresDistintosPrioritario("alocacao", "alocacao");
+}
+
 export function usePrioritarios(params: ListParams = {}) {
   const { page = 1, pageSize = 20, search = "", sortField = "nome", sortDir = "asc", filters } = params;
   return useQuery({

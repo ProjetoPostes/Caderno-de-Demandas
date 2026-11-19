@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users } from "lucide-react";
+import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
-import { coordsDoMapa } from "@/lib/coords";
+import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
-import { usePrioritarios } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -125,6 +125,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
   const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
   const { data: kpis } = usePrioritariosKpis();
+  const { data: tranchesOpcoes } = useTranchesPrioritario();
+  const { data: alocacoesOpcoes } = useAlocacoesPrioritario();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
 
@@ -138,6 +140,40 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const nomeUsuario = p2?.full_name || p2?.username || user?.email || "";
   const [erros, setErros] = useState<Record<string, string>>({});
   const [salvando, setSalvando] = useState(false);
+  const [consultandoMunicipio, setConsultandoMunicipio] = useState(false);
+  const validarMunicipio = async () => {
+    if (!selected) return;
+    const latitude = Number(fmtCoord(selected.latitude));
+    const longitude = Number(fmtCoord(selected.longitude));
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      toast.error("Informe latitude e longitude válidas para validar o município.");
+      return;
+    }
+    setConsultandoMunicipio(true);
+    try {
+      const { data: municipio, error } = await supabase.rpc("consultar_municipio_coordenada", {
+        p_latitude: latitude,
+        p_longitude: longitude,
+      });
+      if (error) throw error;
+      const nome =
+        typeof municipio === "string"
+          ? municipio
+          : municipio && typeof municipio === "object"
+            ? String((municipio as Record<string, unknown>).nome ?? (municipio as Record<string, unknown>).municipio ?? "")
+            : "";
+      if (!nome) {
+        toast.warning("Nenhum município encontrado para essas coordenadas.");
+        return;
+      }
+      alterarCampo("municipio_coord", nome);
+      toast.success(`Município identificado: ${nome}`);
+    } catch (e) {
+      toast.error(`Erro ao consultar município: ${e instanceof Error ? e.message : "erro desconhecido"}`);
+    } finally {
+      setConsultandoMunicipio(false);
+    }
+  };
   const alterarCampo = (campo: keyof PrioritarioRowExt, valor: string | boolean | null) => {
     setSelected((atual) => atual ? { ...atual, [campo]: valor } : null);
     setErros((e) => { const { [campo as string]: _, ...resto } = e; return resto; });
@@ -183,14 +219,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         searchPlaceholder="Buscar por nome, CPF..."
         columnFilters={[
           { field: "controle", label: "Controle" },
-          { field: "tranche", label: "Tranche" },
-          { field: "identificacao", label: "Identificação" },
-          { field: "alocacao", label: "Alocação" },
+          { field: "tranche", label: "Tranche", options: tranchesOpcoes ?? [] },
+          { field: "alocacao", label: "Alocação", options: alocacoesOpcoes ?? [] },
           { field: "nome", label: "Nome" },
           { field: "cpf_corrigido", label: "CPF Corrigido" },
           { field: "check_po", label: "Check PO" },
-          { field: "criterio", label: "Critério" },
-          { field: "motivo_impedimento", label: "Motivo Impedimento" },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}
@@ -332,13 +365,19 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       <Input id="prioritario-municipio-coord" readOnly value={selected.municipio_coord ?? ""} />
                     </div>
                   </div>
-                  {mapa && (
-                    <Button asChild variant="outline" size="sm" className="mt-3">
-                      <a href={mapa.url} target="_blank" rel="noreferrer">
-                        <MapPin className="mr-1 h-3.5 w-3.5" /> Abrir no mapa
-                      </a>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={validarMunicipio} disabled={consultandoMunicipio}>
+                      {consultandoMunicipio ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <SearchCheck className="mr-1 h-3.5 w-3.5" />}
+                      Validar município
                     </Button>
-                  )}
+                    {mapa && (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={mapa.url} target="_blank" rel="noreferrer">
+                          <MapPin className="mr-1 h-3.5 w-3.5" /> Abrir no mapa
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </Secao>
 
                 <Secao icon={<StickyNote className="h-4 w-4" />} titulo="Observações">
