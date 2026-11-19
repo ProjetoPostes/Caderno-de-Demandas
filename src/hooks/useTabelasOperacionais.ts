@@ -206,6 +206,7 @@ function useValoresDistintosPrioritario(campo: "tranche" | "alocacao", chave: st
           .from("prioritario")
           .select(campo)
           .not(campo, "is", null)
+          .order("id", { ascending: true })
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
         (data ?? []).forEach((r: Record<string, string | null>) => { const v = r[campo]; if (v) set.add(v); });
