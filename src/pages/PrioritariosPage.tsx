@@ -15,7 +15,7 @@ import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePa
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, type CorBadge } from "@/lib/prioritarioCores";
-import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, useDecisoesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -135,6 +135,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const { data: kpis } = usePrioritariosKpis();
   const { data: tranchesOpcoes } = useTranchesPrioritario();
   const { data: alocacoesOpcoes } = useAlocacoesPrioritario();
+  const { data: decisoesOpcoes } = useDecisoesPrioritario();
   const corTranche = useMemo(() => criarCorTranche(tranchesOpcoes ?? []), [tranchesOpcoes]);
   const navigate = useNavigate();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
@@ -239,7 +240,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { field: "check_po", label: "Check PO" },
           { field: "coordenada_validada", label: "Coordenada validada", options: ["Sim", "Não", "Não informado"] },
           { field: "nome_cliente_ligado", label: "Nome do cliente ligado", options: ["Preenchido", "Vazio"] },
-          { field: "decisao", label: "Decisão", options: ["Mantido", "Retirado", "Substituir"] },
+          { field: "decisao", label: "Decisão", options: [...(decisoesOpcoes ?? []), "Não informado"] },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}

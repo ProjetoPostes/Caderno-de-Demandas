@@ -194,7 +194,7 @@ export function useTranchesCaderno() {
 }
 
 // ---------- PRIORITARIO ----------
-function useValoresDistintosPrioritario(campo: "tranche" | "alocacao", chave: string) {
+function useValoresDistintosPrioritario(campo: "tranche" | "alocacao" | "decisao", chave: string) {
   return useQuery({
     queryKey: ["prioritario-valores", chave],
     staleTime: 5 * 60 * 1000,
@@ -225,6 +225,10 @@ export function useAlocacoesPrioritario() {
   return useValoresDistintosPrioritario("alocacao", "alocacao");
 }
 
+export function useDecisoesPrioritario() {
+  return useValoresDistintosPrioritario("decisao", "decisao");
+}
+
 export function usePrioritarios(params: ListParams = {}) {
   const { page = 1, pageSize = 20, search = "", sortField = "nome", sortDir = "asc", filters } = params;
   return useQuery({
@@ -241,7 +245,8 @@ export function usePrioritarios(params: ListParams = {}) {
       else if (cv === "Não informado") q = q.is("coordenada_validada", null);
       if (ncl === "Preenchido") q = q.not("nome_cliente_ligado", "is", null).neq("nome_cliente_ligado", "");
       else if (ncl === "Vazio") q = q.or("nome_cliente_ligado.is.null,nome_cliente_ligado.eq.");
-      if (decisao?.trim()) q = q.eq("decisao", decisao.trim());
+      if (decisao === "Não informado") q = q.is("decisao", null);
+      else if (decisao?.trim()) q = q.eq("decisao", decisao.trim());
       q = applyFilters(q, outros);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
