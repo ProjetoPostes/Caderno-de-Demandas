@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck } from "lucide-react";
+import { Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
-import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, usePrioritarioOsList } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -127,6 +129,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const { data: kpis } = usePrioritariosKpis();
   const { data: tranchesOpcoes } = useTranchesPrioritario();
   const { data: alocacoesOpcoes } = useAlocacoesPrioritario();
+  const navigate = useNavigate();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
 
@@ -141,6 +144,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [erros, setErros] = useState<Record<string, string>>({});
   const [salvando, setSalvando] = useState(false);
   const [consultandoMunicipio, setConsultandoMunicipio] = useState(false);
+  const { data: osList, isLoading: loadingOs } = usePrioritarioOsList(selected?.id_cliente);
   const validarMunicipio = async () => {
     if (!selected) return;
     const latitude = Number(fmtCoord(selected.latitude));
@@ -377,6 +381,46 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                         </a>
                       </Button>
                     )}
+                  </div>
+                </Secao>
+
+                <Secao icon={<FileText className="h-4 w-4" />} titulo="Ordens de Serviço do cliente">
+                  <div className="mb-2 text-xs text-muted-foreground">
+                    {loadingOs ? "Carregando..." : `${osList?.length ?? 0} vinculada(s) · clique para abrir a análise`}
+                  </div>
+                  <div className="overflow-hidden rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/40">
+                          <TableHead className="text-xs uppercase">OS</TableHead>
+                          <TableHead className="text-xs uppercase">Obra</TableHead>
+                          <TableHead className="text-xs uppercase">Status</TableHead>
+                          <TableHead className="text-xs uppercase">Controle OS</TableHead>
+                          <TableHead className="text-xs uppercase">Tranche</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(osList ?? []).length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={5} className="py-8 text-center text-xs text-muted-foreground">
+                              {loadingOs ? "Carregando..." : "Nenhuma OS vinculada a este cliente"}
+                            </TableCell>
+                          </TableRow>
+                        ) : (osList ?? []).map((os) => (
+                          <TableRow
+                            key={os.id_os}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => navigate(`/analise/${os.id_os}`)}
+                          >
+                            <TableCell className="font-mono text-xs">{os.num_os ?? "-"}</TableCell>
+                            <TableCell className="font-mono text-xs">{os.obra?.num_obra ?? "-"}</TableCell>
+                            <TableCell className="text-xs">{os.status ? <Badge variant="outline" className="text-[11px]">{os.status}</Badge> : "-"}</TableCell>
+                            <TableCell className="font-mono text-xs">{os.controle_os ?? "-"}</TableCell>
+                            <TableCell className="text-xs">{os.tranche ? <Badge variant="secondary" className="text-[11px]">{os.tranche}</Badge> : "-"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 </Secao>
 

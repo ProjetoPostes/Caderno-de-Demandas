@@ -383,6 +383,39 @@ export function useObraOsList(idObra: number | null) {
   });
 }
 
+// ---------- OSs DO CLIENTE (prioritário) ----------
+export function usePrioritarioOsList(idCliente: number | null | undefined) {
+  return useQuery({
+    queryKey: ["prioritario-os-list", idCliente],
+    enabled: idCliente != null,
+    queryFn: async () => {
+      if (idCliente == null) return [];
+      const BLOCO = 1000;
+      const data: unknown[] = [];
+      for (let inicio = 0; ; inicio += BLOCO) {
+        const { data: parte, error } = await supabase
+          .from("caderno")
+          .select("id_os,num_os,status,controle_os,tranche,id_obra,obra:id_obra(num_obra)")
+          .is("deleted_at", null)
+          .eq("id_cliente", idCliente)
+          .order("num_os", { ascending: true })
+          .range(inicio, inicio + BLOCO - 1);
+        if (error) throw error;
+        data.push(...(parte ?? []));
+        if (!parte || parte.length < BLOCO) break;
+      }
+      return data as Array<{
+        id_os: string;
+        num_os: number;
+        status: string | null;
+        controle_os: string | null;
+        tranche: string | null;
+        obra: { num_obra: number | null } | null;
+      }>;
+    },
+  });
+}
+
 // ---------- HISTORICO OS (read-only) ----------
 export function useHistoricoOs(params: ListParams = {}) {
   const { page = 1, pageSize = 25, search = "", sortField = "created_at", sortDir = "desc", filters } = params;
