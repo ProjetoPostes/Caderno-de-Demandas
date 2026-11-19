@@ -1,8 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCaderno } from "@/hooks/useCaderno";
-import { useDespacho } from "@/hooks/useDespacho";
-import { useClientesBase, normCpf } from "@/hooks/useClientesBase";
+import { useClientesRpc, useRegionaisClientes, type Cliente } from "@/hooks/useClientesBase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,143 +17,42 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import { maskCpf, formatCpf } from "@/lib/cpfMask";
 
-interface Cliente {
-  cpf: string;
-  nome: string;
-  email: string | null;
-  telefone: string | null;
-  regional: string | null;
-  osCaderno: Array<{ numos: number; numobra: string | null; status: string | null; controle_os: string | null }>;
-  osDespacho: Array<{ numos: number; tratativa: string | null; dias_para_despacho: number | null }>;
-}
-
 const ITEMS_PER_PAGE = 20;
 
 export default function ClientesConsulta() {
   const navigate = useNavigate();
-  const { data: cadernoData, isLoading: isLoadingCaderno } = useCaderno(1000);
-  const { data: despachoData, isLoading: isLoadingDespacho } = useDespacho(true);
-  const { data: clientesBase = [], isLoading: isLoadingBase } = useClientesBase();
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [filterRegional, setFilterRegional] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
-  // Group by CPF to create unique clients
-  const clientes = useMemo(() => {
-    const clienteMap = new Map<string, Cliente>();
+  // Debounce da busca
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-    // Todos os clientes da tabela cliente
-    clientesBase.forEach((c) => {
-      const key = normCpf(c.cpf) || `id-${c.id_cliente}`;
-      const tel = Array.isArray(c.telefone) ? c.telefone.filter(Boolean).join(", ") : c.telefone;
-      clienteMap.set(key, {
-        cpf: c.cpf ?? "",
-        nome: c.nome ?? "Sem nome",
-        email: c.email,
-        telefone: tel || null,
-        regional: null,
-        osCaderno: [],
-        osDespacho: [],
-      });
-    });
+  const { data: regionais = [] } = useRegionaisClientes();
+  const { data, isLoading, isFetching } = useClientesRpc({
+    search,
+    regional: filterRegional === "all" ? "" : filterRegional,
+    page: currentPage,
+    pageSize: ITEMS_PER_PAGE,
+    sortField: "nome",
+    sortDir: "asc",
+  });
 
-    // Process Caderno records
-    cadernoData.forEach((item) => {
-      if (!item.numcpf) return;
-      
-      const existing = clienteMap.get(normCpf(item.numcpf)) || {
-        cpf: item.numcpf,
-        nome: item.nomecli ?? "Sem nome",
-        email: item.email,
-        telefone: item.numtel,
-        regional: item.regional,
-        osCaderno: [],
-        osDespacho: [],
-      };
-
-      existing.osCaderno.push({
-        numos: item.numos,
-        numobra: item.numobra,
-        status: item.status,
-        controle_os: item.controle_os,
-      });
-
-      if (item.nomecli) existing.nome = item.nomecli;
-      if (item.email) existing.email = item.email;
-      if (item.numtel) existing.telefone = item.numtel;
-      if (item.regional) existing.regional = item.regional;
-
-      clienteMap.set(normCpf(item.numcpf), existing);
-    });
-
-    // Process Despacho records
-    despachoData.forEach((item) => {
-      if (!item.numcpf) return;
-
-      const existing = clienteMap.get(normCpf(item.numcpf)) || {
-        cpf: item.numcpf,
-        nome: item.nomecli ?? "Sem nome",
-        email: item.email,
-        telefone: item.telefone,
-        regional: item.regional,
-        osCaderno: [],
-        osDespacho: [],
-      };
-
-      existing.osDespacho.push({
-        numos: item.numos,
-        tratativa: item.tratativa,
-        dias_para_despacho: item.dias_para_despacho,
-      });
-
-      if (item.nomecli) existing.nome = item.nomecli;
-      if (item.email) existing.email = item.email;
-      if (item.telefone) existing.telefone = item.telefone;
-      if (item.regional) existing.regional = item.regional;
-
-      clienteMap.set(normCpf(item.numcpf), existing);
-    });
-
-    return Array.from(clienteMap.values());
-  }, [clientesBase, cadernoData, despachoData]);
-
-  const regionais = useMemo(() => {
-    return [...new Set(clientes.map((c) => c.regional).filter(Boolean))];
-  }, [clientes]);
-
-  const filteredClientes = useMemo(() => {
-    let result = [...clientes];
-
-    if (search) {
-      const searchLower = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          c.cpf.includes(search) ||
-          c.nome.toLowerCase().includes(searchLower) ||
-          c.email?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    if (filterRegional !== "all") {
-      result = result.filter((c) => c.regional === filterRegional);
-    }
-
-    // Sort by name
-    result.sort((a, b) => a.nome.localeCompare(b.nome));
-
-    return result;
-  }, [clientes, search, filterRegional]);
-
-  const paginatedClientes = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredClientes.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredClientes, currentPage]);
-
-  const totalPages = Math.ceil(filteredClientes.length / ITEMS_PER_PAGE);
+  const clientes = data?.rows ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const clearFilters = () => {
+    setSearchInput("");
     setSearch("");
     setFilterRegional("all");
     setCurrentPage(1);
@@ -165,8 +62,6 @@ export default function ClientesConsulta() {
     setSelectedCliente(cliente);
     setDetailDialogOpen(true);
   };
-
-  const isLoading = isLoadingCaderno || isLoadingDespacho || isLoadingBase;
 
   if (isLoading) {
     return (
@@ -202,29 +97,29 @@ export default function ClientesConsulta() {
         <div className="grid grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
+              <CardTitle className="text-sm font-medium">Total de Clientes (filtrados)</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{clientes.length}</div>
+              <div className="text-2xl font-bold">{total}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Clientes no Caderno</CardTitle>
+              <CardTitle className="text-sm font-medium">Clientes no Caderno (página)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">
-                {clientes.filter((c) => c.osCaderno.length > 0).length}
+                {clientes.filter((c) => c.qtdOsCaderno > 0).length}
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Clientes no Despacho</CardTitle>
+              <CardTitle className="text-sm font-medium">Clientes no Despacho (página)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-600">
-                {clientes.filter((c) => c.osDespacho.length > 0).length}
+                {clientes.filter((c) => c.qtdOsDespacho > 0).length}
               </div>
             </CardContent>
           </Card>
@@ -244,25 +139,32 @@ export default function ClientesConsulta() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar por CPF, Nome ou E-mail..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   className="pl-8"
                 />
               </div>
-              <Select value={filterRegional} onValueChange={setFilterRegional}>
+              <Select
+                value={filterRegional}
+                onValueChange={(v) => {
+                  setFilterRegional(v);
+                  setCurrentPage(1);
+                }}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Regional" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas Regionais</SelectItem>
                   {regionais.map((r) => (
-                    <SelectItem key={r} value={r!}>{r}</SelectItem>
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Button variant="outline" size="icon" onClick={clearFilters}>
                 <X className="h-4 w-4" />
               </Button>
+              {isFetching && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground self-center" />}
             </div>
           </CardContent>
         </Card>
@@ -284,14 +186,14 @@ export default function ClientesConsulta() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedClientes.length === 0 ? (
+                {clientes.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       Nenhum cliente encontrado
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedClientes.map((cliente) => (
+                  clientes.map((cliente) => (
                     <TableRow key={cliente.cpf || cliente.nome}>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => handleViewCliente(cliente)}>
@@ -304,13 +206,13 @@ export default function ClientesConsulta() {
                       <TableCell className="text-xs">{cliente.telefone ?? "-"}</TableCell>
                       <TableCell>{cliente.regional ?? "-"}</TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={cliente.osCaderno.length > 0 ? "default" : "outline"}>
-                          {cliente.osCaderno.length}
+                        <Badge variant={cliente.qtdOsCaderno > 0 ? "default" : "outline"}>
+                          {cliente.qtdOsCaderno}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge variant={cliente.osDespacho.length > 0 ? "secondary" : "outline"}>
-                          {cliente.osDespacho.length}
+                        <Badge variant={cliente.qtdOsDespacho > 0 ? "secondary" : "outline"}>
+                          {cliente.qtdOsDespacho}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -322,7 +224,7 @@ export default function ClientesConsulta() {
             {/* Pagination */}
             <div className="flex items-center justify-between px-4 py-3 border-t">
               <div className="text-sm text-muted-foreground">
-                Mostrando {filteredClientes.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0} a {Math.min(currentPage * ITEMS_PER_PAGE, filteredClientes.length)} de {filteredClientes.length} clientes
+                Mostrando {total > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0} a {Math.min(currentPage * ITEMS_PER_PAGE, total)} de {total} clientes
               </div>
               <div className="flex items-center gap-2">
                 <Button
