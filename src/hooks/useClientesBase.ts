@@ -17,8 +17,8 @@ export function useClientesBase() {
     queryKey: ["clientes-base"],
     queryFn: async (): Promise<ClienteBase[]> => {
       const all: ClienteBase[] = [];
-      const size = 10000;
-      for (let from = 0; ; from += size) {
+      const size = 1000;
+      for (let from = 0; ; ) {
         const { data, error } = await supabase
           .from("cliente")
           .select("id_cliente, cpf, nome, email, telefone")
@@ -26,8 +26,9 @@ export function useClientesBase() {
           .order("id_cliente")
           .range(from, from + size - 1);
         if (error) throw error;
-        all.push(...((data ?? []) as ClienteBase[]));
-        if (!data || data.length < size) break;
+        if (!data || data.length === 0) break;
+        all.push(...(data as ClienteBase[]));
+        from += data.length;
       }
       return all;
     },

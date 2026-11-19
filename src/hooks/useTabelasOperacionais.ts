@@ -178,16 +178,18 @@ export function useTranchesCaderno() {
     queryFn: async (): Promise<string[]> => {
       const BLOCO = 1000;
       const set = new Set<string>();
-      for (let inicio = 0; ; inicio += BLOCO) {
+      for (let inicio = 0; ; ) {
         const { data, error } = await supabase
           .from("caderno")
           .select("tranche")
           .is("deleted_at", null)
           .not("tranche", "is", null)
+          .order("id_os", { ascending: true })
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
-        (data ?? []).forEach((r: { tranche: string | null }) => { if (r.tranche) set.add(r.tranche); });
-        if (!data || data.length < BLOCO) break;
+        if (!data || data.length === 0) break;
+        data.forEach((r: { tranche: string | null }) => { if (r.tranche) set.add(r.tranche); });
+        inicio += data.length;
       }
       return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
@@ -359,7 +361,7 @@ export function useObraOsList(idObra: number | null) {
       // Busca todas as OSs da obra em blocos (sem corte de quantidade)
       const BLOCO = 1000;
       const data: unknown[] = [];
-      for (let inicio = 0; ; inicio += BLOCO) {
+      for (let inicio = 0; ; ) {
         const { data: parte, error } = await supabase
           .from("caderno")
           .select("id_os,num_os,status,controle_os,tranche,datasol,datatertrab,id_cliente,cliente:id_cliente(nome,cpf),localidade:id_loc(municipio,nome_lcd)")
@@ -369,7 +371,8 @@ export function useObraOsList(idObra: number | null) {
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
         data.push(...(parte ?? []));
-        if (!parte || parte.length < BLOCO) break;
+        if (!parte || parte.length === 0) break;
+        inicio += parte.length;
       }
       const registros = (data ?? []) as unknown as Array<{
         id_os: string;
@@ -434,7 +437,7 @@ export function usePrioritarioOsList(idClienteInformado: number | null | undefin
       if (idCliente == null) return [];
       const BLOCO = 1000;
       const data: unknown[] = [];
-      for (let inicio = 0; ; inicio += BLOCO) {
+      for (let inicio = 0; ; ) {
         const { data: parte, error } = await supabase
           .from("caderno")
           .select("id_os,num_os,status,controle_os,tranche,id_obra,obra:id_obra(num_obra)")
@@ -444,7 +447,8 @@ export function usePrioritarioOsList(idClienteInformado: number | null | undefin
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
         data.push(...(parte ?? []));
-        if (!parte || parte.length < BLOCO) break;
+        if (!parte || parte.length === 0) break;
+        inicio += parte.length;
       }
       return data as Array<{
         id_os: string;
@@ -491,13 +495,14 @@ export function useMunicipiosLocalidade() {
     queryFn: async () => {
       const BLOCO = 1000;
       const nomes = new Set<string>();
-      for (let inicio = 0; ; inicio += BLOCO) {
+      for (let inicio = 0; ; ) {
         const { data, error } = await supabase
           .from("localidade").select("nome_lcd").order("nome_lcd", { ascending: true })
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
         for (const r of (data ?? []) as Array<{ nome_lcd: string | null }>) if (r.nome_lcd?.trim()) nomes.add(r.nome_lcd.trim());
-        if (!data || data.length < BLOCO) break;
+        if (!data || data.length === 0) break;
+        inicio += data.length;
       }
       return Array.from(nomes).sort((a, b) => a.localeCompare(b, "pt-BR"));
     },

@@ -183,7 +183,7 @@ export function useAnalisesAtuaisPendencias() {
     queryFn: async (): Promise<AnalisePendenciaRow[]> => {
       const rows: AnalisePendenciaRow[] = [];
       const page = 1000;
-      for (let from = 0; ; from += page) {
+      for (let from = 0; ; ) {
         const { data, error } = await supabase
           .from("analise_os")
           .select(
@@ -191,11 +191,13 @@ export function useAnalisesAtuaisPendencias() {
           )
           .eq("analise_atual", true)
           .is("deleted_at", null)
+          .order("id_os", { ascending: true })
           .range(from, from + page - 1);
         if (error) throw error;
         const chunk = (data as unknown as AnalisePendenciaRow[]) ?? [];
+        if (chunk.length === 0) break;
         rows.push(...chunk);
-        if (chunk.length < page) break;
+        from += chunk.length;
       }
       return rows;
     },
