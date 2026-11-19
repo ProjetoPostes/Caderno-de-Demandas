@@ -230,10 +230,22 @@ export function useAlocacoesPrioritario() {
 }
 
 export function useDecisoesPrioritario() {
-  const query = useValoresDistintosPrioritario("decisao", "decisao");
-  // O banco pode gravar em caixas diferentes ("MANTIDO"); exibe a forma canônica.
-  const data = query.data?.map((v) => canonicalizarDecisao(v) ?? v);
-  return { ...query, data: data ? [...new Set(data)] : data };
+  // Consulta direta por valor (count head) — não depende de paginação nem de
+  // limites de linhas do servidor; combina com valores extras que existirem.
+  const varredura = useValoresDistintosPrioritario("decisao", "decisao");
+  const conhecidas = useQuery({
+    queryKey: ["prioritario-decisoes-conhecidas"],
+    staleTime: 60 * 1000,
+    queryFn: async (): Promise<string[]> => {
+      const valores = ["Mantido", "Retirado", "Substituir"];
+      const res = await Promise.all(valores.map((v) =>
+        supabase.from("prioritario").select("id", { count: "exact", head: true }).ilike("decisao", v)));
+      return valores.filter((_, i) => (res[i].count ?? 0) > 0);
+    },
+  });
+  const extras = (varredura.data ?? []).map((v) => canonicalizarDecisao(v) ?? v);
+  const data = [...new Set([...(conhecidas.data ?? []), ...extras])];
+  return { ...conhecidas, data };
 }
 
 export function usePrioritarios(params: ListParams = {}) {
