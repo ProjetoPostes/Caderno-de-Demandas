@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText } from "lucide-react";
@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
+import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, type CorBadge } from "@/lib/prioritarioCores";
 import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, usePrioritarioOsList } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -119,6 +120,10 @@ function Secao({ icon, titulo, children, className = "" }: { icon: React.ReactNo
   );
 }
 
+function BadgeCor({ cor, children }: { cor: CorBadge | null; children: React.ReactNode }) {
+  return <Badge variant="outline" className={`text-[11px] ${cor ?? ""}`}>{children}</Badge>;
+}
+
 export default function PrioritariosPage({ standalone = false }: { standalone?: boolean }) {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
@@ -130,6 +135,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const { data: kpis } = usePrioritariosKpis();
   const { data: tranchesOpcoes } = useTranchesPrioritario();
   const { data: alocacoesOpcoes } = useAlocacoesPrioritario();
+  const corTranche = useMemo(() => criarCorTranche(tranchesOpcoes ?? []), [tranchesOpcoes]);
   const navigate = useNavigate();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
@@ -256,10 +262,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
               </div>
             ),
           },
-          { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <Badge variant="secondary" className="text-[11px]">{p.tranche}</Badge> : muted(null) },
-          { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <Badge variant="outline" className="text-[11px]">{p.alocacao}</Badge> : muted(null) },
-          { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <Badge variant={p.coordenada_validada ? "default" : "destructive"} className="text-[11px]">{p.coordenada_validada ? "Sim" : "Não"}</Badge> },
-          { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <Badge variant="outline" className="text-[11px]">{p.decisao}</Badge> : muted(null) },
+          { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <BadgeCor cor={corTranche(p.tranche)}>{p.tranche}</BadgeCor> : muted(null) },
+          { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <BadgeCor cor={corAlocacao(p.alocacao)}>{p.alocacao}</BadgeCor> : muted(null) },
+          { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <BadgeCor cor={corCoordenadaValidada(p.coordenada_validada)}>{p.coordenada_validada ? "Sim" : "Não"}</BadgeCor> },
+          { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <BadgeCor cor={corDecisao(p.decisao)}>{p.decisao}</BadgeCor> : muted(null) },
         ]}
       />
       </>)}
@@ -278,7 +284,14 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     <h2 className="truncate text-lg font-semibold">{selected.nome ?? "Prioritário"}</h2>
                     <p className="font-mono text-sm text-muted-foreground">{selected.cpf_corrigido ? maskCpf(selected.cpf_corrigido) : "Sem CPF"}</p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
-                      {selected.tranche && <Badge variant="secondary">Tranche {selected.tranche}</Badge>}
+                      {selected.tranche && <BadgeCor cor={corTranche(selected.tranche)}>Tranche {selected.tranche}</BadgeCor>}
+                      {selected.alocacao && <BadgeCor cor={corAlocacao(selected.alocacao)}>{selected.alocacao}</BadgeCor>}
+                      {selected.coordenada_validada != null && (
+                        <BadgeCor cor={corCoordenadaValidada(selected.coordenada_validada)}>
+                          Coordenada {selected.coordenada_validada ? "validada" : "não validada"}
+                        </BadgeCor>
+                      )}
+                      {selected.decisao && <BadgeCor cor={corDecisao(selected.decisao)}>{selected.decisao}</BadgeCor>}
                       {selected.check_po ? <Badge>PO: {selected.check_po}</Badge> : <Badge variant="outline">PO pendente</Badge>}
                       {selected.motivo_impedimento && <Badge variant="destructive">Com impedimento</Badge>}
                     </div>
@@ -441,7 +454,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                             <TableCell className="font-mono text-xs">{os.obra?.num_obra ?? "-"}</TableCell>
                             <TableCell className="text-xs">{os.status ? <Badge variant="outline" className="text-[11px]">{os.status}</Badge> : "-"}</TableCell>
                             <TableCell className="font-mono text-xs">{os.controle_os ?? "-"}</TableCell>
-                            <TableCell className="text-xs">{os.tranche ? <Badge variant="secondary" className="text-[11px]">{os.tranche}</Badge> : "-"}</TableCell>
+                            <TableCell className="text-xs">{os.tranche ? <BadgeCor cor={corTranche(os.tranche)}>{os.tranche}</BadgeCor> : "-"}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
