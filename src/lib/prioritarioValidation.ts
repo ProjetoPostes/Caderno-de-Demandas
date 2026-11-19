@@ -26,6 +26,8 @@ export interface CorrecaoPrioritario {
   latitude?: number | string | null;
   longitude?: number | string | null;
   observacao?: string | null;
+  atendimento?: string | null;
+  decisao?: string | null;
 }
 
 const txt = (v?: string | null) => (v ?? "").trim() || null;
@@ -46,6 +48,8 @@ export function validarCorrecao(f: CorrecaoPrioritario): { erros: Record<string,
     "Responsável": txt(f["Responsável"]),
     coordenada_validada: f.coordenada_validada ?? null,
     observacao: txt(f.observacao),
+    atendimento: txt(f.atendimento),
+    decisao: txt(f.decisao),
   };
 
   if (podeEditarCoordenadas(f.coordenada_validada)) {

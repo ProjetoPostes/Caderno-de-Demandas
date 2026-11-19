@@ -44,6 +44,7 @@ type PrioritarioRowExt = Prioritario & {
   coordenada_validada?: boolean | null;
   municipio_coord?: string | null;
   atendimento?: string | null;
+  decisao?: string | null;
 };
 
 // Contagens apenas para exibição (derivadas dos registros existentes)
@@ -357,6 +358,18 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                           <SelectItem value="nao-informado">Não informado</SelectItem>
                           <SelectItem value="Atendido">Atendido</SelectItem>
                           <SelectItem value="Não atendido">Não atendido</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-decisao">Decisão</Label>
+                      <Select value={selected.decisao ?? "nao-informado"} onValueChange={(valor) => alterarCampo("decisao", valor === "nao-informado" ? null : valor)}>
+                        <SelectTrigger id="prioritario-decisao"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="Mantido">Mantido</SelectItem>
+                          <SelectItem value="Retirado">Retirado</SelectItem>
+                          <SelectItem value="Substituir">Substituir</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

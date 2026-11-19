@@ -37,3 +37,12 @@ test("Com coordenada Não, exige coordenadas válidas e envia com ponto", () => 
 test("Com coordenada Sim, não altera coordenadas", () => {
   expect("latitude" in validarCorrecao({ ...base, latitude: "1" }).payload).toBe(false);
 });
+
+test("Salva atendimento e decisao no payload", () => {
+  const r = validarCorrecao({ ...base, atendimento: "Atendido", decisao: "Mantido" });
+  expect(r.payload.atendimento).toBe("Atendido");
+  expect(r.payload.decisao).toBe("Mantido");
+  const vazio = validarCorrecao({ ...base, atendimento: "  ", decisao: null });
+  expect(vazio.payload.atendimento).toBeNull();
+  expect(vazio.payload.decisao).toBeNull();
+});
