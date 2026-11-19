@@ -202,7 +202,9 @@ function useValoresDistintosPrioritario(campo: "tranche" | "alocacao" | "decisao
     queryFn: async (): Promise<string[]> => {
       const BLOCO = 1000;
       const set = new Set<string>();
-      for (let inicio = 0; ; inicio += BLOCO) {
+      // O servidor pode limitar linhas por resposta abaixo de BLOCO; avança pelo
+      // tamanho real recebido e só para quando vier vazio.
+      for (let inicio = 0; ; ) {
         const { data, error } = await supabase
           .from("prioritario")
           .select(campo)
@@ -210,8 +212,9 @@ function useValoresDistintosPrioritario(campo: "tranche" | "alocacao" | "decisao
           .order("id", { ascending: true })
           .range(inicio, inicio + BLOCO - 1);
         if (error) throw error;
-        (data ?? []).forEach((r: Record<string, string | null>) => { const v = r[campo]; if (v) set.add(v); });
-        if (!data || data.length < BLOCO) break;
+        if (!data || data.length === 0) break;
+        data.forEach((r: Record<string, string | null>) => { const v = r[campo]; if (v) set.add(v); });
+        inicio += data.length;
       }
       return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
