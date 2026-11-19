@@ -16,19 +16,24 @@ export function useClientesBase() {
   return useQuery({
     queryKey: ["clientes-base"],
     queryFn: async (): Promise<ClienteBase[]> => {
-      const all: ClienteBase[] = [];
       const size = 1000;
-      for (let from = 0; ; ) {
-        const { data, error } = await supabase
-          .from("cliente")
-          .select("id_cliente, cpf, nome, email, telefone")
-          .is("deleted_at", null)
-          .order("id_cliente")
-          .range(from, from + size - 1);
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-        all.push(...(data as ClienteBase[]));
-        from += data.length;
+      const base = () => supabase.from("cliente").select("id_cliente, cpf, nome, email, telefone").is("deleted_at", null);
+      const { count, error: eCount } = await supabase
+        .from("cliente").select("id_cliente", { count: "exact", head: true }).is("deleted_at", null);
+      if (eCount) throw eCount;
+      const total = count ?? 0;
+      const primeira = await base().order("id_cliente").range(0, size - 1);
+      if (primeira.error) throw primeira.error;
+      const all: ClienteBase[] = [...((primeira.data ?? []) as ClienteBase[])];
+      // O servidor pode devolver menos que "size" por resposta; usa o tamanho real
+      // do bloco e busca o restante em paralelo (lotes de 8).
+      const passo = Math.max(all.length, 1);
+      const offsets: number[] = [];
+      for (let o = all.length; o < total; o += passo) offsets.push(o);
+      for (let i = 0; i < offsets.length; i += 8) {
+        const lote = await Promise.all(offsets.slice(i, i + 8).map((o) =>
+          base().order("id_cliente").range(o, o + passo - 1)));
+        for (const r of lote) { if (r.error) throw r.error; all.push(...((r.data ?? []) as ClienteBase[])); }
       }
       return all;
     },
