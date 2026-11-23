@@ -15,3 +15,4 @@
 - Priority modal correction fields use transient React state only; coordinate editability is centralized in a tested helper to enforce editing only when validation is false.
 - Operational column selectors use shared read-only, deterministically paginated distinct-value queries independent of the current page; preserve raw values for filtering, while work listing and counts retain their existing RPC contracts.
 - Column filters explicitly marked as text must not participate in distinct-value queries; presence selectors use null/empty predicates instead of loading individual names to keep category queries small.
+- Work validation submissions use the explicit field whitelist in `src/lib/validacaoObra.ts` so display-only source fields cannot leak into updates.
