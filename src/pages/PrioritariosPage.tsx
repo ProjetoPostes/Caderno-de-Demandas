@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { maskCpf } from "@/lib/cpfMask";
+import { FILTRO_PREENCHIDO, FILTRO_EM_BRANCO } from "@/lib/valoresColuna";
 import type { Prioritario } from "@/types/database";
 
 const PAGE_SIZE = 20;
@@ -232,14 +233,17 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         searchPlaceholder="Buscar por nome, CPF..."
         filterSource={{ tabela: "prioritario", chave: "id" }}
         columnFilters={[
-          { field: "controle", label: "Controle" },
+          { field: "controle", label: "Controle", type: "text" },
           { field: "tranche", label: "Tranche" },
           { field: "alocacao", label: "Alocação" },
-          { field: "nome", label: "Nome" },
-          { field: "cpf_corrigido", label: "CPF Corrigido" },
-          { field: "check_po", label: "Check PO" },
+          { field: "nome", label: "Nome", type: "text" },
+          { field: "cpf_corrigido", label: "CPF Corrigido", type: "text" },
+          { field: "check_po", label: "Check PO", type: "text" },
           { field: "coordenada_validada", label: "Coordenada validada" },
-          { field: "nome_cliente_ligado", label: "Nome do cliente ligado" },
+          { field: "nome_cliente_ligado", label: "Nome do cliente ligado", options: [
+            { value: FILTRO_PREENCHIDO, label: "Preenchido" },
+            { value: FILTRO_EM_BRANCO, label: "Vazio" },
+          ] },
           { field: "decisao", label: "Decisão" },
         ]}
         filterValues={filters}

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { buscarTodos } from "@/lib/buscarTodos";
-import { aplicarFiltroColuna } from "@/lib/valoresColuna";
+import { aplicarFiltroColuna, aplicarFiltroPreenchimento } from "@/lib/valoresColuna";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
 import type {
   ObraFormData,
@@ -227,7 +227,9 @@ export function usePrioritarios(params: ListParams = {}) {
         const s = search.trim();
         q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
       }
-      q = applyFilters(q, filters);
+      const { nome_cliente_ligado, ...demaisFiltros } = filters ?? {};
+      q = aplicarFiltroPreenchimento(q, "nome_cliente_ligado", nome_cliente_ligado);
+      q = applyFilters(q, demaisFiltros);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;

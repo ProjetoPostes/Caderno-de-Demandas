@@ -42,7 +42,6 @@ import { BulkEditCadernoDialog } from "@/components/BulkEditCadernoDialog";
 import { maskCpf } from "@/lib/cpfMask";
 import { Caderno as CadernoDBType } from "@/types/database";
 import { CopyableInput } from "@/components/CopyableInput";
-import { valoresUnicosColuna } from "@/lib/valoresColuna";
 
 const formSchema = z.object({
   id_os: z.string().uuid("ID da OS inválido"),
@@ -172,7 +171,7 @@ export default function Caderno() {
       result = result.filter((item) => item.regional === filterRegional);
     }
     if (filterObra) {
-      result = result.filter((item) => String(item.numobra ?? "") === filterObra);
+      result = result.filter((item) => String(item.numobra ?? "").toLowerCase().includes(filterObra.toLowerCase()));
     }
     if (filterTranche !== "all") {
       result = result.filter((item) => item.tranche === filterTranche);
@@ -322,7 +321,6 @@ export default function Caderno() {
   };
 
   const statuses = [...new Set(data.map((d) => d.status).filter(Boolean))];
-  const obras = valoresUnicosColuna(data.map(d => d.numobra), false);
   const regionais = [...new Set(data.map((d) => d.regional).filter(Boolean))];
   const tranches = [...new Set(data.map((d) => d.tranche).filter(Boolean))];
   const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))] as string[];
@@ -350,13 +348,7 @@ export default function Caderno() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Buscar por OS, Nome ou CPF..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
               </div>
-              <Select value={filterObra || "all"} onValueChange={v => { setFilterObra(v === "all" ? "" : v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-[150px]" aria-label="Nº Obra"><SelectValue placeholder="Nº Obra" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas Obras</SelectItem>
-                  {obras.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Input className="w-[150px]" aria-label="Nº Obra" placeholder="Nº Obra" value={filterObra} onChange={e => { setFilterObra(e.target.value); setCurrentPage(1); }} />
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="w-[150px]"><SelectValue placeholder="Status" /></SelectTrigger>
                 <SelectContent>

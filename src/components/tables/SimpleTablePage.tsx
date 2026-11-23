@@ -10,6 +10,7 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import { cn } from "@/lib/utils";
+import type { OpcaoColuna } from "@/lib/valoresColuna";
 import { useValoresColunas, type FonteFiltros } from "@/hooks/useValoresColunas";
 import {
   Select,
@@ -32,7 +33,8 @@ export interface ColumnFilter {
   field: string;
   label: string;
   placeholder?: string;
-  options?: string[];
+  type?: "text" | "select";
+  options?: (string | OpcaoColuna)[];
 }
 
 interface Props<T> {
@@ -89,7 +91,7 @@ export function SimpleTablePage<T>({
 }: Props<T>) {
   const navigate = useNavigate();
   const { data: valoresColunas, isLoading: carregandoFiltros, isError: erroFiltros, refetch: recarregarFiltros } = useValoresColunas(
-    filterSource, (columnFilters ?? []).filter(f => f.options === undefined).map(f => f.field),
+    filterSource, (columnFilters ?? []).filter(f => f.type !== "text" && f.options === undefined).map(f => f.field),
   );
   const totalRows = total ?? rows.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
@@ -138,8 +140,8 @@ export function SimpleTablePage<T>({
           {columnFilters && columnFilters.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {columnFilters.map((f) => {
-                const opcoes = f.options?.map(value => ({ value, label: value })) ?? valoresColunas?.[f.field] ?? [];
-                if (filterSource || f.options !== undefined) {
+                const opcoes = f.options?.map(value => typeof value === "string" ? { value, label: value } : value) ?? valoresColunas?.[f.field] ?? [];
+                if (f.type !== "text" && (filterSource || f.options !== undefined)) {
                   const val = filterValues?.[f.field] ?? "";
                   return (
                     <Select
@@ -147,11 +149,12 @@ export function SimpleTablePage<T>({
                       value={val || "__ALL__"}
                       onValueChange={(v) => onFilterChange?.(f.field, v === "__ALL__" ? "" : v)}
                     >
-                      <SelectTrigger className="h-8 text-xs" aria-label={f.label} disabled={f.options === undefined && carregandoFiltros}>
+                      <SelectTrigger className="h-8 text-xs" aria-label={f.label}>
                         <SelectValue placeholder={f.label} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__ALL__">Todos ({f.label})</SelectItem>
+                        {f.options === undefined && carregandoFiltros && <SelectItem value="__LOADING__" disabled>Carregando opções...</SelectItem>}
                         {opcoes.map((opt) => (
                           <SelectItem key={opt.value} value={opt.value} className="text-xs">
                             {opt.label}
@@ -166,6 +169,7 @@ export function SimpleTablePage<T>({
                 return (
                   <Input
                     key={f.field}
+                    aria-label={f.label}
                     placeholder={f.placeholder ?? f.label}
                     value={filterValues?.[f.field] ?? ""}
                     onChange={(e) => onFilterChange?.(f.field, e.target.value)}

@@ -1,7 +1,22 @@
 import { describe, expect, test } from "bun:test";
-import { aplicarFiltroColuna, FILTRO_NULO, FILTRO_VAZIO, valoresUnicosColuna } from "./valoresColuna";
+import { aplicarFiltroColuna, aplicarFiltroPreenchimento, FILTRO_NULO, FILTRO_VAZIO, FILTRO_PREENCHIDO, FILTRO_EM_BRANCO, valoresUnicosColuna } from "./valoresColuna";
 
 describe("valores reais dos filtros", () => {
+  test("cliente ligado vazio inclui nulo e string vazia", () => {
+    const calls: unknown[] = [];
+    const q = { or: (v: string) => { calls.push(["or", v]); return q; },
+      not: () => q, neq: () => q };
+    aplicarFiltroPreenchimento(q, "nome_cliente_ligado", FILTRO_EM_BRANCO);
+    expect(calls).toEqual([["or", "nome_cliente_ligado.is.null,nome_cliente_ligado.eq."]]);
+  });
+  test("cliente ligado preenchido exclui nulo e string vazia", () => {
+    const calls: unknown[] = [];
+    const q = { or: () => q,
+      not: (f: string, op: string, v: null) => { calls.push(["not", f, op, v]); return q; },
+      neq: (f: string, v: string) => { calls.push(["neq", f, v]); return q; } };
+    aplicarFiltroPreenchimento(q, "nome_cliente_ligado", FILTRO_PREENCHIDO);
+    expect(calls).toEqual([["not", "nome_cliente_ligado", "is", null], ["neq", "nome_cliente_ligado", ""]]);
+  });
   test("lista todos os valores distintos sem inventar nem canonicalizar decisões", () => {
     const values = valoresUnicosColuna(["MANTIDO", "SUBSTITUIR", "RETIRADO", "SUBSTITUIR", "Retirado"]);
     expect(values.map(v => v.value).sort()).toEqual(["MANTIDO", "RETIRADO", "Retirado", "SUBSTITUIR"]);

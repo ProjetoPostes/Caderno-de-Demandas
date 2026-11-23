@@ -40,7 +40,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         searchPlaceholder="Buscar por número ou status..."
         filterSource={{ tabela: "obra", chave: "id_obra", incluirVazios: false }}
         columnFilters={[
-          { field: "num_obra", label: "Num Obra" },
+          { field: "num_obra", label: "Num Obra", type: "text" },
           { field: "status", label: "Status" },
           { field: "tranche", label: "Tranche", options: tranchesOpcoes ?? [] },
           { field: "analise_obra", label: "Analise" },
