@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Carregar valores únicos reais nos filtros de todas as telas operacionais, apenas por consultas.
+- [x] Testar valores únicos, paginação e preservação das consultas e contagens: 48 testes passaram; conferência autenticada indisponível porque a tela solicitou login.
+
 - [x] Adicionar acesso ao Google Earth e Maps na análise, com conversão UTM em WGS84; acesso autenticado e destinos externos não verificados.
 - [x] Exigir tipo de coordenada e, para UTM, fuso e hemisfério; 15 testes passaram e compilação sem erros.
 

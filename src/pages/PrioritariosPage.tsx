@@ -15,7 +15,7 @@ import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePa
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
-import { usePrioritarios, useTranchesPrioritario, useAlocacoesPrioritario, useDecisoesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -134,8 +134,6 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
   const { data: kpis } = usePrioritariosKpis();
   const { data: tranchesOpcoes } = useTranchesPrioritario();
-  const { data: alocacoesOpcoes } = useAlocacoesPrioritario();
-  const { data: decisoesOpcoes } = useDecisoesPrioritario();
   const corTranche = useMemo(() => criarCorTranche(tranchesOpcoes ?? []), [tranchesOpcoes]);
   const navigate = useNavigate();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
@@ -205,6 +203,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
     setSelected((a) => a ? { ...a, ...payload } as PrioritarioRowExt : a);
     qc.invalidateQueries({ queryKey: ["prioritarios"] });
     qc.invalidateQueries({ queryKey: ["prioritarios-kpis"] });
+    qc.invalidateQueries({ queryKey: ["valores-colunas"] });
   };
 
   return (
@@ -231,16 +230,17 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         search={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
         searchPlaceholder="Buscar por nome, CPF..."
+        filterSource={{ tabela: "prioritario", chave: "id" }}
         columnFilters={[
           { field: "controle", label: "Controle" },
-          { field: "tranche", label: "Tranche", options: tranchesOpcoes ?? [] },
-          { field: "alocacao", label: "Alocação", options: alocacoesOpcoes ?? [] },
+          { field: "tranche", label: "Tranche" },
+          { field: "alocacao", label: "Alocação" },
           { field: "nome", label: "Nome" },
           { field: "cpf_corrigido", label: "CPF Corrigido" },
           { field: "check_po", label: "Check PO" },
-          { field: "coordenada_validada", label: "Coordenada validada", options: ["Sim", "Não", "Não informado"] },
-          { field: "nome_cliente_ligado", label: "Nome do cliente ligado", options: ["Preenchido", "Vazio"] },
-          { field: "decisao", label: "Decisão", options: [...(decisoesOpcoes ?? []), "Não informado"] },
+          { field: "coordenada_validada", label: "Coordenada validada" },
+          { field: "nome_cliente_ligado", label: "Nome do cliente ligado" },
+          { field: "decisao", label: "Decisão" },
         ]}
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}

@@ -53,6 +53,7 @@ export default function LocalidadesPage({ standalone = false }: { standalone?: b
         search={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
         searchPlaceholder="Buscar por código, nome ou regional..."
+        filterSource={{ tabela: "localidade", chave: "id_loc" }}
         columnFilters={[
           { field: "cod_lcd", label: "Código" },
           { field: "nome_lcd", label: "Nome" },

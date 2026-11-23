@@ -218,10 +218,11 @@ export default function DespachoConsulta() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Inconsistencia">Com Inconsistência</SelectItem>
-                  {tratativas.filter(t => t !== "Pendente").map((t) => (
-                    <SelectItem key={t} value={t!}>{t}</SelectItem>
+                  {data.some(d => (d.inconsistencia ?? 0) > 0) && !tratativas.includes("Inconsistencia") && (
+                    <SelectItem value="Inconsistencia">Com Inconsistência</SelectItem>
+                  )}
+                  {tratativas.map((t) => (
+                    <SelectItem key={t} value={t ?? ""}>{t}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

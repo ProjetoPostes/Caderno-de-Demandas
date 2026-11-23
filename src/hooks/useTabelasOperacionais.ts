@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { buscarTodos } from "@/lib/buscarTodos";
-import { canonicalizarDecisao } from "@/lib/prioritarioCores";
+import { aplicarFiltroColuna } from "@/lib/valoresColuna";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
 import type {
   ObraFormData,
@@ -32,7 +32,7 @@ function applyFilters(
 ) {
   if (!filters) return q;
   for (const [k, v] of Object.entries(filters)) {
-    if (v && v.trim()) q = q.ilike(k, `%${v.trim()}%`);
+    q = aplicarFiltroColuna(q, k, v);
   }
   return q;
 }
@@ -214,22 +214,7 @@ export function useAlocacoesPrioritario() {
 }
 
 export function useDecisoesPrioritario() {
-  // Consulta direta por valor (count head) — não depende de paginação nem de
-  // limites de linhas do servidor; combina com valores extras que existirem.
-  const varredura = useValoresDistintosPrioritario("decisao", "decisao");
-  const conhecidas = useQuery({
-    queryKey: ["prioritario-decisoes-conhecidas"],
-    staleTime: 60 * 1000,
-    queryFn: async (): Promise<string[]> => {
-      const valores = ["Mantido", "Retirado", "Substituir"];
-      const res = await Promise.all(valores.map((v) =>
-        supabase.from("prioritario").select("id", { count: "exact", head: true }).ilike("decisao", v)));
-      return valores.filter((_, i) => (res[i].count ?? 0) > 0);
-    },
-  });
-  const extras = (varredura.data ?? []).map((v) => canonicalizarDecisao(v) ?? v);
-  const data = [...new Set([...(conhecidas.data ?? []), ...extras])];
-  return { ...conhecidas, data };
+  return useValoresDistintosPrioritario("decisao", "decisao");
 }
 
 export function usePrioritarios(params: ListParams = {}) {
@@ -242,15 +227,7 @@ export function usePrioritarios(params: ListParams = {}) {
         const s = search.trim();
         q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
       }
-      const { coordenada_validada: cv, nome_cliente_ligado: ncl, decisao, ...outros } = filters ?? {};
-      if (cv === "Sim") q = q.eq("coordenada_validada", true);
-      else if (cv === "Não") q = q.eq("coordenada_validada", false);
-      else if (cv === "Não informado") q = q.is("coordenada_validada", null);
-      if (ncl === "Preenchido") q = q.not("nome_cliente_ligado", "is", null).neq("nome_cliente_ligado", "");
-      else if (ncl === "Vazio") q = q.or("nome_cliente_ligado.is.null,nome_cliente_ligado.eq.");
-      if (decisao === "Não informado") q = q.is("decisao", null);
-      else if (decisao?.trim()) q = q.ilike("decisao", decisao.trim());
-      q = applyFilters(q, outros);
+      q = applyFilters(q, filters);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;

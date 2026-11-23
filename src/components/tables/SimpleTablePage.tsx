@@ -10,6 +10,7 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "@/components/UserMenu";
 import { cn } from "@/lib/utils";
+import { useValoresColunas, type FonteFiltros } from "@/hooks/useValoresColunas";
 import {
   Select,
   SelectContent,
@@ -50,6 +51,7 @@ interface Props<T> {
 
   // column filters
   columnFilters?: ColumnFilter[];
+  filterSource?: FonteFiltros;
   filterValues?: Record<string, string>;
   onFilterChange?: (field: string, value: string) => void;
 
@@ -79,13 +81,16 @@ interface Props<T> {
 export function SimpleTablePage<T>({
   title, subtitle, icon, standalone, isLoading, rows, columns,
   search, onSearchChange, searchPlaceholder,
-  columnFilters, filterValues, onFilterChange,
+  columnFilters, filterSource, filterValues, onFilterChange,
   sortField, sortDir, onSortChange,
   page, pageSize, total, onPageChange,
   rowKey, onRowClick, onNew, newLabel = "Novo",
   extraFilters, onClear, summary,
 }: Props<T>) {
   const navigate = useNavigate();
+  const { data: valoresColunas, isLoading: carregandoFiltros, isError: erroFiltros, refetch: recarregarFiltros } = useValoresColunas(
+    filterSource, (columnFilters ?? []).filter(f => f.options === undefined).map(f => f.field),
+  );
   const totalRows = total ?? rows.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const start = totalRows === 0 ? 0 : (page - 1) * pageSize;
@@ -133,8 +138,8 @@ export function SimpleTablePage<T>({
           {columnFilters && columnFilters.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {columnFilters.map((f) => {
-                // Se tiver opções, renderiza um Dropdown
-                if (f.options && f.options.length > 0) {
+                const opcoes = f.options?.map(value => ({ value, label: value })) ?? valoresColunas?.[f.field] ?? [];
+                if (filterSource || f.options !== undefined) {
                   const val = filterValues?.[f.field] ?? "";
                   return (
                     <Select
@@ -142,14 +147,14 @@ export function SimpleTablePage<T>({
                       value={val || "__ALL__"}
                       onValueChange={(v) => onFilterChange?.(f.field, v === "__ALL__" ? "" : v)}
                     >
-                      <SelectTrigger className="h-8 text-xs">
+                      <SelectTrigger className="h-8 text-xs" aria-label={f.label} disabled={f.options === undefined && carregandoFiltros}>
                         <SelectValue placeholder={f.label} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__ALL__">Todos ({f.label})</SelectItem>
-                        {f.options.map((opt) => (
-                          <SelectItem key={opt} value={opt} className="text-xs">
-                            {opt}
+                        {opcoes.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                            {opt.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -170,6 +175,10 @@ export function SimpleTablePage<T>({
               })}
             </div>
           )}
+          {erroFiltros && <div className="flex items-center gap-2 text-xs text-destructive">
+            Não foi possível carregar os valores dos filtros.
+            <Button variant="ghost" size="sm" onClick={() => recarregarFiltros()}>Tentar novamente</Button>
+          </div>}
 
         </CardContent>
       </Card>

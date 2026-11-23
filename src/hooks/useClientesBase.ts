@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { valoresUnicosColuna } from "@/lib/valoresColuna";
 
 export interface ClienteOsCaderno {
   numos: number;
@@ -98,7 +99,7 @@ export function useRegionaisClientes() {
     queryFn: async (): Promise<string[]> => {
       const { data, error } = await supabase.rpc("get_regionais_clientes");
       if (error) throw error;
-      return ((data ?? []) as Array<{ regional: string }>).map((r) => r.regional).filter(Boolean);
+      return valoresUnicosColuna(((data ?? []) as Array<{ regional: string }>).map((r) => r.regional), false).map(r => r.value);
     },
   });
 }

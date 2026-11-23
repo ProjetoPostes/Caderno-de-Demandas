@@ -31,17 +31,9 @@ import { exportToExcel } from "@/lib/excelUtils";
 import { toast } from "sonner";
 import { maskCpf } from "@/lib/cpfMask";
 import { CopyableInput } from "@/components/CopyableInput";
+import { valoresUnicosColuna } from "@/lib/valoresColuna";
 
 const ITEMS_PER_PAGE = 20;
-
-const PRIORIDADES = [
-  { value: "Diretoria", label: "Diretoria" },
-  { value: "Reclamações", label: "Reclamações" },
-  { value: "Aneel / MME / Judicial", label: "Aneel / MME / Judicial" },
-  { value: "Quilombolas", label: "Quilombolas" },
-  { value: "Indígenas", label: "Indígenas" },
-  { value: "Outros", label: "Outros" },
-];
 
 export default function CadernoConsulta() {
   const [searchParams] = useSearchParams();
@@ -50,7 +42,7 @@ export default function CadernoConsulta() {
   const initialPrioridade = searchParams.get("prioridade") || "all";
   const initialTipoCarta = searchParams.get("tipo_carta") || "all";
   
-  const { data, isLoading } = useCaderno(1000);
+  const { data, isLoading } = useCaderno();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterRegional, setFilterRegional] = useState<string>("all");
@@ -89,7 +81,7 @@ export default function CadernoConsulta() {
     // Priority filter
     if (filterPrioridade !== "all") {
       result = result.filter((item) => 
-        item.prioridade?.toLowerCase().includes(filterPrioridade.toLowerCase())
+        item.prioridade === filterPrioridade
       );
     }
 
@@ -147,6 +139,7 @@ export default function CadernoConsulta() {
   const regionais = [...new Set(data.map((d) => d.regional).filter(Boolean))];
   const tranches = [...new Set(data.map((d) => d.tranche).filter(Boolean))];
   const tiposCartas = [...new Set(data.map((d) => d.tipo_carta_enviada).filter(Boolean))];
+  const prioridades = valoresUnicosColuna(data.map(d => d.prioridade), false);
 
   const getTitle = () => {
     if (mode === "cartas") return "Caderno – Cartas";
@@ -215,25 +208,13 @@ export default function CadernoConsulta() {
               <CardTitle className="text-base">Prioridades</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {PRIORIDADES.map((p) => (
-                  <Button
-                    key={p.value}
-                    variant={filterPrioridade === p.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setFilterPrioridade(p.value)}
-                  >
-                    {p.label}
-                  </Button>
-                ))}
-                <Button
-                  variant={filterPrioridade === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilterPrioridade("all")}
-                >
-                  Todas
-                </Button>
-              </div>
+              <Select value={filterPrioridade} onValueChange={v => { setFilterPrioridade(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-full max-w-xs" aria-label="Prioridade"><SelectValue placeholder="Prioridade" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas Prioridades</SelectItem>
+                  {prioridades.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </CardContent>
           </Card>
         )}

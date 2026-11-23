@@ -34,6 +34,7 @@ export default function HistoricoOsPage({ standalone = false }: { standalone?: b
         search={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
         searchPlaceholder="Buscar por NUMOS, campo ou valor..."
+        filterSource={{ tabela: "historico_os", chave: "id" }}
         columnFilters={[
           { field: "campo", label: "Campo" },
           { field: "valor_new", label: "Novo valor" },
