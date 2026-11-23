@@ -1,3 +1,4 @@
+import { useDebounce } from "@/hooks/useDebounce";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { maskCpf } from "@/lib/cpfMask";
-import { FILTRO_PREENCHIDO, FILTRO_EM_BRANCO } from "@/lib/valoresColuna";
+import { FILTRO_PREENCHIDO, FILTRO_EM_BRANCO, FILTRO_NULO } from "@/lib/valoresColuna";
 import type { Prioritario } from "@/types/database";
 
 const PAGE_SIZE = 20;
@@ -131,8 +132,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [sortField, setSortField] = useState("nome");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
+  const buscaAtraso = useDebounce(search, 350);
+  const filtrosAtraso = useDebounce(filters, 350);
 
-  const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
+  const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search: buscaAtraso, sortField, sortDir, filters: filtrosAtraso });
   const { data: kpis } = usePrioritariosKpis();
   const { data: tranchesOpcoes } = useTranchesPrioritario();
   const corTranche = useMemo(() => criarCorTranche(tranchesOpcoes ?? []), [tranchesOpcoes]);
@@ -239,7 +242,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { field: "nome", label: "Nome", type: "text" },
           { field: "cpf_corrigido", label: "CPF Corrigido", type: "text" },
           { field: "check_po", label: "Check PO", type: "text" },
-          { field: "coordenada_validada", label: "Coordenada validada" },
+          { field: "coordenada_validada", label: "Coordenada validada", options: [
+            { value: "true", label: "Sim" },
+            { value: "false", label: "Não" },
+            { value: FILTRO_NULO, label: "Não informado" },
+          ] },
           { field: "nome_cliente_ligado", label: "Nome do cliente ligado", options: [
             { value: FILTRO_PREENCHIDO, label: "Preenchido" },
             { value: FILTRO_EM_BRANCO, label: "Vazio" },

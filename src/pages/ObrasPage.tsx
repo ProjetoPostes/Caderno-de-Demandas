@@ -1,3 +1,4 @@
+import { useDebounce } from "@/hooks/useDebounce";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
@@ -13,9 +14,11 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
   const [sortField, setSortField] = useState("num_obra");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [page, setPage] = useState(1);
+  const buscaAtraso = useDebounce(search, 350);
+  const filtrosAtraso = useDebounce(filters, 350);
 
   const { data: tranchesOpcoes } = useTranchesCaderno();
-  const { data, isLoading } = useObras({ page, pageSize: PAGE_SIZE, search, sortField, sortDir, filters });
+  const { data, isLoading } = useObras({ page, pageSize: PAGE_SIZE, search: buscaAtraso, sortField, sortDir, filters: filtrosAtraso });
   const rows = data?.rows ?? [];
   const idObras = useMemo(() => rows.map((o) => o.id_obra), [rows]);
   const { data: counts } = useObraOsCounts(idObras);

@@ -1,3 +1,4 @@
+import { buscarFiltrosRpc } from "@/hooks/useValoresColunas";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -175,15 +176,10 @@ export function useLocalidadeMutations() {
 export function useTranchesCaderno() {
   return useQuery({
     queryKey: ["tranches-caderno"],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
     queryFn: async (): Promise<string[]> => {
-      const set = new Set<string>();
-      const rows = await buscarTodos<{ tranche: string | null }>((head) =>
-        head
-          ? supabase.from("caderno").select("id_os", { count: "exact", head: true }).is("deleted_at", null).not("tranche", "is", null)
-          : supabase.from("caderno").select("tranche").is("deleted_at", null).not("tranche", "is", null).order("id_os", { ascending: true }));
-      rows.forEach((r) => { if (r.tranche) set.add(r.tranche); });
-      return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+      const dados = await buscarFiltrosRpc("get_filtros_obras");
+      return [...(dados.tranche ?? [])].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
   });
 }
@@ -192,15 +188,10 @@ export function useTranchesCaderno() {
 function useValoresDistintosPrioritario(campo: "tranche" | "alocacao" | "decisao", chave: string) {
   return useQuery({
     queryKey: ["prioritario-valores", chave],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
     queryFn: async (): Promise<string[]> => {
-      const set = new Set<string>();
-      const rows = await buscarTodos<Record<string, string | null>>((head) =>
-        head
-          ? supabase.from("prioritario").select("id", { count: "exact", head: true }).not(campo, "is", null)
-          : supabase.from("prioritario").select(campo).not(campo, "is", null).order("id", { ascending: true }));
-      rows.forEach((r) => { const v = r[campo]; if (v) set.add(v); });
-      return [...set].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+      const dados = await buscarFiltrosRpc("get_filtros_prioritarios");
+      return [...(dados[campo] ?? [])].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
     },
   });
 }
