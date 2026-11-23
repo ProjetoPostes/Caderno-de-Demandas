@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, Globe, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ExternalLink, Globe, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,7 @@ import {
 import { CopyableInput } from "@/components/CopyableInput";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
+import { rotaObra } from "@/lib/rotas";
 import { localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/schema";
@@ -687,7 +688,26 @@ export default function AnaliseSolicitacao() {
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Orçamento estimado (R$)</Label><Input value={form.orcamento_estimado} onChange={(e) => set("orcamento_estimado", e.target.value)} inputMode="decimal" placeholder="0,00" /></div>
-              <div><Label>Nº Obra</Label><CopyableInput value={dados.num_obra} /></div>
+              <div>
+                <Label>Nº Obra</Label>
+                {rotaObra(dados.id_obra) ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full justify-between font-mono"
+                    title="Abrir a tela desta obra"
+                    onClick={() => {
+                      const rota = rotaObra(dados.id_obra);
+                      if (rota) navigate(rota);
+                    }}
+                  >
+                    <span className="truncate">{dados.num_obra ?? dados.id_obra}</span>
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  </Button>
+                ) : (
+                  <CopyableInput value={dados.num_obra} />
+                )}
+              </div>
               <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
