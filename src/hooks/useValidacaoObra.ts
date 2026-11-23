@@ -15,6 +15,8 @@ export interface ObraValidacao {
   check_txt: string | boolean | null;
   data_analise: string | null;
   responsavel: string | null;
+  ods?: string | null;
+  status_ods?: string | null;
 }
 
 export interface TipoQuantitativo {

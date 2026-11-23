@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useObraOsList } from "@/hooks/useTabelasOperacionais";
+import { useValoresColunas } from "@/hooks/useValoresColunas";
 import {
   useExcluirQuantitativo, useObraDetalhe, useQuantitativosObra, useSalvarQuantitativo,
   useSalvarValidacaoObra, useTiposQuantitativos,
@@ -73,7 +74,9 @@ export default function ValidacaoObra() {
   const { data: osList, isLoading: loadingOs } = useObraOsList(idObra);
   const primeiraOs = osList?.[0];
 
-  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null });
+  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null, ods: null as string | null, status_ods: null as string | null });
+  const { data: valoresObra } = useValoresColunas({ tabela: "obra", chave: "id_obra", incluirVazios: false }, ["status_ods"]);
+  const opcoesStatusOds = (valoresObra?.status_ods ?? []).map((o) => o.value);
   useEffect(() => {
     if (!obra) return;
     const ct = obra.check_txt;
@@ -81,6 +84,8 @@ export default function ValidacaoObra() {
       tipo_atendimento: obra.tipo_atendimento ?? null,
       analise_obra: obra.analise_obra ?? null,
       cadastro_enbpar: obra.cadastro_enbpar ?? null,
+      ods: obra.ods ?? null,
+      status_ods: obra.status_ods ?? null,
       check_txt: ct === null || ct === undefined ? null : ct === true || ct === "Sim" || ct === "true" ? "Sim" : "Não",
     });
   }, [obra]);
@@ -230,6 +235,11 @@ export default function ValidacaoObra() {
             <Dropdown label="Análise da obra" value={form.analise_obra} options={OPCOES_ANALISE_OBRA} onChange={(v) => setForm((p) => ({ ...p, analise_obra: v }))} />
             <Dropdown label="Cadastro ENBPar" value={form.cadastro_enbpar} options={OPCOES_CADASTRO_ENBPAR} onChange={(v) => setForm((p) => ({ ...p, cadastro_enbpar: v }))} />
             <Dropdown label="Check TXT" value={form.check_txt} options={["Sim", "Não"]} onChange={(v) => setForm((p) => ({ ...p, check_txt: v }))} />
+            <div className="space-y-1">
+              <Label className="text-xs">ODS</Label>
+              <Input className="h-9 text-sm" value={form.ods ?? ""} onChange={(e) => setForm((p) => ({ ...p, ods: e.target.value || null }))} />
+            </div>
+            <Dropdown label="Status ODS" value={form.status_ods} options={opcoesStatusOds} onChange={(v) => setForm((p) => ({ ...p, status_ods: v }))} />
             <div className="space-y-1">
               <Label className="text-xs">Data da análise</Label>
               <Input readOnly className="h-9 bg-muted/40 text-sm" value={obra.data_analise ? new Date(obra.data_analise).toLocaleString("pt-BR") : "Preenchida ao salvar"} />
