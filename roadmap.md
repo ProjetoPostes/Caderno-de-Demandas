@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Retirar o bloco Critérios de Enquadramento da validação de OS, preservando os dados existentes e os demais campos.
+- [x] Explicar que o filtro de tranche deve considerar as OSs vinculadas dentro do RPC existente; definição externa da função indisponível para confirmação.
+
 - [x] Manter apenas os dropdowns solicitados em Obras, Prioritários e Caderno; demais filtros como texto, sem bloquear seletores durante a consulta.
 - [x] Filtrar nome do cliente ligado apenas por preenchido/vazio, sem alterar o banco; 12 testes passaram e compilação OK. Conferência nas telas indisponível porque o acesso disponível solicitou login.
 

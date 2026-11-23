@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Globe, Loader2, MapPin, Save, XCircle, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -38,7 +37,6 @@ import {
   useAnaliseAtual,
   useAnalistas,
   useCriteriosDaAnalise,
-  useCriteriosEnquadramento,
   useOsResumo,
   useSalvarAnalise,
 } from "@/hooks/useAnaliseOs";
@@ -196,7 +194,6 @@ export default function AnaliseSolicitacao() {
 
   const os = useOsResumo(idOs);
   const analise = useAnaliseAtual(idOs);
-  const criterios = useCriteriosEnquadramento();
   const criteriosAnalise = useCriteriosDaAnalise(analise.data?.id_analise);
   const analistas = useAnalistas();
   const salvar = useSalvarAnalise();
@@ -351,35 +348,6 @@ export default function AnaliseSolicitacao() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [dirty]);
 
-  const criterioZero = useMemo(
-    () => criterios.data?.find((c) => c.codigo?.trim() === "0"),
-    [criterios.data],
-  );
-
-  const toggleCriterio = (id: number, checked: boolean) => {
-    setDirty(true);
-    setSelecionados((prev) => {
-      if (criterioZero && id === criterioZero.id_criterio) {
-        return checked ? [id] : [];
-      }
-      if (checked) {
-        const semZero = criterioZero ? prev.filter((p) => p !== criterioZero.id_criterio) : prev;
-        return [...semZero, id];
-      }
-      return prev.filter((p) => p !== id);
-    });
-  };
-
-  const criteriosPorCategoria = useMemo(() => {
-    const grupos = new Map<string, typeof criterios.data>();
-    (criterios.data ?? []).forEach((c) => {
-      const cat = c.categoria?.trim() || "Outros";
-      if (!grupos.has(cat)) grupos.set(cat, []);
-      grupos.get(cat)!.push(c);
-    });
-    return Array.from(grupos.entries());
-  }, [criterios.data]);
-
   const indicadores = [
     { label: "Município", valor: form.validacao_municipio === "conforme" ? true : form.validacao_municipio === "nao_conforme" ? false : null },
     { label: "CPF", valor: form.validacao_cpf === "conforme" ? true : form.validacao_cpf === "nao_conforme" ? false : null },
@@ -472,7 +440,7 @@ export default function AnaliseSolicitacao() {
     setConfirmOpen(true);
   };
 
-  if (os.isLoading || analise.isLoading || criterios.isLoading) {
+  if (os.isLoading || analise.isLoading) {
     return (
       <div className="container mx-auto max-w-6xl p-4 space-y-4">
         <Skeleton className="h-10 w-72" />
@@ -808,32 +776,6 @@ export default function AnaliseSolicitacao() {
               <Label>Observação da unidade consumidora</Label>
               <Textarea value={form.observacao_unidade_consumidora} onChange={(e) => set("observacao_unidade_consumidora", e.target.value)} rows={2} />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Critérios de Enquadramento */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-3"><CardTitle className="text-sm">Critérios de Enquadramento</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            {criteriosPorCategoria.length === 0 && (
-              <p className="text-muted-foreground">Nenhum critério ativo cadastrado.</p>
-            )}
-            {criteriosPorCategoria.map(([categoria, itens]) => (
-              <div key={categoria} className="space-y-2">
-                <h3 className="font-medium text-muted-foreground uppercase text-xs tracking-wide">{categoria}</h3>
-                <div className="grid gap-2 md:grid-cols-2">
-                  {(itens ?? []).map((c) => (
-                    <label key={c.id_criterio} className="flex items-start gap-2 rounded-md border p-2 cursor-pointer hover:bg-muted/50">
-                      <Checkbox
-                        checked={selecionados.includes(c.id_criterio)}
-                        onCheckedChange={(checked) => toggleCriterio(c.id_criterio, checked === true)}
-                      />
-                      <span>{c.codigo} - {c.descricao}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ))}
           </CardContent>
         </Card>
 
