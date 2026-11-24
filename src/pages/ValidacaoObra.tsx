@@ -98,7 +98,7 @@ export default function ValidacaoObra() {
   };
 
   // Quantitativos
-  const { data: tipos = [] } = useTiposQuantitativos();
+  const { data: tipos = [], isLoading: loadingTipos, isError: erroTipos, refetch: recarregarTipos } = useTiposQuantitativos();
   const { data: itens = [], isLoading: loadingItens } = useQuantitativosObra(idObra);
     // Total acumulado em todas as OSs vinculadas à obra
   const totaisOs = useMemo(() => {
@@ -278,11 +278,12 @@ export default function ValidacaoObra() {
 
         <section className="rounded-md border bg-card p-4">
           <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Quantitativos da obra</h3>
+          {erroTipos && <div className="mb-3 flex items-center gap-2 text-sm text-destructive" role="alert">Não foi possível carregar os itens.<Button variant="outline" size="sm" onClick={() => recarregarTipos()}>Tentar novamente</Button></div>}
           <div className="grid items-end gap-3 sm:grid-cols-[1fr_1fr_140px_auto]">
             <div className="space-y-1">
               <Label className="text-xs">Categoria</Label>
-              <Select value={categoria} onValueChange={(v) => { setCategoria(v); setTipoId(""); }}>
-                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <Select value={categoria} onValueChange={(v) => { setCategoria(v); setTipoId(""); }} disabled={loadingTipos || erroTipos}>
+                <SelectTrigger className="h-9 text-sm"><SelectValue placeholder={loadingTipos ? "Carregando..." : "Selecione"} /></SelectTrigger>
                 <SelectContent>{categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
             </div>

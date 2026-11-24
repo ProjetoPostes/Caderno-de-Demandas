@@ -16,3 +16,4 @@
 - Operational column selectors use shared read-only, deterministically paginated distinct-value queries independent of the current page; preserve raw values for filtering, while work listing and counts retain their existing RPC contracts.
 - Column filters explicitly marked as text must not participate in distinct-value queries; presence selectors use null/empty predicates instead of loading individual names to keep category queries small.
 - Work validation submissions use the explicit field whitelist in `src/lib/validacaoObra.ts` so display-only source fields cannot leak into updates.
+- Work quantitative catalogs and saved items use the shared `buscarTodos` reader with deterministic ordering to avoid truncation by the external API row limit.

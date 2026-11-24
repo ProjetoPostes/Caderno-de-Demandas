@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buscarTodos } from "@/lib/buscarTodos";
 
 export interface ObraValidacao {
   id_obra: number;
@@ -61,9 +62,12 @@ export function useTiposQuantitativos() {
   return useQuery({
     queryKey: ["tipos-quantitativos"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("tipos_quantitativos").select("id,nome,categoria,unidade").order("nome");
-      if (error) throw error;
-      return (data ?? []) as TipoQuantitativo[];
+      return buscarTodos<TipoQuantitativo>((head) =>
+        supabase.from("tipos_quantitativos")
+          .select("id,nome,categoria,unidade", { count: "exact", head })
+          .order("nome")
+          .order("id")
+      );
     },
   });
 }
@@ -73,13 +77,11 @@ export function useQuantitativosObra(idObra: number | null) {
     queryKey: ["quantitativos-obra", idObra],
     enabled: idObra !== null,
     queryFn: async () => {
-      const { data, error } = await supabase
+      return buscarTodos<QuantitativoObra>((head) => supabase
         .from("quantitativos_obras")
-        .select("id,obra_id,tipo_quantitativo_id,quantidade,tipo:tipo_quantitativo_id(id,nome,categoria,unidade)")
+        .select("id,obra_id,tipo_quantitativo_id,quantidade,tipo:tipo_quantitativo_id(id,nome,categoria,unidade)", { count: "exact", head })
         .eq("obra_id", idObra)
-        .order("id");
-      if (error) throw error;
-      return (data ?? []) as unknown as QuantitativoObra[];
+        .order("id"));
     },
   });
 }
