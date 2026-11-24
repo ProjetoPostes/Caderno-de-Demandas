@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Loader2, Search, Home, X, ChevronLeft, ChevronRight, Plus, ArrowUp, ArrowDown, ArrowUpDown,
@@ -78,6 +79,8 @@ interface Props<T> {
   extraFilters?: ReactNode;
   onClear?: () => void;
   summary?: ReactNode;
+  /** Rótulo do total filtrado exibido ao lado do título "Filtros" (ex: "obras"). */
+  totalNosFiltros?: string;
 }
 
 export function SimpleTablePage<T>({
@@ -87,7 +90,7 @@ export function SimpleTablePage<T>({
   sortField, sortDir, onSortChange,
   page, pageSize, total, onPageChange,
   rowKey, onRowClick, onNew, newLabel = "Novo",
-  extraFilters, onClear, summary,
+  extraFilters, onClear, summary, totalNosFiltros,
 }: Props<T>) {
   const navigate = useNavigate();
   const { data: valoresColunas, isLoading: carregandoFiltros, isError: erroFiltros, refetch: recarregarFiltros } = useValoresColunas(
@@ -111,6 +114,11 @@ export function SimpleTablePage<T>({
           <CardTitle className="text-base flex items-center gap-2">
             {icon}
             Filtros
+            {totalNosFiltros && !isLoading && (
+              <Badge variant="secondary" className="text-xs font-normal tabular-nums">
+                {totalRows.toLocaleString("pt-BR")} {totalNosFiltros}
+              </Badge>
+            )}
           </CardTitle>
           {onNew && (
             <Button size="sm" onClick={onNew}>

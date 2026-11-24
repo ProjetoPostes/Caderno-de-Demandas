@@ -35,6 +35,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         isLoading={isLoading}
         rows={rows}
         total={data?.total ?? 0}
+        totalNosFiltros="obras"
         page={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
