@@ -31,6 +31,7 @@ import { CopyableInput } from "@/components/CopyableInput";
 import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
 import { rotaObra } from "@/lib/rotas";
+import { fmtCoord } from "@/lib/coords";
 import { localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/schema";
@@ -67,6 +68,7 @@ interface FormState {
   distancia_prevista_m: string;
   coordenadas_conferidas: boolean | null;
   observacao_coordenadas: string;
+  txt_gerado: string;
   orcamento_estimado: string;
   tipo_atendimento: string;
   observacao_tecnica: string;
@@ -107,6 +109,7 @@ const emptyForm = (): FormState => ({
   distancia_prevista_m: "",
   coordenadas_conferidas: null,
   observacao_coordenadas: "",
+  txt_gerado: "",
   orcamento_estimado: "",
   tipo_atendimento: "",
   observacao_tecnica: "",
@@ -194,6 +197,16 @@ export default function AnaliseSolicitacao() {
   const { user } = useAuth();
 
   const os = useOsResumo(idOs);
+
+  const cpfCliente = (os.data?.cpf ?? "").replace(/\D/g, "");
+  const [coordPrioritario, setCoordPrioritario] = useState<{ latitude: unknown; longitude: unknown } | null | undefined>(undefined);
+  useEffect(() => {
+    if (!cpfCliente) { setCoordPrioritario(null); return; }
+    let ativo = true;
+    supabase.from("prioritario").select("latitude, longitude").eq("cpf_corrigido", cpfCliente).limit(1)
+      .then(({ data }) => { if (ativo) setCoordPrioritario(((data as { latitude: unknown; longitude: unknown }[] | null)?.[0]) ?? null); });
+    return () => { ativo = false; };
+  }, [cpfCliente]);
   const analise = useAnaliseAtual(idOs);
   const criteriosAnalise = useCriteriosDaAnalise(analise.data?.id_analise);
   const analistas = useAnalistas();
@@ -301,6 +314,7 @@ export default function AnaliseSolicitacao() {
       distancia_prevista_m: num(a.distancia_prevista_m),
       coordenadas_conferidas: a.coordenadas_conferidas,
       observacao_coordenadas: txt(a.observacao_coordenadas),
+      txt_gerado: txt((a as unknown as Record<string, unknown>).txt_gerado as string | null),
       orcamento_estimado: formatMoeda(a.orcamento_estimado),
       tipo_atendimento: txt(a.tipo_atendimento),
       observacao_tecnica: txt(a.observacao_tecnica),
@@ -388,6 +402,7 @@ export default function AnaliseSolicitacao() {
     distancia_prevista_m: parseNumero(form.distancia_prevista_m),
     coordenadas_conferidas: form.coordenadas_conferidas,
     observacao_coordenadas: nullIfEmpty(form.observacao_coordenadas),
+    txt_gerado: nullIfEmpty(form.txt_gerado),
     orcamento_estimado: parseMoeda(form.orcamento_estimado),
     tipo_atendimento: nullIfEmpty(form.tipo_atendimento),
     observacao_tecnica: nullIfEmpty(form.observacao_tecnica),
@@ -670,6 +685,23 @@ export default function AnaliseSolicitacao() {
                 </>
               )}
               <div><Label>Distância prevista (m)</Label><CopyableInput value={form.distancia_prevista_m} /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Coordenadas do Prioritário</Label>
+                <CopyableInput value={coordPrioritario === undefined ? "Carregando..." : coordPrioritario && coordPrioritario.latitude != null && coordPrioritario.longitude != null ? `${fmtCoord(coordPrioritario.latitude as string)},${fmtCoord(coordPrioritario.longitude as string)}` : "Não encontrado"} />
+              </div>
+              <div>
+                <Label>TXT gerado</Label>
+                <Select value={form.txt_gerado || NULO} onValueChange={(v) => set("txt_gerado", v === NULO ? "" : v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NULO}>Não informado</SelectItem>
+                    <SelectItem value="Sim">Sim</SelectItem>
+                    <SelectItem value="Não">Não</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div>
               <Label>Observação das coordenadas</Label>
