@@ -39,3 +39,10 @@ export function localizarCoordenadas(form: CoordenadasSolicitacao) {
   if (!mapa) throw new Error("Não foi possível localizar as coordenadas.");
   return { latitude, longitude, mapsUrl: mapa.url, earthUrl: `https://earth.google.com/web/@${latitude},${longitude},0a,1000d,35y,0h,0t,0r` };
 }
+/** Distância em metros entre dois pontos WGS84 (fórmula de Haversine). */
+export function distanciaMetros(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const r = 6371000, rad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon / 2) ** 2;
+  return 2 * r * Math.asin(Math.sqrt(h));
+}

@@ -32,7 +32,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { maskCpf } from "@/lib/cpfMask";
 import { rotaObra } from "@/lib/rotas";
 import { fmtCoord } from "@/lib/coords";
-import { localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
+import { distanciaMetros, localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/schema";
 import {
@@ -207,6 +207,20 @@ export default function AnaliseSolicitacao() {
       .then(({ data }) => { if (ativo) setCoordPrioritario(((data as { latitude: unknown; longitude: unknown }[] | null)?.[0]) ?? null); });
     return () => { ativo = false; };
   }, [cpfCliente]);
+  const [distanciaPrioritario, setDistanciaPrioritario] = useState<string | null>(null);
+  const calcularDistanciaPrioritario = () => {
+    try {
+      const lat = Number(fmtCoord(coordPrioritario?.latitude as string));
+      const lon = Number(fmtCoord(coordPrioritario?.longitude as string));
+      if (!coordPrioritario || !Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("Cliente sem coordenadas no Prioritário.");
+      const p = localizarCoordenadas(form);
+      const d = distanciaMetros(p.latitude, p.longitude, lat, lon);
+      setDistanciaPrioritario(d >= 1000 ? `${(d / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} km` : `${Math.round(d)} m`);
+    } catch (e) {
+      setDistanciaPrioritario(null);
+      toast.error(e instanceof Error ? e.message : "Não foi possível calcular a distância.");
+    }
+  };
   const analise = useAnaliseAtual(idOs);
   const criteriosAnalise = useCriteriosDaAnalise(analise.data?.id_analise);
   const analistas = useAnalistas();
@@ -690,6 +704,12 @@ export default function AnaliseSolicitacao() {
               <div>
                 <Label>Coordenadas do Prioritário</Label>
                 <CopyableInput value={coordPrioritario === undefined ? "Carregando..." : coordPrioritario && coordPrioritario.latitude != null && coordPrioritario.longitude != null ? `${fmtCoord(coordPrioritario.latitude as string)},${fmtCoord(coordPrioritario.longitude as string)}` : "Não encontrado"} />
+              </div>
+              <div className="col-span-2 flex flex-wrap items-center gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={calcularDistanciaPrioritario}>
+                  <MapPin className="h-4 w-4 mr-1" />Ver distância até o Prioritário
+                </Button>
+                {distanciaPrioritario && <Badge variant="secondary">Distância: {distanciaPrioritario}</Badge>}
               </div>
               <div>
                 <Label>TXT gerado</Label>
