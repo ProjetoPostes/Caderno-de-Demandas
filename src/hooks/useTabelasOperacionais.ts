@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { buscarFiltrosRpc } from "@/hooks/useValoresColunas";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -408,8 +409,42 @@ export function usePrioritarioOsList(idClienteInformado: number | null | undefin
         status: string | null;
         controle_os: string | null;
         tranche: string | null;
+        id_obra: number | null;
         obra: { num_obra: number | null } | null;
       }>;
+    },
+  });
+}
+
+/**
+ * Mapa numero da obra -> id_obra para os numeros informados.
+ * Usado para transformar a coluna NUMOBRA (texto) em link para /obras/:id.
+ */
+export function useObrasIdsPorNumero(numobras: Array<string | number | null | undefined>) {
+  const numeros = useMemo(() => {
+    const set = new Set<number>();
+    for (const n of numobras) {
+      const v = Number(n);
+      if (Number.isFinite(v) && v > 0) set.add(v);
+    }
+    return Array.from(set).sort((a, b) => a - b);
+  }, [numobras]);
+
+  return useQuery({
+    queryKey: ["obras-ids-por-numero", numeros],
+    enabled: numeros.length > 0,
+    staleTime: 10 * 60 * 1000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("obra")
+        .select("id_obra,num_obra")
+        .in("num_obra", numeros);
+      if (error) throw error;
+      const mapa = new Map<string, number>();
+      for (const row of (data ?? []) as Array<{ id_obra: number; num_obra: number }>) {
+        mapa.set(String(row.num_obra), row.id_obra);
+      }
+      return mapa;
     },
   });
 }

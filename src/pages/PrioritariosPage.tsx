@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
+import { rotaObra } from "@/lib/rotas";
 import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
 import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
@@ -477,7 +478,24 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                             onClick={() => navigate(`/analise/${os.id_os}`)}
                           >
                             <TableCell className="font-mono text-xs">{os.num_os ?? "-"}</TableCell>
-                            <TableCell className="font-mono text-xs">{os.obra?.num_obra ?? "-"}</TableCell>
+                            <TableCell className="font-mono text-xs">
+                              {rotaObra(os.id_obra) ? (
+                                <button
+                                  type="button"
+                                  className="text-primary underline-offset-2 hover:underline"
+                                  title="Abrir a tela desta obra"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rota = rotaObra(os.id_obra);
+                                    if (rota) navigate(rota);
+                                  }}
+                                >
+                                  {os.obra?.num_obra ?? "-"}
+                                </button>
+                              ) : (
+                                os.obra?.num_obra ?? "-"
+                              )}
+                            </TableCell>
                             <TableCell className="text-xs">{os.status ? <Badge variant="outline" className="text-[11px]">{os.status}</Badge> : "-"}</TableCell>
                             <TableCell className="font-mono text-xs">{os.controle_os ?? "-"}</TableCell>
                             <TableCell className="text-xs">{os.tranche ? <BadgeCor cor={corTranche(os.tranche)}>{os.tranche}</BadgeCor> : "-"}</TableCell>

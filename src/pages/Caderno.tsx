@@ -40,6 +40,8 @@ import { OsSelectionDialog } from "@/components/OsSelectionDialog";
 import { EnviarOsObrasDialog } from "@/components/EnviarOsObrasDialog";
 import { BulkEditCadernoDialog } from "@/components/BulkEditCadernoDialog";
 import { maskCpf } from "@/lib/cpfMask";
+import { rotaObra } from "@/lib/rotas";
+import { useObrasIdsPorNumero } from "@/hooks/useTabelasOperacionais";
 import { Caderno as CadernoDBType } from "@/types/database";
 import { CopyableInput } from "@/components/CopyableInput";
 
@@ -205,6 +207,9 @@ export default function Caderno() {
   }, [filteredData, currentPage]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+  const numobrasPagina = useMemo(() => paginatedData.map((item) => item.numobra), [paginatedData]);
+  const { data: obrasIds } = useObrasIdsPorNumero(numobrasPagina);
 
   const clearFilters = () => {
     setSearch("");
@@ -452,7 +457,24 @@ export default function Caderno() {
                           </TableCell>
 
                           <TableCell className="font-mono text-xs">{item.numos}</TableCell>
-                          <TableCell className="font-mono text-xs">{item.numobra ?? "-"}</TableCell>
+                          <TableCell className="font-mono text-xs">
+                            {(() => {
+                              const idObra = item.numobra ? obrasIds?.get(String(item.numobra)) : undefined;
+                              const rota = rotaObra(idObra);
+                              return rota ? (
+                                <button
+                                  type="button"
+                                  className="text-primary underline-offset-2 hover:underline"
+                                  title="Abrir a tela desta obra"
+                                  onClick={() => navigate(rota)}
+                                >
+                                  {item.numobra}
+                                </button>
+                              ) : (
+                                item.numobra ?? "-"
+                              );
+                            })()}
+                          </TableCell>
                           <TableCell className="text-xs">{item.nomelcd ?? "-"}</TableCell>
                           <TableCell><Badge variant="secondary">{item.controle_os ?? "-"}</Badge></TableCell>
                           <TableCell>{item.origem ?? "-"}</TableCell>
