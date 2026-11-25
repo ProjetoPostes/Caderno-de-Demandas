@@ -27,7 +27,11 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
   const atualizando = search !== buscaAtraso || filters !== filtrosAtraso || resumo.isFetching;
   const rows = data?.rows ?? [];
   const idObras = useMemo(() => rows.map((o) => o.id_obra), [rows]);
-  const { data: counts } = useObraOsCounts(idObras);
+  const temQtdOs = rows.length > 0 && rows.every((o) => (o as unknown as { qtd_os?: unknown }).qtd_os != null);
+  const { data: countsExtras } = useObraOsCounts(temQtdOs ? [] : idObras);
+  const counts = useMemo(() => temQtdOs
+    ? Object.fromEntries(rows.map((o) => [o.id_obra, Number((o as unknown as { qtd_os: unknown }).qtd_os) || 0]))
+    : countsExtras, [temQtdOs, rows, countsExtras]);
 
   const navigate = useNavigate();
 

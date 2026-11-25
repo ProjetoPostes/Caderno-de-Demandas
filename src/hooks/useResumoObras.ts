@@ -11,6 +11,24 @@ export function useResumoObras(params: FiltrosResumoObras) {
     queryKey: ["obras", "resumo", params],
     staleTime: 60_000,
     queryFn: async () => {
+      // Caminho rápido: agregação direta no banco.
+      const { tranche, ...outros } = params.filters ?? {};
+      const rapido = await supabase.rpc("get_resumo_obras", {
+        p_tranche: tranche?.trim() || null,
+        p_search: params.search?.trim() || null,
+        p_filters: outros,
+      });
+      if (!rapido.error && rapido.data) {
+        const r = (Array.isArray(rapido.data) ? rapido.data[0] : rapido.data) as Record<string, unknown> | undefined;
+        if (r) {
+          const n = (v: unknown) => Number(v) || 0;
+          return {
+            numeroObras: n(r.numero_obras ?? r.total_obras ?? r.total ?? r.count),
+            valorOrcado: n(r.valor_orcado ?? r.total_orcado),
+            valorRealizado: n(r.valor_realizado ?? r.total_realizado),
+          };
+        }
+      }
       const obras = await obrasFiltradasParaResumo(async (page, pageSize) => {
         const { data, error } = await supabase.rpc("get_obras_filtradas", parametrosObras(params, page, pageSize, "id_obra"));
         if (error) throw error;

@@ -62,6 +62,14 @@ function usePrioritariosKpis() {
   return useQuery({
     queryKey: ["prioritarios-kpis"],
     queryFn: async () => {
+      const rapido = await supabase.rpc("get_kpis_prioritarios");
+      if (!rapido.error && rapido.data) {
+        const r = (Array.isArray(rapido.data) ? rapido.data[0] : rapido.data) as Record<string, unknown> | undefined;
+        if (r) {
+          const n = (v: unknown) => Number(v) || 0;
+          return { total: n(r.total), comTranche: n(r.com_tranche), checkPo: n(r.check_po), impedimento: n(r.impedimento ?? r.com_impedimento) };
+        }
+      }
       const count = async (fn?: (q: any) => any) => {
         let q: any = supabase.from("prioritario").select("id", { count: "exact", head: true });
         if (fn) q = fn(q);

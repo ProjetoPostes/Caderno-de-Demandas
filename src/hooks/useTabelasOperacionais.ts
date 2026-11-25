@@ -315,6 +315,18 @@ export function useObraOsList(idObra: number | null) {
     enabled: idObra !== null,
     queryFn: async () => {
       if (idObra === null) return [];
+      const rapido = await supabase.rpc("get_obra_os_list", { p_id_obra: idObra });
+      if (!rapido.error && Array.isArray(rapido.data)) {
+        return (rapido.data as Array<Record<string, any>>).map((r) => ({
+          id_os: r.id_os, num_os: r.num_os, status: r.status ?? null, controle_os: r.controle_os ?? null,
+          tranche: r.tranche ?? null, datasol: r.datasol ?? null, datatertrab: r.datatertrab ?? null,
+          cliente: r.cliente ?? { nome: r.nome_cliente ?? r.nome ?? null, cpf: r.cpf ?? null },
+          localidade: r.localidade ?? { municipio: r.municipio ?? null, nome_lcd: r.nome_lcd ?? null },
+          resultado_analise: r.resultado_analise ?? null,
+          num_padrao: Number(r.num_padrao) || 0,
+          num_kit: Number(r.num_kit) || 0,
+        }));
+      }
       // Busca todas as OSs da obra em blocos (sem corte de quantidade)
       const BLOCO = 1000;
       const data: unknown[] = [];
@@ -381,6 +393,14 @@ export function usePrioritarioOsList(idClienteInformado: number | null | undefin
     queryKey: ["prioritario-os-list", idClienteInformado, cpf],
     enabled: idClienteInformado != null || !!cpf?.trim(),
     queryFn: async () => {
+      const rapido = await supabase.rpc("get_prioritario_os", { p_id_cliente: idClienteInformado ?? null, p_cpf: cpf?.trim() || null });
+      if (!rapido.error && Array.isArray(rapido.data)) {
+        return (rapido.data as Array<Record<string, any>>).map((r) => ({
+          id_os: r.id_os, num_os: r.num_os, status: r.status ?? null, controle_os: r.controle_os ?? null,
+          tranche: r.tranche ?? null, id_obra: r.id_obra ?? null,
+          obra: r.obra ?? { num_obra: r.num_obra ?? null },
+        })) as Array<{ id_os: string; num_os: number; status: string | null; controle_os: string | null; tranche: string | null; id_obra: number | null; obra: { num_obra: number | null } | null }>;
+      }
       let idCliente = idClienteInformado ?? null;
       if (idCliente == null && cpf?.trim()) {
         const d = cpf.replace(/\D/g, "");
@@ -484,6 +504,12 @@ export function useMunicipiosLocalidade() {
     queryKey: ["municipios-localidade"],
     staleTime: 10 * 60 * 1000,
     queryFn: async () => {
+      const rapido = await supabase.rpc("get_municipios_unicos");
+      if (!rapido.error && Array.isArray(rapido.data)) {
+        return (rapido.data as Array<string | { nome_lcd: string | null }>)
+          .map((r) => (typeof r === "string" ? r : r?.nome_lcd)?.trim() ?? "")
+          .filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
+      }
       const nomes = new Set<string>();
       const rows = await buscarTodos<{ nome_lcd: string | null }>((head) =>
         head
