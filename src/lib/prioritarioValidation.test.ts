@@ -23,7 +23,7 @@ test("Aceita CPF válido e rejeita inválido", () => {
 
 test("Exige responsável e coordenada validada", () => {
   const { erros } = validarCorrecao({});
-  expect(Object.keys(erros).sort()).toEqual(["Responsável", "coordenada_validada"]);
+  expect(Object.keys(erros).sort()).toEqual(["coordenada_validada"]);
 });
 
 test("Com coordenada Não, exige coordenadas válidas e envia com ponto", () => {
@@ -34,8 +34,8 @@ test("Com coordenada Não, exige coordenadas válidas e envia com ponto", () => 
   expect(r.payload.longitude).toBe("-48.987654");
 });
 
-test("Com coordenada Sim, não altera coordenadas", () => {
-  expect("latitude" in validarCorrecao({ ...base, latitude: "1" }).payload).toBe(false);
+test("Latitude e longitude são sempre gravadas quando informadas", () => {
+  expect(validarCorrecao({ ...base, latitude: "1", longitude: "2" }).payload.latitude).toBe("1");
 });
 
 test("Salva atendimento e decisao no payload", () => {
@@ -45,4 +45,11 @@ test("Salva atendimento e decisao no payload", () => {
   const vazio = validarCorrecao({ ...base, atendimento: "  ", decisao: null });
   expect(vazio.payload.atendimento).toBeNull();
   expect(vazio.payload.decisao).toBeNull();
+});
+
+import { podeEditarCorrecao as _pec } from "./prioritarioValidation";
+test("campo corrigido só é editável quando a validação é Sim", () => {
+  expect(_pec(true)).toBe(true);
+  expect(_pec(false)).toBe(false);
+  expect(_pec(null)).toBe(false);
 });

@@ -15,12 +15,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { rotaObra } from "@/lib/rotas";
-import { podeEditarCoordenadas, validarCorrecao } from "@/lib/prioritarioValidation";
+import { podeEditarCorrecao, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
 import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useAnalistas } from "@/hooks/useAnaliseOs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { maskCpf } from "@/lib/cpfMask";
 import { FILTRO_PREENCHIDO, FILTRO_EM_BRANCO, FILTRO_NULO } from "@/lib/valoresColuna";
 import type { Prioritario } from "@/types/database";
@@ -48,6 +50,11 @@ type PrioritarioRowExt = Prioritario & {
   municipio_coord?: string | null;
   atendimento?: string | null;
   decisao?: string | null;
+  latitude_enbpar?: number | string | null;
+  longitude_enbpar?: number | string | null;
+  nome_alterado?: boolean | null;
+  cpf_alterado?: boolean | null;
+  municipio_alterado?: boolean | null;
 };
 
 // Contagens apenas para exibição (derivadas dos registros existentes)
@@ -146,7 +153,12 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
   const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
   const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
-  const coordenadasEditaveis = podeEditarCoordenadas(selected?.coordenada_validada);
+  const { data: analistas = [] } = useAnalistas();
+  const responsaveis = useMemo(() => Array.from(new Set(analistas.map((a) => (a.full_name || a.username || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b)), [analistas]);
+  const [marcados, setMarcados] = useState<Set<string | number>>(new Set());
+  const [responsavelLote, setResponsavelLote] = useState("");
+  const [atribuindo, setAtribuindo] = useState(false);
+  const alternarMarcado = (id: string | number) => setMarcados((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const qc = useQueryClient();
   const { user } = useAuth();
   const { profile: perfil } = useProfile();
@@ -197,7 +209,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const erro = (campo: string) => erros[campo] ? <p className="text-xs text-destructive">{erros[campo]}</p> : null;
   const salvar = async () => {
     if (!selected) return;
-    const { erros: novos, payload } = validarCorrecao({ ...selected, "Responsável": nomeUsuario });
+    const { erros: novos, payload } = validarCorrecao(selected);
     setErros(novos);
     if (Object.keys(novos).length) { toast.error("Corrija os campos destacados antes de salvar"); return; }
     setSalvando(true);
@@ -209,6 +221,17 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
     qc.invalidateQueries({ queryKey: ["prioritarios"] });
     qc.invalidateQueries({ queryKey: ["prioritarios-kpis"] });
     qc.invalidateQueries({ queryKey: ["valores-colunas"] });
+  };
+
+  const atribuirResponsavel = async () => {
+    if (!responsavelLote || marcados.size === 0) return;
+    setAtribuindo(true);
+    const { error } = await (supabase.from("prioritario") as any).update({ "Responsável": responsavelLote }).in("id", Array.from(marcados));
+    setAtribuindo(false);
+    if (error) { toast.error(`Erro ao atribuir: ${error.message}`); return; }
+    toast.success(`Responsável atribuído a ${marcados.size} cliente(s)`);
+    setMarcados(new Set());
+    qc.invalidateQueries({ queryKey: ["prioritarios"] });
   };
 
   return (
@@ -253,7 +276,24 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
             { value: FILTRO_EM_BRANCO, label: "Vazio" },
           ] },
           { field: "decisao", label: "Decisão" },
+          { field: "Responsável", label: "Responsável", options: [...responsaveis, { value: FILTRO_NULO, label: "Sem responsável" }] },
         ]}
+        extraFilters={
+          <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 p-2 text-xs">
+            <span>{marcados.size} selecionado(s)</span>
+            <Select value={responsavelLote} onValueChange={setResponsavelLote}>
+              <SelectTrigger className="h-8 w-56 text-xs"><SelectValue placeholder="Escolher responsável" /></SelectTrigger>
+              <SelectContent>
+                {nomeUsuario && !responsaveis.includes(nomeUsuario) && <SelectItem value={nomeUsuario}>{nomeUsuario} (eu)</SelectItem>}
+                {responsaveis.map((r) => <SelectItem key={r} value={r}>{r}{r === nomeUsuario ? " (eu)" : ""}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Button size="sm" className="h-8" disabled={!responsavelLote || marcados.size === 0 || atribuindo} onClick={atribuirResponsavel}>
+              {atribuindo && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}Atribuir responsável
+            </Button>
+            {marcados.size > 0 && <Button size="sm" variant="ghost" className="h-8" onClick={() => setMarcados(new Set())}>Limpar seleção</Button>}
+          </div>
+        }
         filterValues={filters}
         onFilterChange={(f, v) => { setFilters((p) => ({ ...p, [f]: v })); setPage(1); }}
         sortField={sortField}
@@ -263,6 +303,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         onRowClick={(p) => { setErros({}); setSelected(p); window.scrollTo(0, 0); }}
         rowKey={(p) => p.id}
         columns={[
+          { header: "", className: "w-8", cell: (p) => (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Checkbox aria-label="Selecionar cliente" checked={marcados.has(p.id)} onCheckedChange={() => alternarMarcado(p.id)} />
+            </div>
+          ) },
           { header: "Controle", sortField: "controle", className: "text-xs", cell: (p) => muted(p.controle) },
           {
             header: "Cliente", sortField: "nome", className: "text-xs",
@@ -280,6 +325,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <BadgeCor cor={corAlocacao(p.alocacao)}>{p.alocacao}</BadgeCor> : muted(null) },
           { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <BadgeCor cor={corCoordenadaValidada(p.coordenada_validada)}>{p.coordenada_validada ? "Sim" : "Não"}</BadgeCor> },
           { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <BadgeCor cor={corDecisao(p.decisao)}>{canonicalizarDecisao(p.decisao)}</BadgeCor> : muted(null) },
+          { header: "Responsável", sortField: "Responsável", className: "text-xs", cell: (p) => muted(p["Responsável"]) },
         ]}
       />
       </>)}
@@ -346,19 +392,38 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                 <Secao icon={<ClipboardCheck className="h-4 w-4" />} titulo="Correção dos dados">
                   <div className="grid gap-4 md:grid-cols-2">
                     {([
-                      ["cpf_correto", "CPF correto"],
-                      ["nome_correto", "Nome correto"],
-                      ["nome_cliente_ligado", "Nome do cliente ligado"],
+                      ["cpf_alterado", "CPF alterado?"],
+                      ["nome_alterado", "Nome alterado?"],
+                      ["municipio_alterado", "Município alterado?"],
                     ] as const).map(([campo, label]) => (
                       <div key={campo} className="min-w-0 space-y-2">
                         <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
-                        <Input id={`prioritario-${campo}`} aria-invalid={!!erros[campo]} className={erros[campo] ? "border-destructive" : ""} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
-                        {erro(campo)}
+                        <Select value={selected[campo] == null ? "nao-informado" : selected[campo] ? "sim" : "nao"} onValueChange={(v) => alterarCampo(campo, v === "nao-informado" ? null : v === "sim")}>
+                          <SelectTrigger id={`prioritario-${campo}`}><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="nao-informado">Não informado</SelectItem>
+                            <SelectItem value="sim">Sim</SelectItem>
+                            <SelectItem value="nao">Não</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     ))}
+                    {([
+                      ["cpf_correto", "CPF correto", "cpf_alterado"],
+                      ["nome_correto", "Nome correto", "nome_alterado"],
+                      ["nome_cliente_ligado", "Nome do cliente ligado", null],
+                    ] as const).map(([campo, label, controle]) => {
+                      const bloqueado = controle ? !podeEditarCorrecao(selected[controle]) : false;
+                      return (
+                      <div key={campo} className="min-w-0 space-y-2">
+                        <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
+                        <Input id={`prioritario-${campo}`} disabled={bloqueado} aria-invalid={!!erros[campo]} className={erros[campo] ? "border-destructive" : ""} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
+                        {erro(campo)}
+                      </div>
+                    ); })}
                     <div className="min-w-0 space-y-2">
                       <Label htmlFor="prioritario-nome_municipio_correto">Nome do município correto</Label>
-                      <Select value={selected.nome_municipio_correto || "nao-informado"} onValueChange={(v) => alterarCampo("nome_municipio_correto", v === "nao-informado" ? "" : v)}>
+                      <Select disabled={!podeEditarCorrecao(selected.municipio_alterado)} value={selected.nome_municipio_correto || "nao-informado"} onValueChange={(v) => alterarCampo("nome_municipio_correto", v === "nao-informado" ? "" : v)}>
                         <SelectTrigger id="prioritario-nome_municipio_correto" className={erros.nome_municipio_correto ? "border-destructive" : ""}><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="nao-informado">Não informado</SelectItem>
@@ -372,8 +437,14 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                     </div>
                     <div className="min-w-0 space-y-2">
                       <Label htmlFor="prioritario-responsavel">Responsável</Label>
-                      <Input id="prioritario-responsavel" readOnly className="bg-muted/40" value={nomeUsuario || selected["Responsável"] || ""} />
-                      {erro("Responsável")}
+                      <Select value={selected["Responsável"] || "nao-informado"} onValueChange={(v) => alterarCampo("Responsável", v === "nao-informado" ? null : v)}>
+                        <SelectTrigger id="prioritario-responsavel"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Sem responsável</SelectItem>
+                          {selected["Responsável"] && !responsaveis.includes(selected["Responsável"]) && <SelectItem value={selected["Responsável"]}>{selected["Responsável"]}</SelectItem>}
+                          {responsaveis.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
@@ -421,13 +492,21 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-latitude">Latitude</Label>
-                      <Input id="prioritario-latitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
+                      <Input id="prioritario-latitude" inputMode="decimal" value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
                       {erro("latitude")}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-longitude">Longitude</Label>
-                      <Input id="prioritario-longitude" inputMode="decimal" readOnly={!coordenadasEditaveis} value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
+                      <Input id="prioritario-longitude" inputMode="decimal" value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
                       {erro("longitude")}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-lat-enbpar">Latitude ENBPAR</Label>
+                      <Input id="prioritario-lat-enbpar" readOnly className="bg-muted/40" value={selected.latitude_enbpar ?? ""} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="prioritario-lng-enbpar">Longitude ENBPAR</Label>
+                      <Input id="prioritario-lng-enbpar" readOnly className="bg-muted/40" value={selected.longitude_enbpar ?? ""} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-municipio-coord">Município da coordenada</Label>

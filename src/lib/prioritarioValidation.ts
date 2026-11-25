@@ -28,6 +28,14 @@ export interface CorrecaoPrioritario {
   observacao?: string | null;
   atendimento?: string | null;
   decisao?: string | null;
+  nome_alterado?: boolean | null;
+  cpf_alterado?: boolean | null;
+  municipio_alterado?: boolean | null;
+}
+
+/** Campo corrigido só é editável quando a respectiva validação está marcada "Sim". */
+export function podeEditarCorrecao(alterado: boolean | null | undefined): boolean {
+  return alterado === true;
 }
 
 const txt = (v?: string | null) => (v ?? "").trim() || null;
@@ -37,7 +45,6 @@ export function validarCorrecao(f: CorrecaoPrioritario): { erros: Record<string,
   const erros: Record<string, string> = {};
   const cpf = txt(f.cpf_correto);
   if (cpf && !cpfValido(cpf)) erros.cpf_correto = "CPF inválido";
-  if (!txt(f["Responsável"])) erros["Responsável"] = "Informe o responsável";
   if (f.coordenada_validada == null) erros.coordenada_validada = "Informe se a coordenada foi validada";
 
   const payload: Record<string, unknown> = {
@@ -50,9 +57,12 @@ export function validarCorrecao(f: CorrecaoPrioritario): { erros: Record<string,
     observacao: txt(f.observacao),
     atendimento: txt(f.atendimento),
     decisao: txt(f.decisao),
+    nome_alterado: f.nome_alterado ?? null,
+    cpf_alterado: f.cpf_alterado ?? null,
+    municipio_alterado: f.municipio_alterado ?? null,
   };
 
-  if (podeEditarCoordenadas(f.coordenada_validada)) {
+  if (fmtCoord(f.latitude) || fmtCoord(f.longitude)) {
     const lat = Number(fmtCoord(f.latitude));
     const lng = Number(fmtCoord(f.longitude));
     if (!fmtCoord(f.latitude) || !Number.isFinite(lat) || lat < -90 || lat > 90) erros.latitude = "Latitude inválida (-90 a 90)";
