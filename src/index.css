@@ -211,6 +211,48 @@ All colors MUST be HSL.
     --chart-5: 0 0% 65.10%;
   }
 
+  .lavanda {
+    color-scheme: light;
+    --background: 275 50% 97%;
+    --card: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --surface-sidebar-base: 283 58% 95%;
+    --sidebar: 283 58% 95%;
+    --sidebar-background: 283 58% 95%;
+    --sidebar-foreground: 279 45% 25%;
+    --sidebar-accent: 275 40% 91%;
+    --sidebar-accent-foreground: 279 45% 25%;
+    --sidebar-primary: 285 43% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-border: 275 30% 88%;
+    --theme-topbar: 283 58% 95%;
+    --theme-topbar-foreground: 279 45% 25%;
+    --primary: 285 43% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 275 40% 91%;
+    --secondary-foreground: 279 45% 25%;
+    --accent: 283 39% 58%;
+    --accent-foreground: 0 0% 100%;
+    --theme-complement: 283 39% 58%;
+    --theme-highlight: 283 58% 95%;
+    --ring: 283 39% 58%;
+    --theme-table-header: 283 58% 95%;
+    --theme-table-header-foreground: 279 45% 25%;
+    --theme-row-hover: 283 58% 97%;
+    --data-selected: 275 40% 91%;
+    --border: 275 30% 88%;
+    --input: 275 30% 85%;
+    --success: 155 45% 38%;
+    --success-foreground: 0 0% 100%;
+    --success-background: 150 50% 92%;
+    --muted-foreground: 279 15% 40%;
+    --chart-1: 285 43% 35%;
+    --chart-2: 283 39% 58%;
+    --chart-3: 155 45% 55%;
+    --chart-4: 275 40% 80%;
+    --chart-5: 279 45% 25%;
+  }
+
   .dark {
     --surface-sidebar-base: 200 25% 15%;
     --background: 200 30% 10%;
@@ -282,15 +324,15 @@ All colors MUST be HSL.
 }
 /* Palette accents preserve the standard layout and neutral surfaces. */
 @layer components {
-  :is(.holst, .oceano, .artico) [data-slot="card"] {
+  :is(.holst, .oceano, .artico, .lavanda) [data-slot="card"] {
     border-top-color: hsl(var(--accent));
   }
 
-  :is(.holst, .oceano, .artico) tbody tr:is(:hover, [data-state="selected"]) {
+  :is(.holst, .oceano, .artico, .lavanda) tbody tr:is(:hover, [data-state="selected"]) {
     background: hsl(var(--theme-row-hover));
   }
 
-  :is(.holst, .oceano, .artico) [data-sidebar="menu-button"][data-active="true"] {
+  :is(.holst, .oceano, .artico, .lavanda) [data-sidebar="menu-button"][data-active="true"] {
     background: hsl(var(--sidebar-accent));
     color: hsl(var(--sidebar-accent-foreground));
     box-shadow: inset 3px 0 0 hsl(var(--sidebar-primary));
@@ -332,11 +374,11 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  :is(.holst, .oceano, .artico) .grid > [data-slot="card"]:nth-child(3n + 2) {
+  :is(.holst, .oceano, .artico, .lavanda) .grid > [data-slot="card"]:nth-child(3n + 2) {
     border-top-color: hsl(var(--theme-complement));
   }
 
-  :is(.holst, .oceano, .artico) .grid > [data-slot="card"]:nth-child(3n) {
+  :is(.holst, .oceano, .artico, .lavanda) .grid > [data-slot="card"]:nth-child(3n) {
     border-top-color: hsl(var(--theme-highlight));
   }
 }

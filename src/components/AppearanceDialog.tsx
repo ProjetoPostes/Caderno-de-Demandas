@@ -42,7 +42,7 @@ export function AppearanceDialog({ open, onOpenChange }: { open: boolean; onOpen
       <DialogContent className="w-[calc(100%-2rem)] max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Personalizar cores</DialogTitle>
-          <DialogDescription>{({ light: "Claro", dark: "Escuro", holst: "Holst", oceano: "Oceano", artico: "Ártico" } as Record<string, string>)[resolvedTheme ?? "light"]} · Preferência neste navegador</DialogDescription>
+          <DialogDescription>{({ light: "Claro", dark: "Escuro", holst: "Holst", oceano: "Oceano", artico: "Ártico", lavanda: "Lavanda" } as Record<string, string>)[resolvedTheme ?? "light"]} · Preferência neste navegador</DialogDescription>
         </DialogHeader>
         <div className="divide-y">
           {items.map(({ surface, label }) => {

@@ -14,7 +14,7 @@ function readPreferences(): Preferences {
     if (!stored || typeof stored !== "object" || Array.isArray(stored)) return {};
     const result: Preferences = {};
     for (const [theme, colors] of Object.entries(stored)) {
-      if (!["light", "dark", "holst", "oceano", "artico"].includes(theme) || !colors || typeof colors !== "object") continue;
+      if (!["light", "dark", "holst", "oceano", "artico", "lavanda"].includes(theme) || !colors || typeof colors !== "object") continue;
       result[theme] = {};
       for (const surface of surfaces) {
         const color = (colors as Colors)[surface];
