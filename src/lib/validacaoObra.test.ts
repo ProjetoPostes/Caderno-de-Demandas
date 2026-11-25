@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { dadosValidacaoObra } from "./validacaoObra";
 
-test("ODS e Status ODS são dados fixos e não fazem parte da validação enviada", () => {
+test("Edição de ODS e Status ODS apenas na interface não altera a validação enviada", () => {
   const dados = dadosValidacaoObra({
     tipo_atendimento: "Melhoria",
     analise_obra: "Análise",

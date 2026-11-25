@@ -74,7 +74,7 @@ export default function ValidacaoObra() {
   const { data: osList, isLoading: loadingOs } = useObraOsList(idObra);
   const primeiraOs = osList?.[0];
 
-  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null });
+  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null, ods: "", status_ods: "" });
   useEffect(() => {
     if (!obra) return;
     const ct = obra.check_txt;
@@ -83,6 +83,8 @@ export default function ValidacaoObra() {
       analise_obra: obra.analise_obra ?? null,
       cadastro_enbpar: obra.cadastro_enbpar ?? null,
       check_txt: ct === null || ct === undefined ? null : ct === true || ct === "Sim" || ct === "true" ? "Sim" : "Não",
+      ods: obra.ods ?? "",
+      status_ods: obra.status_ods ?? "",
     });
   }, [obra]);
 
@@ -209,10 +211,6 @@ export default function ValidacaoObra() {
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Informações da obra</h3>
-          <dl className="mb-3 grid gap-4 sm:grid-cols-2">
-            <div><dt className="text-xs font-medium text-label-foreground">ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.ods ?? "—"}</dd></div>
-            <div><dt className="text-xs font-medium text-label-foreground">Status ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.status_ods ?? "—"}</dd></div>
-          </dl>
           <div className="grid overflow-hidden rounded-md border sm:grid-cols-2 lg:grid-cols-5">
             {[["Status", obra.status ?? "Indefinido"], ["Data Início", formatarData(primeiraOs?.datasol)], ["Data de Fim", formatarData(primeiraOs?.datatertrab)], ["Valor orçado", brl(obra.valor_orcado)], ["Valor realizado", brl(obra.valor_realizado)]].map(([l, v], i) => (
               <div key={l} className={`bg-muted/30 p-3 ${i > 0 ? "border-t sm:border-l sm:border-t-0" : ""}`}>
@@ -231,6 +229,14 @@ export default function ValidacaoObra() {
         <section className="rounded-md border bg-card p-4">
           <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Validação da obra</h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-1">
+              <Label htmlFor="obra-ods" className="text-xs">ODS</Label>
+              <Input id="obra-ods" className="h-9 text-sm" value={form.ods} onChange={(event) => setForm((p) => ({ ...p, ods: event.target.value }))} />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="obra-status-ods" className="text-xs">Status ODS</Label>
+              <Input id="obra-status-ods" className="h-9 text-sm" value={form.status_ods} onChange={(event) => setForm((p) => ({ ...p, status_ods: event.target.value }))} />
+            </div>
             <Dropdown label="Tipo de atendimento" value={form.tipo_atendimento} options={OPCOES_TIPO_ATENDIMENTO} onChange={(v) => setForm((p) => ({ ...p, tipo_atendimento: v }))} />
             <Dropdown label="Análise da obra" value={form.analise_obra} options={OPCOES_ANALISE_OBRA} onChange={(v) => setForm((p) => ({ ...p, analise_obra: v }))} />
             <Dropdown label="Cadastro ENBPar" value={form.cadastro_enbpar} options={OPCOES_CADASTRO_ENBPAR} onChange={(v) => setForm((p) => ({ ...p, cadastro_enbpar: v }))} />

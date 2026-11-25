@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Mover ODS e Status ODS para Validação da obra e permitir edição apenas na tela, sem mudar o banco ou o salvamento existente.
+
 - [x] Restringir Holst e Oceano aos acentos, preservando a base neutra; 41 testes de contraste passaram e controles reais de tema conferidos isoladamente em computador/celular, sem testar telas autenticadas.
 
 - [x] Verificar e corrigir contraste dos temas Holst e Oceano; 100 testes passaram.
