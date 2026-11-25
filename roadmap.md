@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Restringir Holst e Oceano aos acentos, preservando a base neutra; 41 testes de contraste passaram e controles reais de tema conferidos isoladamente em computador/celular, sem testar telas autenticadas.
+
 - [x] Verificar e corrigir contraste dos temas Holst e Oceano; 100 testes passaram.
 - [x] Permitir cores individuais de menu, cabeçalho e cards apenas neste navegador, sem recomendação de tema; seleção, recarga e restauração verificadas em controles reais isolados no computador/celular. Conferência em /tratativas/clientes com login indisponível por ausência de sessão.
 

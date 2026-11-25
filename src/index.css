@@ -87,130 +87,75 @@ All colors MUST be HSL.
     --spacing: 0.25rem;
   }
 
+  /* Additional palettes change accents only; neutral surfaces inherit the light base. */
   .holst {
     color-scheme: light;
+    --muted-foreground: 200 30% 35%;
     --success-foreground: var(--readable-dark);
     --destructive: 0 72% 48%;
-    --surface-sidebar-base: 38.18 33.85% 80%;
-    --background: 51.82 50% 91.37%;
-    --foreground: 211.03 52.73% 10.78%;
-    --card: 48 45% 97%;
-    --card-foreground: 211.03 52.73% 10.78%;
-    --popover: 48 45% 97%;
-    --popover-foreground: 211.03 52.73% 10.78%;
     --primary: 212.22 29.35% 36.08%;
     --primary-foreground: 51.82 50% 91.37%;
     --secondary: 38.18 33.85% 74.51%;
     --secondary-foreground: 219.38 37.21% 16.86%;
-    --muted: 38.18 33.85% 85%;
-    --muted-foreground: 212.22 29.35% 36.08%;
     --accent: 128.18 8.8% 50.98%;
     --accent-foreground: 211.03 52.73% 10.78%;
-    --border: 38.18 33.85% 74.51%;
-    --input: 38.18 33.85% 74.51%;
-    --ring: 128.18 8.8% 50.98%;
-
-    --sidebar-background: 38.18 33.85% 80%;
-    --sidebar-foreground: 211.03 52.73% 10.78%;
-    --sidebar-primary: 212.22 29.35% 36.08%;
-    --sidebar-primary-foreground: 51.82 50% 91.37%;
-    --sidebar-accent: 128.18 8.8% 50.98%;
-    --sidebar-accent-foreground: 211.03 52.73% 10.78%;
-    --sidebar-border: 38.18 33.85% 64%;
-    --sidebar-ring: 128.18 8.8% 50.98%;
-    --sidebar: 38.18 33.85% 80%;
-
-    --chart-1: 212.22 29.35% 36.08%;
-    --chart-2: 128.18 8.8% 50.98%;
-    --chart-3: 38.18 33.85% 74.51%;
+    --ring: var(--primary);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-ring: var(--ring);
+    --chart-1: var(--primary);
+    --chart-2: var(--accent);
+    --chart-3: var(--secondary);
     --chart-4: 219.38 37.21% 16.86%;
     --chart-5: 169 25% 40%;
-
-    --shadow-2xs: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.08);
-    --shadow-sm: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.1), 0 1px 2px -1px hsl(211.03 52.73% 10.78% / 0.1);
-    --shadow: var(--shadow-sm);
-    --shadow-md: 0 4px 6px -1px hsl(211.03 52.73% 10.78% / 0.1), 0 2px 4px -1px hsl(211.03 52.73% 10.78% / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(211.03 52.73% 10.78% / 0.1), 0 4px 6px -2px hsl(211.03 52.73% 10.78% / 0.05);
-    --shadow-xl: 0 20px 25px -5px hsl(211.03 52.73% 10.78% / 0.1), 0 10px 10px -5px hsl(211.03 52.73% 10.78% / 0.04);
-    --shadow-2xl: 0 25px 50px -12px hsl(211.03 52.73% 10.78% / 0.25);
-    --theme-header: var(--accent);
-    --theme-header-foreground: var(--accent-foreground);
-    --theme-table-header: var(--secondary);
-    --theme-table-header-foreground: var(--secondary-foreground);
-    --theme-row-alternate: var(--muted);
-    --theme-row-hover: 128.18 18% 82%;
-    --theme-topbar: 128.18 8.8% 50.98%;
-    --theme-topbar-foreground: 211.03 52.73% 10.78%;
-
-    --theme-complement: 12 62% 80%;
-    --theme-complement-foreground: 12 45% 22%;
-    --theme-highlight: 43 66% 74%;
-    --theme-highlight-foreground: 38 45% 20%;
-
+    --theme-header: var(--card);
+    --theme-header-foreground: var(--card-foreground);
+    --theme-topbar: var(--background);
+    --theme-topbar-foreground: var(--foreground);
+    --theme-table-header: var(--muted);
+    --theme-table-header-foreground: var(--foreground);
+    --theme-row-hover: 128.18 18% 90%;
+    --theme-complement: var(--primary);
+    --theme-complement-foreground: var(--primary-foreground);
+    --theme-highlight: var(--secondary);
+    --theme-highlight-foreground: var(--secondary-foreground);
   }
 
   .oceano {
     color-scheme: light;
+    --muted-foreground: 200 30% 35%;
     --success-foreground: var(--readable-dark);
     --destructive: 0 72% 48%;
-    --surface-sidebar-base: 206.40 49.02% 80%;
-    --background: 205.71 63.64% 97.84%;
-    --foreground: 216.92 66.10% 11.57%;
-    --card: 0 0% 100%;
-    --card-foreground: 216.92 66.10% 11.57%;
-    --popover: 205.71 63.64% 97.84%;
-    --popover-foreground: 216.92 66.10% 11.57%;
     --primary: 211.23 58.40% 24.51%;
     --primary-foreground: 205.71 63.64% 97.84%;
-    --secondary: 206.40 49.02% 80%;
-    --secondary-foreground: 211.23 58.40% 24.51%;
-    --muted: 206.40 49.02% 91%;
-    --muted-foreground: 211.23 38% 36%;
-    --accent: 205.81 38.59% 43%;
-    --accent-foreground: 205.71 63.64% 97.84%;
-    --border: 206.40 49.02% 80%;
-    --input: 206.40 49.02% 80%;
-    --ring: 205.81 38.59% 47.25%;
-
-    --sidebar-background: 206.40 49.02% 80%;
-    --sidebar-foreground: 216.92 66.10% 11.57%;
-    --sidebar-primary: 211.23 58.40% 24.51%;
-    --sidebar-primary-foreground: 205.71 63.64% 97.84%;
-    --sidebar-accent: 205.81 38.59% 43%;
-    --sidebar-accent-foreground: 205.71 63.64% 97.84%;
-    --sidebar-border: 205.81 38.59% 62%;
-    --sidebar-ring: 206.40 49.02% 80%;
-    --sidebar: 206.40 49.02% 80%;
-
-    --chart-1: 211.23 58.40% 24.51%;
-    --chart-2: 205.81 38.59% 47.25%;
-    --chart-3: 206.40 49.02% 80%;
+    --secondary: 205.81 38.59% 43%;
+    --secondary-foreground: 205.71 63.64% 97.84%;
+    --accent: 206.40 49.02% 80%;
+    --accent-foreground: 211.23 58.40% 24.51%;
+    --ring: var(--secondary);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-ring: var(--ring);
+    --chart-1: var(--primary);
+    --chart-2: var(--secondary);
+    --chart-3: var(--accent);
     --chart-4: 169 45% 38%;
     --chart-5: 23 85% 55%;
-
-    --shadow-2xs: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.08);
-    --shadow-sm: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.1), 0 1px 2px -1px hsl(216.92 66.10% 11.57% / 0.1);
-    --shadow: var(--shadow-sm);
-    --shadow-md: 0 4px 6px -1px hsl(216.92 66.10% 11.57% / 0.1), 0 2px 4px -1px hsl(216.92 66.10% 11.57% / 0.06);
-    --shadow-lg: 0 10px 15px -3px hsl(216.92 66.10% 11.57% / 0.1), 0 4px 6px -2px hsl(216.92 66.10% 11.57% / 0.05);
-    --shadow-xl: 0 20px 25px -5px hsl(216.92 66.10% 11.57% / 0.1), 0 10px 10px -5px hsl(216.92 66.10% 11.57% / 0.04);
-    --shadow-2xl: 0 25px 50px -12px hsl(216.92 66.10% 11.57% / 0.25);
-    --theme-header: var(--accent);
-    --theme-header-foreground: var(--accent-foreground);
-    --theme-table-header: var(--secondary);
-    --theme-table-header-foreground: var(--secondary-foreground);
-    --theme-row-alternate: var(--muted);
-    --theme-row-hover: 169 45% 87%;
-    --theme-topbar: var(--accent);
-    --theme-topbar-foreground: 205.71 63.64% 97.84%;
-
-    --theme-complement: 169 45% 72%;
-    --theme-complement-foreground: 169 55% 18%;
-    --theme-highlight: 15 80% 82%;
-    --theme-highlight-foreground: 15 55% 24%;
-
+    --theme-header: var(--card);
+    --theme-header-foreground: var(--card-foreground);
+    --theme-topbar: var(--background);
+    --theme-topbar-foreground: var(--foreground);
+    --theme-table-header: var(--muted);
+    --theme-table-header-foreground: var(--foreground);
+    --theme-row-hover: var(--accent);
+    --theme-complement: var(--secondary);
+    --theme-complement-foreground: var(--secondary-foreground);
+    --theme-highlight: var(--accent);
+    --theme-highlight-foreground: var(--accent-foreground);
   }
 
   .dark {
@@ -283,54 +228,20 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
-/* Expressive surfaces belong only to the two additional themes. */
+/* Palette accents preserve the standard layout and neutral surfaces. */
 @layer components {
   :is(.holst, .oceano) [data-slot="card"] {
-    border-top: 3px solid hsl(var(--accent));
-    overflow: hidden;
-  }
-
-  :is(.holst, .oceano) [data-slot="card-header"] {
-    background: hsl(var(--theme-header));
-    color: hsl(var(--theme-header-foreground));
-    margin-bottom: 1rem;
-  }
-
-  :is(.holst, .oceano) [data-slot="card-header"] :is(h3, p, .text-muted-foreground) {
-    color: inherit;
-  }
-
-  :is(.holst, .oceano) thead {
-    background: hsl(var(--theme-table-header));
-  }
-
-  :is(.holst, .oceano) thead th {
-    color: hsl(var(--theme-table-header-foreground));
-    font-weight: 700;
-  }
-
-  :is(.holst, .oceano) tbody tr:nth-child(even) {
-    background: hsl(var(--theme-row-alternate) / 0.7);
+    border-top-color: hsl(var(--accent));
   }
 
   :is(.holst, .oceano) tbody tr:is(:hover, [data-state="selected"]) {
     background: hsl(var(--theme-row-hover));
   }
 
-  :is(.holst, .oceano) [data-slot="app-header"] {
-    background: hsl(var(--theme-topbar));
-    color: hsl(var(--theme-topbar-foreground));
-    border-bottom: 3px solid hsl(var(--secondary));
-  }
-
-  :is(.holst, .oceano) [data-sidebar="sidebar"] .text-muted-foreground {
-    color: hsl(var(--sidebar-foreground));
-  }
-
   :is(.holst, .oceano) [data-sidebar="menu-button"][data-active="true"] {
-    background: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
-    box-shadow: inset 4px 0 0 hsl(var(--accent));
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-accent-foreground));
+    box-shadow: inset 3px 0 0 hsl(var(--sidebar-primary));
   }
 }
 
@@ -370,14 +281,10 @@ All colors MUST be HSL.
 
 @layer components {
   :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n + 2) {
-    --theme-header: var(--theme-complement);
-    --theme-header-foreground: var(--theme-complement-foreground);
     border-top-color: hsl(var(--theme-complement));
   }
 
   :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n) {
-    --theme-header: var(--theme-highlight);
-    --theme-header-foreground: var(--theme-highlight-foreground);
     border-top-color: hsl(var(--theme-highlight));
   }
 }
