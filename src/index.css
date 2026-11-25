@@ -14,9 +14,9 @@ All colors MUST be HSL.
     --readable-dark: 0 0% 0%;
     --readable-light: 0 0% 100%;
     --surface-sidebar-base: 0 0% 98%;
-    /* Cabeçalhos de tabela e rótulos de campo: azul #0008FF. */
-    --table-head-foreground: 238.12 100% 50%;
-    --label-foreground: 238.12 100% 50%;
+    /* Cabeçalhos de tabela e rótulos de campo: neutros fora do tema Ártico. */
+    --table-head-foreground: var(--muted-foreground);
+    --label-foreground: var(--foreground);
     /* Corporate Colors - RGB converted to HSL */
     /* Azul: RGB(0, 159, 194) = HSL(191, 100%, 38%) */
     /* Laranja: RGB(243, 112, 33) = HSL(23, 90%, 54%) */
@@ -163,6 +163,9 @@ All colors MUST be HSL.
 
   .artico {
     color-scheme: light;
+    /* Azul #0008FF nos cabeçalhos de tabela e rótulos: só neste tema. */
+    --table-head-foreground: 238.12 100% 50%;
+    --label-foreground: 238.12 100% 50%;
     --background: 0 0% 100.00%;
     --card: 0 0% 94.12%;
     --popover: 0 0% 100.00%;
@@ -212,10 +215,6 @@ All colors MUST be HSL.
     --surface-sidebar-base: 200 25% 15%;
     --background: 200 30% 10%;
     --foreground: 195 20% 95%;
-    /* Mesmo matiz, mais claro para manter 4.5:1 sobre superfícies escuras. */
-    --table-head-foreground: 238.12 100% 76%;
-    --label-foreground: 238.12 100% 76%;
-
     --card: 200 25% 15%;
     --card-foreground: 195 20% 95%;
 

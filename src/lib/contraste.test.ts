@@ -52,23 +52,25 @@ describe("Contraste WCAG AA", () => {
   });
 });
 
-describe("Cabeçalhos de tabela e rótulos em #0008FF", () => {
+describe("Cabeçalhos de tabela e rótulos em #0008FF apenas no Ártico", () => {
   const claro = tokens(":root");
   const escuro = { ...tokens(":root"), ...tokens(".dark") };
   const artico = { ...tokens(":root"), ...tokens(".artico") };
   const tokensNovos = ["table-head-foreground", "label-foreground"];
 
-  test("tema claro usa exatamente #0008FF", () => {
+  test("tema Ártico usa exatamente #0008FF", () => {
     for (const token of tokensNovos) {
-      expect(rgbHsl(resolve(claro, token)).map(Math.round)).toEqual(rgbHex("#0008ff"));
+      expect(rgbHsl(resolve(artico, token)).map(Math.round)).toEqual(rgbHex("#0008ff"));
     }
   });
 
-  test("tema escuro usa um tom mais claro do mesmo matiz", () => {
-    for (const token of tokensNovos) {
-      const rgb = rgbHsl(resolve(escuro, token)).map(Math.round);
-      expect(rgb).not.toEqual(rgbHex("#0008ff"));
-      expect(rgb[2]).toBeGreaterThan(rgb[0]);
+  test("temas claro e escuro não usam #0008FF", () => {
+    for (const valores of [claro, escuro]) {
+      for (const token of tokensNovos) {
+        const rgb = rgbHsl(resolve(valores, token)).map(Math.round);
+        expect(rgb).not.toEqual(rgbHex("#0008ff"));
+        expect(rgb).not.toEqual(rgbHex("#414bcb"));
+      }
     }
   });
 
@@ -82,9 +84,11 @@ describe("Cabeçalhos de tabela e rótulos em #0008FF", () => {
     }
   }
 
-  test("ártico: cabeçalhos e rótulos sobre o card cinza ≥ 4.5:1", () => {
+  test("ártico: cabeçalhos e rótulos em #0008FF sobre fundo e card ≥ 4.5:1", () => {
     for (const foreground of tokensNovos) {
-      expect(contraste(rgbHsl(resolve(artico, "card")), rgbHsl(resolve(artico, foreground)))).toBeGreaterThanOrEqual(CONTRASTE_TEXTO);
+      for (const background of ["background", "card"]) {
+        expect(contraste(rgbHsl(resolve(artico, background)), rgbHsl(resolve(artico, foreground)))).toBeGreaterThanOrEqual(CONTRASTE_TEXTO);
+      }
     }
   });
 });
