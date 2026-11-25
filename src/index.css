@@ -160,8 +160,8 @@ All colors MUST be HSL.
 
   .artico {
     color-scheme: light;
-    --background: 0 0% 94.12%;
-    --card: 0 0% 100.00%;
+    --background: 0 0% 100.00%;
+    --card: 0 0% 94.12%;
     --popover: 0 0% 100.00%;
     --surface-sidebar-base: 0 0% 90.20%;
     --sidebar: 0 0% 90.20%;
