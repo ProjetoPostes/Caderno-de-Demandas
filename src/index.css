@@ -253,6 +253,49 @@ All colors MUST be HSL.
     --chart-5: 279 45% 25%;
   }
 
+  .floresta {
+    color-scheme: light;
+    --primary: 35 85% 34%;
+    --primary-foreground: var(--readable-light);
+    --secondary: 145 22% 90%;
+    --secondary-foreground: 145 30% 20%;
+    --accent: 145 28% 32%;
+    --accent-foreground: var(--readable-light);
+    --ring: var(--primary);
+    --muted-foreground: 200 30% 35%;
+    --success: 145 35% 32%;
+    --success-foreground: var(--readable-light);
+    --destructive: 0 72% 48%;
+    --surface-sidebar-base: 145 30% 10%;
+    --sidebar: var(--surface-sidebar-base);
+    --sidebar-background: var(--sidebar);
+    --sidebar-foreground: var(--readable-light);
+    --sidebar-primary: 38 90% 65%;
+    --sidebar-primary-foreground: 145 30% 10%;
+    --sidebar-accent: 145 28% 23%;
+    --sidebar-accent-foreground: var(--readable-light);
+    --sidebar-border: 145 15% 40%;
+    --sidebar-ring: var(--sidebar-primary);
+    --sidebar-image-shade: 145 30% 6%;
+    --sidebar-image-opacity: 0.66;
+    --theme-header: var(--card);
+    --theme-header-foreground: var(--card-foreground);
+    --theme-topbar: var(--background);
+    --theme-topbar-foreground: var(--foreground);
+    --theme-table-header: var(--muted);
+    --theme-table-header-foreground: var(--foreground);
+    --theme-row-hover: 145 22% 94%;
+    --theme-complement: var(--primary);
+    --theme-complement-foreground: var(--primary-foreground);
+    --theme-highlight: var(--secondary);
+    --theme-highlight-foreground: var(--secondary-foreground);
+    --chart-1: var(--accent);
+    --chart-2: var(--primary);
+    --chart-3: 191 50% 36%;
+    --chart-4: 38 70% 65%;
+    --chart-5: 145 20% 50%;
+  }
+
   .dark {
     --surface-sidebar-base: 200 25% 15%;
     --background: 200 30% 10%;
@@ -324,15 +367,15 @@ All colors MUST be HSL.
 }
 /* Palette accents preserve the standard layout and neutral surfaces. */
 @layer components {
-  :is(.holst, .oceano, .artico, .lavanda) [data-slot="card"] {
+  :is(.holst, .oceano, .artico, .lavanda, .floresta) [data-slot="card"] {
     border-top-color: hsl(var(--accent));
   }
 
-  :is(.holst, .oceano, .artico, .lavanda) tbody tr:is(:hover, [data-state="selected"]) {
+  :is(.holst, .oceano, .artico, .lavanda, .floresta) tbody tr:is(:hover, [data-state="selected"]) {
     background: hsl(var(--theme-row-hover));
   }
 
-  :is(.holst, .oceano, .artico, .lavanda) [data-sidebar="menu-button"][data-active="true"] {
+  :is(.holst, .oceano, .artico, .lavanda, .floresta) [data-sidebar="menu-button"][data-active="true"] {
     background: hsl(var(--sidebar-accent));
     color: hsl(var(--sidebar-accent-foreground));
     box-shadow: inset 3px 0 0 hsl(var(--sidebar-primary));
@@ -374,11 +417,11 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  :is(.holst, .oceano, .artico, .lavanda) .grid > [data-slot="card"]:nth-child(3n + 2) {
+  :is(.holst, .oceano, .artico, .lavanda, .floresta) .grid > [data-slot="card"]:nth-child(3n + 2) {
     border-top-color: hsl(var(--theme-complement));
   }
 
-  :is(.holst, .oceano, .artico, .lavanda) .grid > [data-slot="card"]:nth-child(3n) {
+  :is(.holst, .oceano, .artico, .lavanda, .floresta) .grid > [data-slot="card"]:nth-child(3n) {
     border-top-color: hsl(var(--theme-highlight));
   }
 }
@@ -386,6 +429,31 @@ All colors MUST be HSL.
 .artico:not([data-custom-header]) [data-slot="app-header"] {
   background: hsl(var(--theme-topbar));
   color: hsl(var(--theme-topbar-foreground));
+}
+
+/* Only the image theme layers scenery behind the existing sidebar controls. */
+.floresta [data-sidebar="sidebar"] {
+  isolation: isolate;
+  --sidebar-foreground: var(--readable-light);
+}
+.floresta [data-sidebar="sidebar"]:not([data-mobile="true"]) {
+  position: relative;
+}
+.sidebar-scenery {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.sidebar-scenery::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: hsl(var(--sidebar-image-shade) / var(--sidebar-image-opacity));
+}
+.floresta [data-sidebar="sidebar"] :is(.text-muted-foreground, [data-sidebar="group-label"]) {
+  color: hsl(var(--sidebar-foreground));
 }
 
 /* Ártico: fixed status colors on screens follow the theme's status palette. */

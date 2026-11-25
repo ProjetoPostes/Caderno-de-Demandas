@@ -22,3 +22,4 @@
 - Work quantitative catalogs and saved items use the shared `buscarTodos` reader with deterministic ordering to avoid truncation by the external API row limit.
 - Additional themes inherit neutral base surfaces and override only semantic accent tokens and shared card/selection data-slot accents; light custom themes must not activate Tailwind dark variants or Sonner dark mode, and must not add per-user database preferences, so palette changes remain isolated from layout and base appearance.
 - Surface color customization is theme-scoped browser presentation state via AppearanceProvider; pair overrides with tested WCAG AA foreground selection and keep contrast regression tests against global theme tokens to prevent unreadable colors.
+- Sidebar imagery is a decorative theme-gated child inside the shared sidebar, with CSS-token overlay and contrast checks; this preserves desktop, collapsed and mobile navigation without duplicating layout or changing authentication.

@@ -20,7 +20,7 @@ describe("Contraste WCAG AA", () => {
     expect(contraste([255, 255, 255], [0, 0, 0])).toBe(21);
     expect(contraste([128, 128, 128], [128, 128, 128])).toBe(1);
   });
-  for (const theme of ["holst", "oceano"]) {
+  for (const theme of ["holst", "oceano", "floresta"]) {
     const values = { ...tokens(":root"), ...tokens(`.${theme}`) };
     const pairs = [
       ["background", "foreground"], ["card", "card-foreground"], ["card", "muted-foreground"],
@@ -44,6 +44,13 @@ describe("Contraste WCAG AA", () => {
       const foreground = textoLegivel(background) === "dark" ? [0, 0, 0] as [number, number, number] : [255, 255, 255] as [number, number, number];
       expect(contraste(background, foreground)).toBeGreaterThanOrEqual(4.5);
     }
+  });
+  test("Floresta: texto legível mesmo sobre o pixel mais claro da imagem", () => {
+    const values = { ...tokens(":root"), ...tokens(".floresta") };
+    const opacity = Number(values["sidebar-image-opacity"]);
+    const shade = rgbHsl(resolve(values, "sidebar-image-shade"));
+    const brightest = shade.map(channel => channel * opacity + 255 * (1 - opacity)) as [number, number, number];
+    expect(contraste(brightest, rgbHsl(resolve(values, "sidebar-foreground")))).toBeGreaterThanOrEqual(CONTRASTE_TEXTO);
   });
   test("conversão preserva as cores selecionadas", () => {
     for (const hex of ["#ffffff", "#000000", "#415a77", "#b3cfe5", "#ff0044"]) {

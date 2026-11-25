@@ -17,6 +17,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { usePendingApprovals } from "@/hooks/usePendingApprovals";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SidebarScenery } from "@/components/SidebarScenery";
 
 const painelItems = [
   {
@@ -128,6 +129,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
+      <SidebarScenery />
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3">
           <Button 
