@@ -9,8 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
+import { useAnalistas } from "@/hooks/useAnaliseOs";
 import { useObraOsList } from "@/hooks/useTabelasOperacionais";
 import { dadosValidacaoObra } from "@/lib/validacaoObra";
 import {
@@ -65,16 +64,14 @@ export default function ValidacaoObra() {
   const { idObra: idParam } = useParams();
   const idObra = idParam ? Number(idParam) : null;
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { profile: perfil } = useProfile();
-  const nomeUsuario = (perfil as { full_name?: string | null; username?: string | null } | null | undefined)?.full_name
-    || (perfil as { username?: string | null } | null | undefined)?.username || user?.email || "";
+  const { data: usuarios = [], isLoading: loadingUsuarios, isError: erroUsuarios, refetch: recarregarUsuarios } = useAnalistas();
+  const responsaveis = useMemo(() => Array.from(new Set(usuarios.map((usuario) => (usuario.full_name || usuario.username || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR")), [usuarios]);
 
   const { data: obra, isLoading } = useObraDetalhe(idObra);
   const { data: osList, isLoading: loadingOs } = useObraOsList(idObra);
   const primeiraOs = osList?.[0];
 
-  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null, ods: "", status_ods: "" });
+  const [form, setForm] = useState({ tipo_atendimento: null as string | null, analise_obra: null as string | null, cadastro_enbpar: null as string | null, check_txt: null as string | null, ods: "", status_ods: "", responsavel: null as string | null });
   useEffect(() => {
     if (!obra) return;
     const ct = obra.check_txt;
@@ -85,13 +82,14 @@ export default function ValidacaoObra() {
       check_txt: ct === null || ct === undefined ? null : ct === true || ct === "Sim" || ct === "true" ? "Sim" : "Não",
       ods: obra.ods ?? "",
       status_ods: obra.status_ods ?? "",
+      responsavel: obra.responsavel ?? null,
     });
   }, [obra]);
 
   const salvarValidacao = useSalvarValidacaoObra(idObra ?? 0);
   const handleSalvarValidacao = async () => {
     try {
-      await salvarValidacao.mutateAsync({ ...dadosValidacaoObra(form), data_analise: new Date().toISOString(), responsavel: nomeUsuario || null });
+      await salvarValidacao.mutateAsync({ ...dadosValidacaoObra(form), data_analise: new Date().toISOString() });
       toast.success("Validação da obra salva");
     } catch (e) {
       console.error(e);
@@ -246,8 +244,15 @@ export default function ValidacaoObra() {
               <Input readOnly className="h-9 bg-muted/40 text-sm" value={obra.data_analise ? new Date(obra.data_analise).toLocaleString("pt-BR") : "Preenchida ao salvar"} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Responsável</Label>
-              <Input readOnly className="h-9 bg-muted/40 text-sm" value={obra.responsavel || nomeUsuario} />
+              <Label htmlFor="obra-responsavel" className="text-xs">Responsável</Label>
+              <Select value={form.responsavel ?? NULO} onValueChange={(value) => setForm((p) => ({ ...p, responsavel: value === NULO ? null : value }))} disabled={loadingUsuarios}>
+                <SelectTrigger id="obra-responsavel" className="h-9 text-sm"><SelectValue placeholder={loadingUsuarios ? "Carregando usuários..." : "Selecione"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NULO}>Sem responsável</SelectItem>
+                  {comAtual(responsaveis, form.responsavel).map((nome) => <SelectItem key={nome} value={nome}>{nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              {erroUsuarios && <div role="alert" className="text-xs text-destructive">Não foi possível carregar os usuários.<Button variant="link" size="sm" onClick={() => recarregarUsuarios()}>Tentar novamente</Button></div>}
             </div>
           </div>
           <div className="mt-4 flex justify-end">

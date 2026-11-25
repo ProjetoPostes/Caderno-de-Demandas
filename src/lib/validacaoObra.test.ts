@@ -13,3 +13,14 @@ test("Edição de ODS e Status ODS apenas na interface não altera a validação
   expect(dados).not.toHaveProperty("status_ods");
   expect(dados.analise_obra).toBe("Análise");
 });
+
+test("a validação envia o usuário escolhido como responsável", () => {
+  const dados = dadosValidacaoObra({
+    tipo_atendimento: null,
+    analise_obra: "Análise",
+    cadastro_enbpar: null,
+    check_txt: null,
+    responsavel: "Ana Silva",
+  });
+  expect(dados.responsavel).toBe("Ana Silva");
+});
