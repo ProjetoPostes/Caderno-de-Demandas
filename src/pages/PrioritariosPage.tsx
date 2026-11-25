@@ -498,12 +498,12 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-latitude">Latitude</Label>
-                      <Input id="prioritario-latitude" inputMode="decimal" value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
+                      <Input id="prioritario-latitude" inputMode="decimal" placeholder="Não informado no banco" value={selected.latitude ?? ""} onChange={(event) => alterarCampo("latitude", event.target.value)} />
                       {erro("latitude")}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-longitude">Longitude</Label>
-                      <Input id="prioritario-longitude" inputMode="decimal" value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
+                      <Input id="prioritario-longitude" inputMode="decimal" placeholder="Não informado no banco" value={selected.longitude ?? ""} onChange={(event) => alterarCampo("longitude", event.target.value)} />
                       {erro("longitude")}
                     </div>
                     <div className="space-y-2">
@@ -522,11 +522,11 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-lat-enbpar">Latitude ENBPAR</Label>
-                      <Input id="prioritario-lat-enbpar" readOnly className="bg-muted/40" value={selected.latitude_enbpar ?? ""} />
+                      <Input id="prioritario-lat-enbpar" readOnly className="bg-muted/40" placeholder="Não informado no banco" value={selected.latitude_enbpar ?? ""} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-lng-enbpar">Longitude ENBPAR</Label>
-                      <Input id="prioritario-lng-enbpar" readOnly className="bg-muted/40" value={selected.longitude_enbpar ?? ""} />
+                      <Input id="prioritario-lng-enbpar" readOnly className="bg-muted/40" placeholder="Não informado no banco" value={selected.longitude_enbpar ?? ""} />
                     </div>
                   </div>
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
