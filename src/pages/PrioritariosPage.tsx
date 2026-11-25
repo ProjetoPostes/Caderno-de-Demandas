@@ -391,36 +391,38 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
                 <Secao icon={<ClipboardCheck className="h-4 w-4" />} titulo="Correção dos dados">
                   <div className="grid gap-4 md:grid-cols-2">
-                    {([
-                      ["cpf_alterado", "CPF alterado?"],
-                      ["nome_alterado", "Nome alterado?"],
-                      ["municipio_alterado", "Município alterado?"],
-                    ] as const).map(([campo, label]) => (
-                      <div key={campo} className="min-w-0 space-y-2">
-                        <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
-                        <Select value={selected[campo] == null ? "nao-informado" : selected[campo] ? "sim" : "nao"} onValueChange={(v) => alterarCampo(campo, v === "nao-informado" ? null : v === "sim")}>
-                          <SelectTrigger id={`prioritario-${campo}`}><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="nao-informado">Não informado</SelectItem>
-                            <SelectItem value="sim">Sim</SelectItem>
-                            <SelectItem value="nao">Não</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ))}
-                    {([
-                      ["cpf_correto", "CPF correto", "cpf_alterado"],
-                      ["nome_correto", "Nome correto", "nome_alterado"],
-                      ["nome_cliente_ligado", "Nome do cliente ligado", null],
-                    ] as const).map(([campo, label, controle]) => {
-                      const bloqueado = controle ? !podeEditarCorrecao(selected[controle]) : false;
-                      return (
-                      <div key={campo} className="min-w-0 space-y-2">
-                        <Label htmlFor={`prioritario-${campo}`}>{label}</Label>
-                        <Input id={`prioritario-${campo}`} disabled={bloqueado} aria-invalid={!!erros[campo]} className={erros[campo] ? "border-destructive" : ""} value={selected[campo] ?? ""} onChange={(event) => alterarCampo(campo, event.target.value)} />
-                        {erro(campo)}
-                      </div>
-                    ); })}
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-cpf_correto">CPF correto</Label>
+                      <Input id="prioritario-cpf_correto" disabled={!podeEditarCorrecao(selected.cpf_alterado)} aria-invalid={!!erros.cpf_correto} className={erros.cpf_correto ? "border-destructive" : ""} value={selected.cpf_correto ?? ""} onChange={(event) => alterarCampo("cpf_correto", event.target.value)} />
+                      {erro("cpf_correto")}
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-cpf_alterado">CPF alterado?</Label>
+                      <Select value={selected.cpf_alterado == null ? "nao-informado" : selected.cpf_alterado ? "sim" : "nao"} onValueChange={(v) => alterarCampo("cpf_alterado", v === "nao-informado" ? null : v === "sim")}>
+                        <SelectTrigger id="prioritario-cpf_alterado"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-nome_correto">Nome correto</Label>
+                      <Input id="prioritario-nome_correto" disabled={!podeEditarCorrecao(selected.nome_alterado)} aria-invalid={!!erros.nome_correto} className={erros.nome_correto ? "border-destructive" : ""} value={selected.nome_correto ?? ""} onChange={(event) => alterarCampo("nome_correto", event.target.value)} />
+                      {erro("nome_correto")}
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-nome_alterado">Nome alterado?</Label>
+                      <Select value={selected.nome_alterado == null ? "nao-informado" : selected.nome_alterado ? "sim" : "nao"} onValueChange={(v) => alterarCampo("nome_alterado", v === "nao-informado" ? null : v === "sim")}>
+                        <SelectTrigger id="prioritario-nome_alterado"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="min-w-0 space-y-2">
                       <Label htmlFor="prioritario-nome_municipio_correto">Nome do município correto</Label>
                       <Select disabled={!podeEditarCorrecao(selected.municipio_alterado)} value={selected.nome_municipio_correto || "nao-informado"} onValueChange={(v) => alterarCampo("nome_municipio_correto", v === "nao-informado" ? "" : v)}>
@@ -436,6 +438,22 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       {erro("nome_municipio_correto")}
                     </div>
                     <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-municipio_alterado">Município alterado?</Label>
+                      <Select value={selected.municipio_alterado == null ? "nao-informado" : selected.municipio_alterado ? "sim" : "nao"} onValueChange={(v) => alterarCampo("municipio_alterado", v === "nao-informado" ? null : v === "sim")}>
+                        <SelectTrigger id="prioritario-municipio_alterado"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor="prioritario-nome_cliente_ligado">Nome do cliente ligado</Label>
+                      <Input id="prioritario-nome_cliente_ligado" disabled={false} aria-invalid={!!erros.nome_cliente_ligado} className={erros.nome_cliente_ligado ? "border-destructive" : ""} value={selected.nome_cliente_ligado ?? ""} onChange={(event) => alterarCampo("nome_cliente_ligado", event.target.value)} />
+                      {erro("nome_cliente_ligado")}
+                    </div>
+                    <div className="min-w-0 space-y-2">
                       <Label htmlFor="prioritario-responsavel">Responsável</Label>
                       <Select value={selected["Responsável"] || "nao-informado"} onValueChange={(v) => alterarCampo("Responsável", v === "nao-informado" ? null : v)}>
                         <SelectTrigger id="prioritario-responsavel"><SelectValue /></SelectTrigger>
@@ -445,18 +463,6 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                           {responsaveis.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
-                      <Select value={selected.coordenada_validada == null ? "nao-informado" : selected.coordenada_validada ? "sim" : "nao"} onValueChange={(valor) => alterarCampo("coordenada_validada", valor === "nao-informado" ? null : valor === "sim")}>
-                        <SelectTrigger id="prioritario-coordenada-validada"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="nao-informado">Não informado</SelectItem>
-                          <SelectItem value="sim">Sim</SelectItem>
-                          <SelectItem value="nao">Não</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {erro("coordenada_validada")}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-atendimento">Atendimento</Label>
@@ -485,8 +491,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                 </Secao>
 
                 <Secao icon={<MapPin className="h-4 w-4" />} titulo="Localização">
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <div className="md:col-span-2"><Campo label="Endereço" value={selected.endereco} copy /></div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <Campo label="Endereço" value={selected.endereco} copy />
                     <Campo label="Coordenadas" value={mapa?.texto ?? null} copy mono />
                   </div>
                   <div className="mt-4 grid gap-4 md:grid-cols-3">
@@ -501,6 +507,20 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       {erro("longitude")}
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
+                      <Select value={selected.coordenada_validada == null ? "nao-informado" : selected.coordenada_validada ? "sim" : "nao"} onValueChange={(valor) => alterarCampo("coordenada_validada", valor === "nao-informado" ? null : valor === "sim")}>
+                        <SelectTrigger id="prioritario-coordenada-validada"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="nao-informado">Não informado</SelectItem>
+                          <SelectItem value="sim">Sim</SelectItem>
+                          <SelectItem value="nao">Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {erro("coordenada_validada")}
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
                       <Label htmlFor="prioritario-lat-enbpar">Latitude ENBPAR</Label>
                       <Input id="prioritario-lat-enbpar" readOnly className="bg-muted/40" value={selected.latitude_enbpar ?? ""} />
                     </div>
@@ -508,6 +528,8 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       <Label htmlFor="prioritario-lng-enbpar">Longitude ENBPAR</Label>
                       <Input id="prioritario-lng-enbpar" readOnly className="bg-muted/40" value={selected.longitude_enbpar ?? ""} />
                     </div>
+                  </div>
+                  <div className="mt-4 grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
                       <Label htmlFor="prioritario-municipio-coord">Município da coordenada</Label>
                       <Input id="prioritario-municipio-coord" readOnly value={selected.municipio_coord ?? ""} />
