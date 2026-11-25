@@ -1,4 +1,4 @@
-import { Leaf, Monitor, Moon, Sun } from "lucide-react";
+import { Leaf, Monitor, Moon, Sun, Waves } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +11,7 @@ import {
 
 export function ThemeToggle() {
   const { setTheme, theme, resolvedTheme } = useTheme();
-  const ThemeIcon = theme === "holst" ? Leaf : resolvedTheme === "dark" ? Moon : Sun;
+  const ThemeIcon = theme === "oceano" ? Waves : theme === "holst" ? Leaf : resolvedTheme === "dark" ? Moon : Sun;
 
   return (
     <DropdownMenu>
@@ -31,6 +31,9 @@ export function ThemeToggle() {
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="holst" className="gap-2">
             <Leaf className="h-4 w-4" /> Holst
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="oceano" className="gap-2">
+            <Waves className="h-4 w-4" /> Oceano
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system" className="gap-2">
             <Monitor className="h-4 w-4" /> Sistema

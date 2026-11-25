@@ -130,6 +130,52 @@ All colors MUST be HSL.
     --shadow-2xl: 0 25px 50px -12px hsl(211.03 52.73% 10.78% / 0.25);
   }
 
+  .oceano {
+    color-scheme: light;
+    --background: 205.71 63.64% 97.84%;
+    --foreground: 216.92 66.10% 11.57%;
+    --card: 0 0% 100%;
+    --card-foreground: 216.92 66.10% 11.57%;
+    --popover: 205.71 63.64% 97.84%;
+    --popover-foreground: 216.92 66.10% 11.57%;
+    --primary: 211.23 58.40% 24.51%;
+    --primary-foreground: 205.71 63.64% 97.84%;
+    --secondary: 206.40 49.02% 80%;
+    --secondary-foreground: 211.23 58.40% 24.51%;
+    --muted: 206.40 49.02% 92%;
+    --muted-foreground: 211.23 38% 36%;
+    --accent: 206.40 49.02% 80%;
+    --accent-foreground: 216.92 66.10% 11.57%;
+    --border: 206.40 49.02% 80%;
+    --input: 206.40 49.02% 80%;
+    --ring: 205.81 38.59% 47.25%;
+
+    --sidebar-background: 216.92 66.10% 11.57%;
+    --sidebar-foreground: 205.71 63.64% 97.84%;
+    --sidebar-primary: 206.40 49.02% 80%;
+    --sidebar-primary-foreground: 216.92 66.10% 11.57%;
+    --sidebar-accent: 211.23 58.40% 24.51%;
+    --sidebar-accent-foreground: 205.71 63.64% 97.84%;
+    --sidebar-border: 211.23 58.40% 24.51%;
+    --sidebar-ring: 206.40 49.02% 80%;
+    --sidebar: 216.92 66.10% 11.57%;
+
+    --chart-1: 211.23 58.40% 24.51%;
+    --chart-2: 205.81 38.59% 47.25%;
+    --chart-3: 206.40 49.02% 80%;
+    --chart-4: 169 45% 38%;
+    --chart-5: 23 85% 55%;
+
+    --shadow-2xs: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.08);
+    --shadow-sm: 0 1px 3px 0px hsl(216.92 66.10% 11.57% / 0.1), 0 1px 2px -1px hsl(216.92 66.10% 11.57% / 0.1);
+    --shadow: var(--shadow-sm);
+    --shadow-md: 0 4px 6px -1px hsl(216.92 66.10% 11.57% / 0.1), 0 2px 4px -1px hsl(216.92 66.10% 11.57% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(216.92 66.10% 11.57% / 0.1), 0 4px 6px -2px hsl(216.92 66.10% 11.57% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(216.92 66.10% 11.57% / 0.1), 0 10px 10px -5px hsl(216.92 66.10% 11.57% / 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsl(216.92 66.10% 11.57% / 0.25);
+  }
+
   .dark {
     --background: 200 30% 10%;
     --foreground: 195 20% 95%;
