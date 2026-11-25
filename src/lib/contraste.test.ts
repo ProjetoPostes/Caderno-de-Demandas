@@ -57,6 +57,16 @@ describe("Contraste WCAG AA", () => {
       expect(rgbHsl(hexHsl(hex)).map(Math.round)).toEqual(rgbHex(hex));
     }
   });
+
+  test("Floresta: botões em rosa vivo e superfícies em rosa bebê", () => {
+    const values = { ...tokens(":root"), ...tokens(".floresta") };
+    const [h, s, l] = resolve(values, "primary").match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+    expect(rgbHsl(resolve(values, "primary")).map(Math.round)).toEqual(rgbHex("#d7336c"));
+    expect(s).toBeGreaterThanOrEqual(60);
+    expect(l).toBeLessThanOrEqual(55);
+    expect(rgbHsl(resolve(values, "secondary")).map(Math.round)).toEqual(rgbHex("#f4c3c3"));
+    expect(rgbHsl(resolve(values, "background")).map(Math.round)).toEqual(rgbHex("#fcf2f4"));
+  });
 });
 
 describe("Cabeçalhos de tabela e rótulos em #0008FF apenas no Ártico", () => {

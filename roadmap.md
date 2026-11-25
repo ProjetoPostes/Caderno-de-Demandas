@@ -36,3 +36,5 @@
 - [x] Colorir Tranche, Alocação, Coordenada validada e Decisão nos Prioritários; 42 testes passaram e as cores foram conferidas na tabela.
 
 - [x] Retirar as pílulas sólidas de Obras e devolver a tabela ao visual anterior (células simples, Status em selo de contorno); 121 testes passaram e a compilação ficou sem erros.
+
+- [x] Aplicar rosa bebê ao tema Floresta: superfícies em rosa bebê e botões em rosa vivo (#D7336C), sem alterar os demais temas nem a imagem do menu; 148 testes passaram e compilação OK; a tela de Obras autenticada não pôde ser conferida por ausência de sessão.
