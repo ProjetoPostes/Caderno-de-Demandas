@@ -14,9 +14,9 @@ All colors MUST be HSL.
     --readable-dark: 0 0% 0%;
     --readable-light: 0 0% 100%;
     --surface-sidebar-base: 0 0% 98%;
-    /* Cabeçalhos de tabela e rótulos de campo: azul corporativo #414BCB. */
-    --table-head-foreground: 235.65 57.02% 52.55%;
-    --label-foreground: 235.65 57.02% 52.55%;
+    /* Cabeçalhos de tabela e rótulos de campo: azul #0008FF. */
+    --table-head-foreground: 238.12 100% 50%;
+    --label-foreground: 238.12 100% 50%;
     /* Corporate Colors - RGB converted to HSL */
     /* Azul: RGB(0, 159, 194) = HSL(191, 100%, 38%) */
     /* Laranja: RGB(243, 112, 33) = HSL(23, 90%, 54%) */
@@ -213,8 +213,8 @@ All colors MUST be HSL.
     --background: 200 30% 10%;
     --foreground: 195 20% 95%;
     /* Mesmo matiz, mais claro para manter 4.5:1 sobre superfícies escuras. */
-    --table-head-foreground: 235.65 57.02% 70%;
-    --label-foreground: 235.65 57.02% 70%;
+    --table-head-foreground: 238.12 100% 76%;
+    --label-foreground: 238.12 100% 76%;
 
     --card: 200 25% 15%;
     --card-foreground: 195 20% 95%;

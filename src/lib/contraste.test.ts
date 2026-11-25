@@ -52,22 +52,22 @@ describe("Contraste WCAG AA", () => {
   });
 });
 
-describe("Cabeçalhos de tabela e rótulos em #414BCB", () => {
+describe("Cabeçalhos de tabela e rótulos em #0008FF", () => {
   const claro = tokens(":root");
   const escuro = { ...tokens(":root"), ...tokens(".dark") };
   const artico = { ...tokens(":root"), ...tokens(".artico") };
   const tokensNovos = ["table-head-foreground", "label-foreground"];
 
-  test("tema claro usa exatamente #414BCB", () => {
+  test("tema claro usa exatamente #0008FF", () => {
     for (const token of tokensNovos) {
-      expect(rgbHsl(resolve(claro, token)).map(Math.round)).toEqual(rgbHex("#414bcb"));
+      expect(rgbHsl(resolve(claro, token)).map(Math.round)).toEqual(rgbHex("#0008ff"));
     }
   });
 
   test("tema escuro usa um tom mais claro do mesmo matiz", () => {
     for (const token of tokensNovos) {
       const rgb = rgbHsl(resolve(escuro, token)).map(Math.round);
-      expect(rgb).not.toEqual(rgbHex("#414bcb"));
+      expect(rgb).not.toEqual(rgbHex("#0008ff"));
       expect(rgb[2]).toBeGreaterThan(rgb[0]);
     }
   });
