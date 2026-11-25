@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { buscarTodos } from "@/lib/buscarTodos";
+import { parametrosObras } from "@/lib/resumoObras";
 import { aplicarFiltroColuna } from "@/lib/valoresColuna";
 import { aplicarFiltrosPrioritarios, expressaoClientesDaObra, type ClienteDaObra } from "@/lib/filtrosPrioritarios";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
@@ -46,16 +47,7 @@ export function useObras(params: ListParams = {}) {
   return useQuery({
     queryKey: ["obras", { page, pageSize, search, sortField, sortDir, filters }],
     queryFn: async (): Promise<Paged<Obra>> => {
-      const { tranche, ...outrosFiltros } = filters ?? {};
-      const { data, error } = await supabase.rpc("get_obras_filtradas", {
-        p_tranche: tranche?.trim() || null,
-        p_search: search.trim() || null,
-        p_filters: outrosFiltros,
-        p_page: page,
-        p_page_size: pageSize,
-        p_sort_field: sortField,
-        p_sort_dir: sortDir,
-      });
+      const { data, error } = await supabase.rpc("get_obras_filtradas", parametrosObras({ search, filters }, page, pageSize, sortField, sortDir));
       if (error) throw error;
       const resultado = data as Paged<Obra> | null;
       return { rows: resultado?.rows ?? [], total: resultado?.total ?? 0 };

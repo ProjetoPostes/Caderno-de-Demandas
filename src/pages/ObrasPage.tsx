@@ -1,13 +1,17 @@
 import { useDebounce } from "@/hooks/useDebounce";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import { Building2, Wallet, Banknote, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useResumoObras } from "@/hooks/useResumoObras";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
 import { useObras, useObraOsCounts, useTranchesCaderno } from "@/hooks/useTabelasOperacionais";
 import type { Obra } from "@/types/database";
 
 const PAGE_SIZE = 20;
+const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 export default function ObrasPage({ standalone = false }: { standalone?: boolean }) {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>({});
@@ -19,6 +23,8 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
 
   const { data: tranchesOpcoes } = useTranchesCaderno();
   const { data, isLoading } = useObras({ page, pageSize: PAGE_SIZE, search: buscaAtraso, sortField, sortDir, filters: filtrosAtraso });
+  const resumo = useResumoObras({ search: buscaAtraso, filters: filtrosAtraso });
+  const atualizando = search !== buscaAtraso || filters !== filtrosAtraso || resumo.isFetching;
   const rows = data?.rows ?? [];
   const idObras = useMemo(() => rows.map((o) => o.id_obra), [rows]);
   const { data: counts } = useObraOsCounts(idObras);
@@ -36,6 +42,32 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         rows={rows}
         total={data?.total ?? 0}
         totalNosFiltros="obras"
+        summary={
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-busy={atualizando}>
+              {[
+                { titulo: "Número de obras", valor: resumo.data?.numeroObras.toLocaleString("pt-BR"), Icone: Building2 },
+                { titulo: "Valor orçado", valor: resumo.data && moeda.format(resumo.data.valorOrcado), Icone: Wallet },
+                { titulo: "Valor realizado", valor: resumo.data && moeda.format(resumo.data.valorRealizado), Icone: Banknote },
+              ].map(({ titulo, valor, Icone }) => (
+                <Card key={titulo}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground">
+                      <span>{titulo}</span><Icone className="h-4 w-4 shrink-0" />
+                    </div>
+                    <div className="mt-2 flex min-h-8 items-center gap-2 text-xl font-semibold tabular-nums break-all">
+                      {atualizando ? <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" aria-label="Atualizando totais" /> : resumo.isError ? "—" : valor ?? "—"}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            {resumo.isError && !atualizando && <div role="alert" className="flex items-center gap-2 text-sm text-destructive">
+              Não foi possível carregar os totais das obras.
+              <Button variant="outline" size="sm" onClick={() => resumo.refetch()}>Tentar novamente</Button>
+            </div>}
+          </div>
+        }
         page={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
@@ -46,6 +78,7 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         columnFilters={[
           { field: "num_obra", label: "Num Obra", type: "text" },
           { field: "status", label: "Status" },
+          { field: "status_unificado", label: "Status unificado" },
           { field: "tranche", label: "Tranche", options: tranchesOpcoes ?? [] },
           { field: "analise_obra", label: "Analise" },
           { field: "cadastro_enbpar", label: "EnbPar" },

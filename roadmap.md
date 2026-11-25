@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Adicionar indicadores de número de obras, valor orçado e valor realizado para todo o resultado filtrado, e filtro Status unificado, sem alterar o banco; 12 testes passaram e compilação OK; a conferência em /tratativas/obras com dados reais ficou indisponível por exigir login.
+
 - [x] Ajustar filtros dos Prioritários: retirar Nome e Check PO; adicionar Obra vinculada às OS e presença de Nome correto/CPF correto; 21 testes passaram, compilação OK e conferência da tela indisponível por exigir login.
 
 - [x] Trocar Responsável por seleção de usuários na validação da obra e usar a escolha no salvamento existente, sem mudar o banco.
