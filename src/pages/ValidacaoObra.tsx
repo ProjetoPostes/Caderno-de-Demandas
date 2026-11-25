@@ -201,7 +201,7 @@ export default function ValidacaoObra() {
         <section className="grid gap-x-8 gap-y-3 rounded-md border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
           {[["Nº Obra", obra.num_obra], ["Tranche", primeiraOs?.tranche], ["Nome envolvido", primeiraOs?.cliente?.nome], ["Município", primeiraOs?.localidade?.municipio ?? obra.nome_lcd]].map(([l, v]) => (
             <div key={l as string}>
-              <p className="text-xs font-medium uppercase text-muted-foreground">{l}</p>
+              <p className="text-xs font-medium uppercase text-label-foreground">{l}</p>
               <p className="mt-1 text-sm font-semibold">{v ?? "—"}</p>
             </div>
           ))}
@@ -210,13 +210,13 @@ export default function ValidacaoObra() {
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Informações da obra</h3>
           <dl className="mb-3 grid gap-4 sm:grid-cols-2">
-            <div><dt className="text-xs font-medium text-muted-foreground">ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.ods ?? "—"}</dd></div>
-            <div><dt className="text-xs font-medium text-muted-foreground">Status ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.status_ods ?? "—"}</dd></div>
+            <div><dt className="text-xs font-medium text-label-foreground">ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.ods ?? "—"}</dd></div>
+            <div><dt className="text-xs font-medium text-label-foreground">Status ODS</dt><dd className="mt-1 break-words text-sm font-semibold">{obra.status_ods ?? "—"}</dd></div>
           </dl>
           <div className="grid overflow-hidden rounded-md border sm:grid-cols-2 lg:grid-cols-5">
             {[["Status", obra.status ?? "Indefinido"], ["Data Início", formatarData(primeiraOs?.datasol)], ["Data de Fim", formatarData(primeiraOs?.datatertrab)], ["Valor orçado", brl(obra.valor_orcado)], ["Valor realizado", brl(obra.valor_realizado)]].map(([l, v], i) => (
               <div key={l} className={`bg-muted/30 p-3 ${i > 0 ? "border-t sm:border-l sm:border-t-0" : ""}`}>
-                <p className="text-xs font-medium text-muted-foreground">{l}</p>
+                <p className="text-xs font-medium text-label-foreground">{l}</p>
                 <p className="mt-1 text-sm font-semibold">{v}</p>
               </div>
             ))}
@@ -257,7 +257,7 @@ export default function ValidacaoObra() {
               ? "bg-emerald-500/10 border-emerald-500/30" 
               : "bg-amber-500/10 border-amber-500/30"
           }`}>
-            <p className="text-xs font-medium text-muted-foreground">Padrões</p>
+            <p className="text-xs font-medium text-label-foreground">Padrões</p>
             <p className="text-sm font-semibold">
               OSs: <span className="font-mono">{totaisOs.padrao}</span> | Na Obra: <span className="font-mono">{totaisQuantitativosObra.padrao}</span>
             </p>
@@ -268,7 +268,7 @@ export default function ValidacaoObra() {
               ? "bg-emerald-500/10 border-emerald-500/30" 
               : "bg-amber-500/10 border-amber-500/30"
           }`}>
-            <p className="text-xs font-medium text-muted-foreground">Kits</p>
+            <p className="text-xs font-medium text-label-foreground">Kits</p>
             <p className="text-sm font-semibold">
               OSs: <span className="font-mono">{totaisOs.kit}</span> | Na Obra: <span className="font-mono">{totaisQuantitativosObra.kit}</span>
             </p>

@@ -51,3 +51,40 @@ describe("Contraste WCAG AA", () => {
     }
   });
 });
+
+describe("Cabeçalhos de tabela e rótulos em #414BCB", () => {
+  const claro = tokens(":root");
+  const escuro = { ...tokens(":root"), ...tokens(".dark") };
+  const artico = { ...tokens(":root"), ...tokens(".artico") };
+  const tokensNovos = ["table-head-foreground", "label-foreground"];
+
+  test("tema claro usa exatamente #414BCB", () => {
+    for (const token of tokensNovos) {
+      expect(rgbHsl(resolve(claro, token)).map(Math.round)).toEqual(rgbHex("#414bcb"));
+    }
+  });
+
+  test("tema escuro usa um tom mais claro do mesmo matiz", () => {
+    for (const token of tokensNovos) {
+      const rgb = rgbHsl(resolve(escuro, token)).map(Math.round);
+      expect(rgb).not.toEqual(rgbHex("#414bcb"));
+      expect(rgb[2]).toBeGreaterThan(rgb[0]);
+    }
+  });
+
+  for (const [nome, valores] of [["claro", claro], ["escuro", escuro]] as const) {
+    for (const foreground of tokensNovos) {
+      for (const background of ["background", "card"]) {
+        test(`${nome}: ${foreground} sobre ${background} ≥ 4.5:1`, () => {
+          expect(contraste(rgbHsl(resolve(valores, background)), rgbHsl(resolve(valores, foreground)))).toBeGreaterThanOrEqual(CONTRASTE_TEXTO);
+        });
+      }
+    }
+  }
+
+  test("ártico: cabeçalhos e rótulos sobre o card cinza ≥ 4.5:1", () => {
+    for (const foreground of tokensNovos) {
+      expect(contraste(rgbHsl(resolve(artico, "card")), rgbHsl(resolve(artico, foreground)))).toBeGreaterThanOrEqual(CONTRASTE_TEXTO);
+    }
+  });
+});
