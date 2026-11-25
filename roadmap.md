@@ -31,4 +31,4 @@
 
 - [x] Colorir Tranche, Alocação, Coordenada validada e Decisão nos Prioritários; 42 testes passaram e as cores foram conferidas na tabela.
 
-- [x] Destacar as colunas de Obras em pílulas sólidas com cor por situação (verde resolvido, âmbar pendência, vermelho bloqueio), cores próprias por tema; 173 testes passaram e as pílulas foram conferidas em tela nos temas claro e escuro.
+- [x] Retirar as pílulas sólidas de Obras e devolver a tabela ao visual anterior (células simples, Status em selo de contorno); 121 testes passaram e a compilação ficou sem erros.
