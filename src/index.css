@@ -85,34 +85,34 @@ All colors MUST be HSL.
   }
 
   .holst {
-    color-scheme: dark;
-    --background: 211.03 52.73% 10.78%;
-    --foreground: 51.82 50% 91.37%;
-    --card: 219.38 37.21% 16.86%;
-    --card-foreground: 51.82 50% 91.37%;
-    --popover: 219.38 37.21% 16.86%;
-    --popover-foreground: 51.82 50% 91.37%;
-    --primary: 38.18 33.85% 74.51%;
-    --primary-foreground: 211.03 52.73% 10.78%;
+    color-scheme: light;
+    --background: 51.82 50% 91.37%;
+    --foreground: 211.03 52.73% 10.78%;
+    --card: 48 45% 97%;
+    --card-foreground: 211.03 52.73% 10.78%;
+    --popover: 48 45% 97%;
+    --popover-foreground: 211.03 52.73% 10.78%;
+    --primary: 212.22 29.35% 36.08%;
+    --primary-foreground: 51.82 50% 91.37%;
     --secondary: 38.18 33.85% 74.51%;
     --secondary-foreground: 219.38 37.21% 16.86%;
-    --muted: 212.22 29.35% 28%;
-    --muted-foreground: 38.18 33.85% 74.51%;
+    --muted: 38.18 33.85% 85%;
+    --muted-foreground: 212.22 29.35% 36.08%;
     --accent: 128.18 8.8% 50.98%;
     --accent-foreground: 211.03 52.73% 10.78%;
-    --border: 212.22 29.35% 36.08%;
-    --input: 212.22 29.35% 36.08%;
+    --border: 38.18 33.85% 74.51%;
+    --input: 38.18 33.85% 74.51%;
     --ring: 128.18 8.8% 50.98%;
 
-    --sidebar-background: 211.03 52.73% 10.78%;
-    --sidebar-foreground: 51.82 50% 91.37%;
-    --sidebar-primary: 38.18 33.85% 74.51%;
-    --sidebar-primary-foreground: 211.03 52.73% 10.78%;
-    --sidebar-accent: 219.38 37.21% 16.86%;
-    --sidebar-accent-foreground: 51.82 50% 91.37%;
-    --sidebar-border: 212.22 29.35% 36.08%;
+    --sidebar-background: 38.18 33.85% 80%;
+    --sidebar-foreground: 211.03 52.73% 10.78%;
+    --sidebar-primary: 212.22 29.35% 36.08%;
+    --sidebar-primary-foreground: 51.82 50% 91.37%;
+    --sidebar-accent: 128.18 8.8% 50.98%;
+    --sidebar-accent-foreground: 211.03 52.73% 10.78%;
+    --sidebar-border: 38.18 33.85% 64%;
     --sidebar-ring: 128.18 8.8% 50.98%;
-    --sidebar: 211.03 52.73% 10.78%;
+    --sidebar: 38.18 33.85% 80%;
 
     --chart-1: 212.22 29.35% 36.08%;
     --chart-2: 128.18 8.8% 50.98%;
@@ -133,41 +133,46 @@ All colors MUST be HSL.
     --theme-table-header: var(--secondary);
     --theme-table-header-foreground: var(--secondary-foreground);
     --theme-row-alternate: var(--muted);
-    --theme-row-hover: 212.22 29.35% 36.08%;
+    --theme-row-hover: 128.18 18% 82%;
     --theme-topbar: 128.18 8.8% 50.98%;
     --theme-topbar-foreground: 211.03 52.73% 10.78%;
+
+    --theme-complement: 12 62% 80%;
+    --theme-complement-foreground: 12 45% 22%;
+    --theme-highlight: 43 66% 74%;
+    --theme-highlight-foreground: 38 45% 20%;
 
   }
 
   .oceano {
-    color-scheme: dark;
-    --background: 216.92 66.10% 11.57%;
-    --foreground: 205.71 63.64% 97.84%;
-    --card: 211.23 58.40% 24.51%;
-    --card-foreground: 205.71 63.64% 97.84%;
-    --popover: 211.23 58.40% 24.51%;
-    --popover-foreground: 205.71 63.64% 97.84%;
-    --primary: 206.40 49.02% 80%;
-    --primary-foreground: 216.92 66.10% 11.57%;
+    color-scheme: light;
+    --background: 205.71 63.64% 97.84%;
+    --foreground: 216.92 66.10% 11.57%;
+    --card: 0 0% 100%;
+    --card-foreground: 216.92 66.10% 11.57%;
+    --popover: 205.71 63.64% 97.84%;
+    --popover-foreground: 216.92 66.10% 11.57%;
+    --primary: 211.23 58.40% 24.51%;
+    --primary-foreground: 205.71 63.64% 97.84%;
     --secondary: 206.40 49.02% 80%;
     --secondary-foreground: 211.23 58.40% 24.51%;
-    --muted: 211.23 58.40% 19%;
-    --muted-foreground: 206.40 49.02% 80%;
+    --muted: 206.40 49.02% 91%;
+    --muted-foreground: 211.23 38% 36%;
     --accent: 205.81 38.59% 47.25%;
     --accent-foreground: 205.71 63.64% 97.84%;
-    --border: 205.81 38.59% 47.25%;
-    --input: 205.81 38.59% 47.25%;
+    --border: 206.40 49.02% 80%;
+    --input: 206.40 49.02% 80%;
     --ring: 205.81 38.59% 47.25%;
 
-    --sidebar-background: 216.92 66.10% 11.57%;
-    --sidebar-foreground: 205.71 63.64% 97.84%;
-    --sidebar-primary: 206.40 49.02% 80%;
-    --sidebar-primary-foreground: 216.92 66.10% 11.57%;
-    --sidebar-accent: 211.23 58.40% 24.51%;
+    --sidebar-background: 206.40 49.02% 80%;
+    --sidebar-foreground: 216.92 66.10% 11.57%;
+    --sidebar-primary: 211.23 58.40% 24.51%;
+    --sidebar-primary-foreground: 205.71 63.64% 97.84%;
+    --sidebar-accent: 205.81 38.59% 47.25%;
     --sidebar-accent-foreground: 205.71 63.64% 97.84%;
-    --sidebar-border: 211.23 58.40% 24.51%;
+    --sidebar-border: 205.81 38.59% 62%;
     --sidebar-ring: 206.40 49.02% 80%;
-    --sidebar: 216.92 66.10% 11.57%;
+    --sidebar: 206.40 49.02% 80%;
 
     --chart-1: 211.23 58.40% 24.51%;
     --chart-2: 205.81 38.59% 47.25%;
@@ -188,9 +193,14 @@ All colors MUST be HSL.
     --theme-table-header: var(--secondary);
     --theme-table-header-foreground: var(--secondary-foreground);
     --theme-row-alternate: var(--muted);
-    --theme-row-hover: 205.81 38.59% 38%;
+    --theme-row-hover: 169 45% 87%;
     --theme-topbar: 205.81 38.59% 47.25%;
     --theme-topbar-foreground: 205.71 63.64% 97.84%;
+
+    --theme-complement: 169 45% 72%;
+    --theme-complement-foreground: 169 55% 18%;
+    --theme-highlight: 15 80% 82%;
+    --theme-highlight-foreground: 15 55% 24%;
 
   }
 
@@ -311,5 +321,19 @@ All colors MUST be HSL.
     background: hsl(var(--secondary));
     color: hsl(var(--secondary-foreground));
     box-shadow: inset 4px 0 0 hsl(var(--accent));
+  }
+}
+
+@layer components {
+  :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n + 2) {
+    --theme-header: var(--theme-complement);
+    --theme-header-foreground: var(--theme-complement-foreground);
+    border-top-color: hsl(var(--theme-complement));
+  }
+
+  :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n) {
+    --theme-header: var(--theme-highlight);
+    --theme-header-foreground: var(--theme-highlight-foreground);
+    border-top-color: hsl(var(--theme-highlight));
   }
 }
