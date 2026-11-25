@@ -255,10 +255,10 @@ All colors MUST be HSL.
 
   .floresta {
     color-scheme: light;
-    --primary: 35 85% 34%;
+    --primary: 345 42% 42%;
     --primary-foreground: var(--readable-light);
-    --secondary: 145 22% 90%;
-    --secondary-foreground: 145 30% 20%;
+    --secondary: 345 60% 93%;
+    --secondary-foreground: 345 38% 30%;
     --accent: 145 28% 32%;
     --accent-foreground: var(--readable-light);
     --ring: var(--primary);
@@ -270,7 +270,7 @@ All colors MUST be HSL.
     --sidebar: var(--surface-sidebar-base);
     --sidebar-background: var(--sidebar);
     --sidebar-foreground: var(--readable-light);
-    --sidebar-primary: 38 90% 65%;
+    --sidebar-primary: 345 65% 82%;
     --sidebar-primary-foreground: 145 30% 10%;
     --sidebar-accent: 145 28% 23%;
     --sidebar-accent-foreground: var(--readable-light);
@@ -284,15 +284,16 @@ All colors MUST be HSL.
     --theme-topbar-foreground: var(--foreground);
     --theme-table-header: var(--muted);
     --theme-table-header-foreground: var(--foreground);
-    --theme-row-hover: 145 22% 94%;
+    --theme-row-hover: 345 60% 96%;
+    --data-selected: var(--secondary);
     --theme-complement: var(--primary);
     --theme-complement-foreground: var(--primary-foreground);
     --theme-highlight: var(--secondary);
     --theme-highlight-foreground: var(--secondary-foreground);
     --chart-1: var(--accent);
     --chart-2: var(--primary);
-    --chart-3: 191 50% 36%;
-    --chart-4: 38 70% 65%;
+    --chart-3: 345 45% 65%;
+    --chart-4: var(--secondary);
     --chart-5: 145 20% 50%;
   }
 
