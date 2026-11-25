@@ -2,8 +2,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { CellChip, CellPill } from "@/components/tables/CellPill";
 import { SimpleTablePage, type SortDir } from "@/components/tables/SimpleTablePage";
+import { corContagemOs, corPorValor, corSemantica } from "@/lib/obraCores";
 import { useObras, useObraOsCounts, useTranchesCaderno } from "@/hooks/useTabelasOperacionais";
 import type { Obra } from "@/types/database";
 
@@ -62,19 +63,23 @@ export default function ObrasPage({ standalone = false }: { standalone?: boolean
         onRowClick={(o) => navigate(`/obras/${o.id_obra}`)}
         rowKey={(o) => o.id_obra}
         columns={[
-          { header: "Num Obra", sortField: "num_obra", className: "text-xs", cell: (o) => <span className="font-mono text-xs">{o.num_obra ?? "-"}</span> },
-          { header: "Status", sortField: "status", className: "text-xs", cell: (o) => <Badge variant="outline" className="text-xs">{o.status ?? "-"}</Badge> },
-          { header: "SIGCO", sortField: "sigco", className: "text-xs", cell: (o) => <span className="text-xs">{o.sigco ?? "-"}</span> },
-          { header: "Analise", sortField: "analise_obra", className: "text-xs", cell: (o) => <span className="text-xs">{o.analise_obra ?? "-"}</span> },
-          { header: "EnbPar", sortField: "cadastro_enbpar", className: "text-xs", cell: (o) => <span className="text-xs">{o.cadastro_enbpar ?? "-"}</span> },
-          { header: "Etapa", sortField: "etapa", className: "text-xs", cell: (o) => <span className="text-xs">{o.etapa ?? "-"}</span> },
-          { header: "ODS", sortField: "ods", className: "text-xs", cell: (o) => <span className="text-xs">{(o as Obra & { ods?: string | null }).ods ?? "-"}</span> },
-          { header: "Status ODS", sortField: "status_ods", className: "text-xs", cell: (o) => <span className="text-xs">{(o as Obra & { status_ods?: string | null }).status_ods ?? "-"}</span> },
-          { header: "OSs", className: "text-xs text-center", cell: (o) => (
-            <div className="text-center">
-              <Badge variant={(counts?.[o.id_obra] ?? 0) > 0 ? "default" : "outline"} className="text-xs">
-                {counts?.[o.id_obra] ?? 0}
-              </Badge>
+          { header: "Num Obra", sortField: "num_obra", className: "px-3 py-3", cell: (o) => <CellChip value={o.num_obra} /> },
+          { header: "Status", sortField: "status", className: "px-3 py-3", cell: (o) => <CellPill value={o.status} tone={corSemantica(o.status)} /> },
+          { header: "SIGCO", sortField: "sigco", className: "px-3 py-3", cell: (o) => <CellChip value={o.sigco} /> },
+          { header: "Analise", sortField: "analise_obra", className: "px-3 py-3", cell: (o) => <CellPill value={o.analise_obra} tone={corSemantica(o.analise_obra)} /> },
+          { header: "EnbPar", sortField: "cadastro_enbpar", className: "px-3 py-3", cell: (o) => <CellPill value={o.cadastro_enbpar} tone={corSemantica(o.cadastro_enbpar)} /> },
+          { header: "Etapa", sortField: "etapa", className: "px-3 py-3", cell: (o) => <CellPill value={o.etapa} tone={corSemantica(o.etapa)} /> },
+          { header: "ODS", sortField: "ods", className: "px-3 py-3", cell: (o) => {
+            const ods = (o as Obra & { ods?: string | null }).ods;
+            return <CellPill value={ods} tone={corPorValor(ods)} />;
+          } },
+          { header: "Status ODS", sortField: "status_ods", className: "px-3 py-3", cell: (o) => {
+            const statusOds = (o as Obra & { status_ods?: string | null }).status_ods;
+            return <CellPill value={statusOds} tone={corSemantica(statusOds)} />;
+          } },
+          { header: "OSs", className: "px-3 py-3 text-center", cell: (o) => (
+            <div className="flex justify-center">
+              <CellPill value={counts?.[o.id_obra] ?? 0} tone={corContagemOs(counts?.[o.id_obra])} />
             </div>
           )},
         ]}
