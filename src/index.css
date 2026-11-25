@@ -192,6 +192,11 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100.00%;
     --destructive: 0.00 44.00% 50.98%;
     --destructive-foreground: 0 0% 100.00%;
+    --success-background: 126 31% 91%;
+    --warning: 37 58% 48%;
+    --warning-background: 41 76% 88%;
+    --destructive-background: 0 52% 92%;
+    --data-selected: 208 56% 89%;
     --muted-foreground: 0 0% 40.00%;
     --chart-1: 208.24 34.14% 48.82%;
     --chart-2: 207.53 49.71% 66.47%;
@@ -335,3 +340,19 @@ All colors MUST be HSL.
   background: hsl(var(--theme-topbar));
   color: hsl(var(--theme-topbar-foreground));
 }
+
+/* Ártico: fixed status colors on screens follow the theme's status palette. */
+@layer utilities {
+  .artico :is(.text-green-500, .text-green-600, .text-green-700, .text-emerald-600, .text-emerald-700) { color: hsl(var(--success)); }
+  .artico :is(.text-yellow-600, .text-yellow-700, .text-amber-500, .text-amber-600, .text-amber-700) { color: hsl(var(--warning)); }
+  .artico :is(.text-red-600, .text-red-700, .text-rose-700) { color: hsl(var(--destructive)); }
+  .artico :is(.bg-green-500, .bg-emerald-500) { background-color: hsl(var(--success)); }
+  .artico .bg-amber-500 { background-color: hsl(var(--warning)); }
+  .artico .bg-red-500 { background-color: hsl(var(--destructive)); }
+  .artico .bg-amber-100 { background-color: hsl(var(--warning-background)); }
+  .artico :is(.border-emerald-500) { border-color: hsl(var(--success)); }
+  .artico :is(.border-amber-500, .border-yellow-500) { border-color: hsl(var(--warning)); }
+  .artico .border-rose-500 { border-color: hsl(var(--destructive)); }
+  .artico tbody tr[data-state="selected"] { background: hsl(var(--data-selected)); }
+}
+
