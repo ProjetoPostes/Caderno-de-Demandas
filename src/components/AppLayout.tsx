@@ -14,7 +14,7 @@ export function AppLayout({ children, title = "Tratativas" }: AppLayoutProps) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="overflow-x-hidden">
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 pr-6 sticky top-0 z-10 bg-background w-full max-w-full overflow-hidden">
+        <header data-slot="app-header" className="flex h-14 shrink-0 items-center gap-2 border-b px-4 pr-6 sticky top-0 z-10 bg-background w-full max-w-full overflow-hidden">
           <SidebarTrigger className="-ml-1" />
           <div className="flex-1">
             <h1 className="text-lg font-semibold">{title}</h1>
