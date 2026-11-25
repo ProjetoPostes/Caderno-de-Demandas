@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { buscarTodos } from "@/lib/buscarTodos";
-import { aplicarFiltroColuna, aplicarFiltroPreenchimento } from "@/lib/valoresColuna";
+import { aplicarFiltroColuna } from "@/lib/valoresColuna";
+import { aplicarFiltrosPrioritarios, expressaoClientesDaObra, type ClienteDaObra } from "@/lib/filtrosPrioritarios";
 import type { Obra, Localidade, Prioritario, historico_os } from "@/types/database";
 import type {
   ObraFormData,
@@ -214,14 +215,25 @@ export function usePrioritarios(params: ListParams = {}) {
   return useQuery({
     queryKey: ["prioritarios", { page, pageSize, search, sortField, sortDir, filters }],
     queryFn: async (): Promise<Paged<Prioritario>> => {
+      const { obra, ...demaisFiltros } = filters ?? {};
+      let clientesDaObra: string | null = null;
+      if (obra?.trim()) {
+        const registros = await buscarTodos<ClienteDaObra>((head) =>
+          supabase.from("caderno")
+            .select("id_os,id_cliente,cliente:id_cliente(cpf),obra:id_obra!inner(num_obra)", head ? { count: "exact", head: true } : {})
+            .is("deleted_at", null)
+            .eq("obra.num_obra", obra.trim())
+            .order("id_os", { ascending: true }));
+        clientesDaObra = expressaoClientesDaObra(registros);
+        if (!clientesDaObra) return { rows: [], total: 0 };
+      }
       let q = supabase.from("prioritario").select("*", { count: "exact" });
       if (search.trim()) {
         const s = search.trim();
         q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
       }
-      const { nome_cliente_ligado, ...demaisFiltros } = filters ?? {};
-      q = aplicarFiltroPreenchimento(q, "nome_cliente_ligado", nome_cliente_ligado);
-      q = applyFilters(q, demaisFiltros);
+      if (clientesDaObra) q = q.or(clientesDaObra);
+      q = aplicarFiltrosPrioritarios(q, demaisFiltros);
       q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error, count } = await q;
       if (error) throw error;

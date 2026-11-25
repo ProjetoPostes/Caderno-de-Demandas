@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Ajustar filtros dos Prioritários: retirar Nome e Check PO; adicionar Obra vinculada às OS e presença de Nome correto/CPF correto; 21 testes passaram, compilação OK e conferência da tela indisponível por exigir login.
+
 - [x] Trocar Responsável por seleção de usuários na validação da obra e usar a escolha no salvamento existente, sem mudar o banco.
 
 - [x] Mover ODS e Status ODS para Validação da obra e permitir edição apenas na tela, sem mudar o banco ou o salvamento existente.

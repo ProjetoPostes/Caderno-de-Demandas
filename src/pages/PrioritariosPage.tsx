@@ -263,9 +263,16 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           { field: "controle", label: "Controle", type: "text" },
           { field: "tranche", label: "Tranche" },
           { field: "alocacao", label: "Alocação" },
-          { field: "nome", label: "Nome", type: "text" },
+          { field: "obra", label: "Obra", placeholder: "Nº da obra", type: "text" },
           { field: "cpf_corrigido", label: "CPF Corrigido", type: "text" },
-          { field: "check_po", label: "Check PO", type: "text" },
+          { field: "nome_correto", label: "Nome correto", options: [
+            { value: FILTRO_PREENCHIDO, label: "Preenchido" },
+            { value: FILTRO_EM_BRANCO, label: "Vazio" },
+          ] },
+          { field: "cpf_correto", label: "CPF correto", options: [
+            { value: FILTRO_PREENCHIDO, label: "Preenchido" },
+            { value: FILTRO_EM_BRANCO, label: "Vazio" },
+          ] },
           { field: "coordenada_validada", label: "Coordenada validada", options: [
             { value: "true", label: "Sim" },
             { value: "false", label: "Não" },
