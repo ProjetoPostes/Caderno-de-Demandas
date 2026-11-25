@@ -158,6 +158,48 @@ All colors MUST be HSL.
     --theme-highlight-foreground: var(--accent-foreground);
   }
 
+  .artico {
+    color-scheme: light;
+    --background: 0 0% 94.12%;
+    --card: 0 0% 100.00%;
+    --popover: 0 0% 100.00%;
+    --surface-sidebar-base: 0 0% 90.20%;
+    --sidebar: 0 0% 90.20%;
+    --sidebar-background: 0 0% 90.20%;
+    --theme-topbar: 208.97 41.43% 72.55%;
+    --theme-topbar-foreground: 209.33 41.28% 21.37%;
+    --primary: 207.53 49.71% 66.47%;
+    --primary-foreground: 209.33 41.28% 21.37%;
+    --secondary: 208.24 32.08% 89.61%;
+    --secondary-foreground: 209.33 41.28% 21.37%;
+    --accent: 211.07 58.33% 81.18%;
+    --accent-foreground: 209.33 41.28% 21.37%;
+    --theme-complement: 210.57 39.85% 73.92%;
+    --theme-highlight: 208.00 55.56% 89.41%;
+    --ring: 209.29 37.17% 55.69%;
+    --theme-table-header: 210.00 44.83% 88.63%;
+    --theme-table-header-foreground: 209.33 41.28% 21.37%;
+    --theme-row-hover: 207.69 56.52% 95.49%;
+    --border: 0 0% 75.29%;
+    --input: 0 0% 75.29%;
+    --sidebar-accent: 208.00 55.56% 89.41%;
+    --sidebar-accent-foreground: 209.33 41.28% 21.37%;
+    --sidebar-primary: 208.24 34.14% 48.82%;
+    --sidebar-primary-foreground: 0 0% 100.00%;
+    --sidebar-foreground: 0 0% 18.82%;
+    --sidebar-border: 0 0% 75.29%;
+    --success: 139.00 27.52% 42.75%;
+    --success-foreground: 0 0% 100.00%;
+    --destructive: 0.00 44.00% 50.98%;
+    --destructive-foreground: 0 0% 100.00%;
+    --muted-foreground: 0 0% 40.00%;
+    --chart-1: 208.24 34.14% 48.82%;
+    --chart-2: 207.53 49.71% 66.47%;
+    --chart-3: 210.57 39.85% 73.92%;
+    --chart-4: 199.35 12.16% 50.00%;
+    --chart-5: 0 0% 65.10%;
+  }
+
   .dark {
     --surface-sidebar-base: 200 25% 15%;
     --background: 200 30% 10%;
@@ -230,15 +272,15 @@ All colors MUST be HSL.
 }
 /* Palette accents preserve the standard layout and neutral surfaces. */
 @layer components {
-  :is(.holst, .oceano) [data-slot="card"] {
+  :is(.holst, .oceano, .artico) [data-slot="card"] {
     border-top-color: hsl(var(--accent));
   }
 
-  :is(.holst, .oceano) tbody tr:is(:hover, [data-state="selected"]) {
+  :is(.holst, .oceano, .artico) tbody tr:is(:hover, [data-state="selected"]) {
     background: hsl(var(--theme-row-hover));
   }
 
-  :is(.holst, .oceano) [data-sidebar="menu-button"][data-active="true"] {
+  :is(.holst, .oceano, .artico) [data-sidebar="menu-button"][data-active="true"] {
     background: hsl(var(--sidebar-accent));
     color: hsl(var(--sidebar-accent-foreground));
     box-shadow: inset 3px 0 0 hsl(var(--sidebar-primary));
@@ -280,11 +322,16 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n + 2) {
+  :is(.holst, .oceano, .artico) .grid > [data-slot="card"]:nth-child(3n + 2) {
     border-top-color: hsl(var(--theme-complement));
   }
 
-  :is(.holst, .oceano) .grid > [data-slot="card"]:nth-child(3n) {
+  :is(.holst, .oceano, .artico) .grid > [data-slot="card"]:nth-child(3n) {
     border-top-color: hsl(var(--theme-highlight));
   }
+}
+
+.artico:not([data-custom-header]) [data-slot="app-header"] {
+  background: hsl(var(--theme-topbar));
+  color: hsl(var(--theme-topbar-foreground));
 }

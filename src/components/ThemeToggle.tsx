@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Leaf, Monitor, Moon, Sun, Waves, Palette } from "lucide-react";
+import { Leaf, Monitor, Moon, Sun, Waves, Palette, Snowflake } from "lucide-react";
 import { AppearanceDialog } from "@/components/AppearanceDialog";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import {
 export function ThemeToggle() {
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const { setTheme, theme, resolvedTheme } = useTheme();
-  const ThemeIcon = theme === "oceano" ? Waves : theme === "holst" ? Leaf : resolvedTheme === "dark" ? Moon : Sun;
+  const ThemeIcon = theme === "artico" ? Snowflake : theme === "oceano" ? Waves : theme === "holst" ? Leaf : resolvedTheme === "dark" ? Moon : Sun;
 
   return (
     <>
@@ -40,6 +40,9 @@ export function ThemeToggle() {
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="oceano" className="gap-2">
             <Waves className="h-4 w-4" /> Oceano
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="artico" className="gap-2">
+            <Snowflake className="h-4 w-4" /> Ártico
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system" className="gap-2">
             <Monitor className="h-4 w-4" /> Sistema
