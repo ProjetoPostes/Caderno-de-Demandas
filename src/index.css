@@ -84,6 +84,52 @@ All colors MUST be HSL.
     --spacing: 0.25rem;
   }
 
+  .holst {
+    color-scheme: light;
+    --background: 51.82 50% 91.37%;
+    --foreground: 211.03 52.73% 10.78%;
+    --card: 48 45% 96%;
+    --card-foreground: 211.03 52.73% 10.78%;
+    --popover: 48 45% 96%;
+    --popover-foreground: 211.03 52.73% 10.78%;
+    --primary: 212.22 29.35% 36.08%;
+    --primary-foreground: 51.82 50% 91.37%;
+    --secondary: 38.18 33.85% 74.51%;
+    --secondary-foreground: 219.38 37.21% 16.86%;
+    --muted: 44 30% 84%;
+    --muted-foreground: 212.22 29.35% 36.08%;
+    --accent: 128.18 8.8% 50.98%;
+    --accent-foreground: 211.03 52.73% 10.78%;
+    --border: 38.18 33.85% 74.51%;
+    --input: 38.18 33.85% 74.51%;
+    --ring: 212.22 29.35% 36.08%;
+
+    --sidebar-background: 211.03 52.73% 10.78%;
+    --sidebar-foreground: 51.82 50% 91.37%;
+    --sidebar-primary: 38.18 33.85% 74.51%;
+    --sidebar-primary-foreground: 211.03 52.73% 10.78%;
+    --sidebar-accent: 219.38 37.21% 16.86%;
+    --sidebar-accent-foreground: 51.82 50% 91.37%;
+    --sidebar-border: 212.22 29.35% 36.08%;
+    --sidebar-ring: 128.18 8.8% 50.98%;
+    --sidebar: 211.03 52.73% 10.78%;
+
+    --chart-1: 212.22 29.35% 36.08%;
+    --chart-2: 128.18 8.8% 50.98%;
+    --chart-3: 38.18 33.85% 74.51%;
+    --chart-4: 219.38 37.21% 16.86%;
+    --chart-5: 169 25% 40%;
+
+    --shadow-2xs: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.08);
+    --shadow-sm: 0 1px 3px 0px hsl(211.03 52.73% 10.78% / 0.1), 0 1px 2px -1px hsl(211.03 52.73% 10.78% / 0.1);
+    --shadow: var(--shadow-sm);
+    --shadow-md: 0 4px 6px -1px hsl(211.03 52.73% 10.78% / 0.1), 0 2px 4px -1px hsl(211.03 52.73% 10.78% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(211.03 52.73% 10.78% / 0.1), 0 4px 6px -2px hsl(211.03 52.73% 10.78% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(211.03 52.73% 10.78% / 0.1), 0 10px 10px -5px hsl(211.03 52.73% 10.78% / 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsl(211.03 52.73% 10.78% / 0.25);
+  }
+
   .dark {
     --background: 200 30% 10%;
     --foreground: 195 20% 95%;

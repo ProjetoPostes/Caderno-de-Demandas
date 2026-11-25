@@ -1,35 +1,41 @@
-import { Moon, Sun } from "lucide-react";
+import { Leaf, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme();
+  const { setTheme, theme, resolvedTheme } = useTheme();
+  const ThemeIcon = theme === "holst" ? Leaf : resolvedTheme === "dark" ? Moon : Sun;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+        <Button variant="ghost" size="icon" title="Alternar tema">
+          <ThemeIcon className="h-5 w-5" />
           <span className="sr-only">Alternar tema</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Claro
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Escuro
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          Sistema
-        </DropdownMenuItem>
+        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+          <DropdownMenuRadioItem value="light" className="gap-2">
+            <Sun className="h-4 w-4" /> Claro
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark" className="gap-2">
+            <Moon className="h-4 w-4" /> Escuro
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="holst" className="gap-2">
+            <Leaf className="h-4 w-4" /> Holst
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system" className="gap-2">
+            <Monitor className="h-4 w-4" /> Sistema
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

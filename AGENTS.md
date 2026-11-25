@@ -17,3 +17,4 @@
 - Column filters explicitly marked as text must not participate in distinct-value queries; presence selectors use null/empty predicates instead of loading individual names to keep category queries small.
 - Work validation submissions use the explicit field whitelist in `src/lib/validacaoObra.ts` so display-only source fields cannot leak into updates.
 - Work quantitative catalogs and saved items use the shared `buscarTodos` reader with deterministic ordering to avoid truncation by the external API row limit.
+- Additional themes use the existing next-themes provider and semantic CSS tokens; do not create per-user database preferences, and map custom themes to a supported light/dark Sonner theme.
