@@ -11,6 +11,9 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    --readable-dark: 0 0% 0%;
+    --readable-light: 0 0% 100%;
+    --surface-sidebar-base: 0 0% 98%;
     /* Corporate Colors - RGB converted to HSL */
     /* Azul: RGB(0, 159, 194) = HSL(191, 100%, 38%) */
     /* Laranja: RGB(243, 112, 33) = HSL(23, 90%, 54%) */
@@ -86,6 +89,9 @@ All colors MUST be HSL.
 
   .holst {
     color-scheme: light;
+    --success-foreground: var(--readable-dark);
+    --destructive: 0 72% 48%;
+    --surface-sidebar-base: 38.18 33.85% 80%;
     --background: 51.82 50% 91.37%;
     --foreground: 211.03 52.73% 10.78%;
     --card: 48 45% 97%;
@@ -146,6 +152,9 @@ All colors MUST be HSL.
 
   .oceano {
     color-scheme: light;
+    --success-foreground: var(--readable-dark);
+    --destructive: 0 72% 48%;
+    --surface-sidebar-base: 206.40 49.02% 80%;
     --background: 205.71 63.64% 97.84%;
     --foreground: 216.92 66.10% 11.57%;
     --card: 0 0% 100%;
@@ -158,7 +167,7 @@ All colors MUST be HSL.
     --secondary-foreground: 211.23 58.40% 24.51%;
     --muted: 206.40 49.02% 91%;
     --muted-foreground: 211.23 38% 36%;
-    --accent: 205.81 38.59% 47.25%;
+    --accent: 205.81 38.59% 43%;
     --accent-foreground: 205.71 63.64% 97.84%;
     --border: 206.40 49.02% 80%;
     --input: 206.40 49.02% 80%;
@@ -168,7 +177,7 @@ All colors MUST be HSL.
     --sidebar-foreground: 216.92 66.10% 11.57%;
     --sidebar-primary: 211.23 58.40% 24.51%;
     --sidebar-primary-foreground: 205.71 63.64% 97.84%;
-    --sidebar-accent: 205.81 38.59% 47.25%;
+    --sidebar-accent: 205.81 38.59% 43%;
     --sidebar-accent-foreground: 205.71 63.64% 97.84%;
     --sidebar-border: 205.81 38.59% 62%;
     --sidebar-ring: 206.40 49.02% 80%;
@@ -194,7 +203,7 @@ All colors MUST be HSL.
     --theme-table-header-foreground: var(--secondary-foreground);
     --theme-row-alternate: var(--muted);
     --theme-row-hover: 169 45% 87%;
-    --theme-topbar: 205.81 38.59% 47.25%;
+    --theme-topbar: var(--accent);
     --theme-topbar-foreground: 205.71 63.64% 97.84%;
 
     --theme-complement: 169 45% 72%;
@@ -205,6 +214,7 @@ All colors MUST be HSL.
   }
 
   .dark {
+    --surface-sidebar-base: 200 25% 15%;
     --background: 200 30% 10%;
     --foreground: 195 20% 95%;
 
@@ -314,7 +324,7 @@ All colors MUST be HSL.
   }
 
   :is(.holst, .oceano) [data-sidebar="sidebar"] .text-muted-foreground {
-    color: hsl(var(--sidebar-foreground) / 0.75);
+    color: hsl(var(--sidebar-foreground));
   }
 
   :is(.holst, .oceano) [data-sidebar="menu-button"][data-active="true"] {
@@ -322,6 +332,40 @@ All colors MUST be HSL.
     color: hsl(var(--secondary-foreground));
     box-shadow: inset 4px 0 0 hsl(var(--accent));
   }
+}
+
+/* Browser-only surface overrides always pair a background with readable text. */
+[data-custom-sidebar] {
+  --sidebar: var(--custom-sidebar);
+  --sidebar-background: var(--custom-sidebar);
+  --sidebar-foreground: var(--custom-sidebar-foreground);
+}
+[data-custom-header] [data-slot="app-header"] {
+  background: hsl(var(--custom-header));
+  color: hsl(var(--custom-header-foreground));
+}
+[data-custom-cards] [data-slot="card"] {
+  background: hsl(var(--custom-cards));
+  color: hsl(var(--custom-cards-foreground));
+  --card: var(--custom-cards);
+  --card-foreground: var(--custom-cards-foreground);
+}
+[data-custom-cards] [data-slot="card"] .text-muted-foreground:not(input, textarea, button, [role="combobox"]),
+[data-custom-sidebar] [data-sidebar="sidebar"] .text-muted-foreground {
+  color: inherit;
+}
+[data-custom-cards] [data-slot="card"] :is(input, textarea, [role="combobox"]) {
+  color: hsl(var(--foreground));
+}
+[data-custom-cards] [data-slot="card"] :is(thead, tbody) {
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+}
+[data-custom-header] [data-slot="app-header"] .text-muted-foreground {
+  color: inherit;
+}
+[data-custom-sidebar] [data-sidebar="group-label"] {
+  color: hsl(var(--sidebar-foreground));
 }
 
 @layer components {

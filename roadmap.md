@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Verificar e corrigir contraste dos temas Holst e Oceano; 100 testes passaram.
+- [x] Permitir cores individuais de menu, cabeçalho e cards apenas neste navegador, sem recomendação de tema; seleção, recarga e restauração verificadas em controles reais isolados no computador/celular. Conferência em /tratativas/clientes com login indisponível por ausência de sessão.
+
 - [x] Retirar o bloco Critérios de Enquadramento da validação de OS, preservando os dados existentes e os demais campos.
 - [x] Explicar que o filtro de tranche deve considerar as OSs vinculadas dentro do RPC existente; definição externa da função indisponível para confirmação.
 

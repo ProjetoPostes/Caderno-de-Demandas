@@ -18,3 +18,4 @@
 - Work validation submissions use the explicit field whitelist in `src/lib/validacaoObra.ts` so display-only source fields cannot leak into updates.
 - Work quantitative catalogs and saved items use the shared `buscarTodos` reader with deterministic ordering to avoid truncation by the external API row limit.
 - Additional themes use next-themes and semantic CSS tokens with shared data-slot surface selectors; light custom themes must not activate Tailwind dark variants or Sonner dark mode, and must not add per-user database preferences.
+- Surface color customization is theme-scoped browser presentation state via AppearanceProvider; pair overrides with tested WCAG AA foreground selection and keep contrast regression tests against global theme tokens to prevent unreadable colors.
