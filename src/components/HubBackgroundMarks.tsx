@@ -25,9 +25,9 @@ const AFASTAMENTO_TOPO = "clamp(16px, 3vh, 44px)";
 /** Afastamento da borda direita: presente, mas sem encostar no canto. */
 const AFASTAMENTO_DIR = "clamp(24px, 3.5vw, 96px)";
 /** Largura da marca: mínima em telas pequenas, proporcional à tela, máx. em telas grandes. */
-const LARGURA_MARCA = "clamp(56px, min(11vw, 26vh), 190px)";
+const LARGURA_MARCA = "clamp(72px, min(14vw, 40vh), 300px)";
 /** Transparência: presente, mas sem disputar atenção com o conteúdo. */
-const OPACIDADE_MARCA = 0.9;
+const OPACIDADE_MARCA = 1;
 
 export function HubBackgroundMarks() {
   return (
@@ -49,6 +49,7 @@ export function HubBackgroundMarks() {
             width: LARGURA_MARCA,
             height: "auto",
             opacity: OPACIDADE_MARCA,
+            filter: "drop-shadow(0 0 clamp(16px, 3vw, 48px) hsl(48 100% 70% / 0.55))",
           }}
         />
       ))}
