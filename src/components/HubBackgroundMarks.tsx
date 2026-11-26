@@ -7,9 +7,10 @@ interface HubMark {
 }
 
 /**
- * Marca d'água do MainHub: imagens fixas, centralizadas e desfocadas, pintadas
- * atrás do conteúdo (z-index negativo) como se fizessem parte do plano de
- * fundo. O tamanho acompanha as dimensões da tela via clamp(), sem depender de
+ * Marca do MainHub: imagens fixas no canto superior direito, pintadas atrás do
+ * conteúdo (z-index negativo) como se fizessem parte do plano de fundo, sem
+ * caixa de fundo própria. O afastamento do topo nunca cobre o cabeçalho fixo e
+ * o tamanho acompanha as dimensões da tela via clamp(), sem depender de
  * breakpoints. Para incluir outra imagem, basta acrescentar uma entrada nesta
  * lista.
  */
@@ -17,10 +18,14 @@ const marks: HubMark[] = [
   { id: "luz-para-todos", src: logoLuzParaTodos, alt: "Luz para Todos" },
 ];
 
+/** Altura do cabeçalho fixo (py-4 + conteúdo ~40px + borda), que a marca jamais pode cobrir. */
+const ALTURA_CABECALHO = "73px";
+/** Folga extra entre o fim do cabeçalho e o topo da marca. */
+const AFASTAMENTO_TOPO = "clamp(16px, 3vh, 44px)";
+/** Afastamento da borda direita: presente, mas sem encostar no canto. */
+const AFASTAMENTO_DIR = "clamp(24px, 3.5vw, 96px)";
 /** Largura da marca: mínima em telas pequenas, proporcional à tela, máx. em telas grandes. */
-const LARGURA_MARCA = "clamp(160px, min(26vw, 26vh), 420px)";
-/** Desfoque proporcional ao tamanho, para ser lido como plano de fundo. */
-const DESFOQUE_MARCA = "clamp(2px, 0.45vw, 6px)";
+const LARGURA_MARCA = "clamp(56px, min(11vw, 26vh), 190px)";
 /** Transparência: presente, mas sem disputar atenção com o conteúdo. */
 const OPACIDADE_MARCA = 0.9;
 
@@ -28,8 +33,12 @@ export function HubBackgroundMarks() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[-1] flex flex-col items-center justify-center"
-      style={{ gap: "clamp(8px, 1.2vw, 18px)" }}
+      className="pointer-events-none fixed inset-0 z-[-1] hidden sm:flex flex-col items-end justify-start"
+      style={{
+        paddingTop: `calc(${ALTURA_CABECALHO} + ${AFASTAMENTO_TOPO})`,
+        paddingRight: AFASTAMENTO_DIR,
+        gap: "clamp(8px, 1.2vw, 18px)",
+      }}
     >
       {marks.map((mark) => (
         <img
@@ -39,7 +48,6 @@ export function HubBackgroundMarks() {
           style={{
             width: LARGURA_MARCA,
             height: "auto",
-            filter: `blur(${DESFOQUE_MARCA})`,
             opacity: OPACIDADE_MARCA,
           }}
         />
