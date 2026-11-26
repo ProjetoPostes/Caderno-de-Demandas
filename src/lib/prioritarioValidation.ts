@@ -5,14 +5,23 @@ export function podeEditarCoordenadas(validada: boolean | null | undefined): boo
 }
 
 export function cpfValido(valor: string): boolean {
-  const d = valor.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  const d = valor.replace(/\D/g, "").padStart(11, "0");
+
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) {
+    return false;
+  }
+
   const dig = (n: number) => {
     let s = 0;
-    for (let i = 0; i < n; i++) s += Number(d[i]) * (n + 1 - i);
+
+    for (let i = 0; i < n; i++) {
+      s += Number(d[i]) * (n + 1 - i);
+    }
+
     const r = (s * 10) % 11;
     return r === 10 ? 0 : r;
   };
+
   return dig(9) === Number(d[9]) && dig(10) === Number(d[10]);
 }
 
@@ -43,7 +52,10 @@ const txt = (v?: string | null) => (v ?? "").trim() || null;
 /** Valida e monta o payload de atualização. Retorna erros por campo. */
 export function validarCorrecao(f: CorrecaoPrioritario): { erros: Record<string, string>; payload: Record<string, unknown> } {
   const erros: Record<string, string> = {};
-  const cpf = txt(f.cpf_correto);
+  const cpfDigitado = txt(f.cpf_correto);
+  const cpf = cpfDigitado
+    ? cpfDigitado.replace(/\D/g, "").padStart(11, "0")
+    : null;
   if (cpf && !cpfValido(cpf)) erros.cpf_correto = "CPF inválido";
   if (f.coordenada_validada == null) erros.coordenada_validada = "Informe se a coordenada foi validada";
 
