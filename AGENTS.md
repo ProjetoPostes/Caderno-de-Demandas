@@ -24,3 +24,4 @@
 - Surface color customization is theme-scoped browser presentation state via AppearanceProvider; pair overrides with tested WCAG AA foreground selection and keep contrast regression tests against global theme tokens to prevent unreadable colors.
 - Sidebar imagery is a decorative theme-gated child inside the shared sidebar, with CSS-token overlay and contrast checks; this preserves desktop, collapsed and mobile navigation without duplicating layout or changing authentication.
 - Bundle the sidebar's user-requested project-local image through a Vite source import so external deployments do not depend on Lovable's internal asset-serving route.
+- MainHub icons share the HubIcon asset registry so category and shortcut drawings stay consistent while preserving user-provided artwork.

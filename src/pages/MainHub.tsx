@@ -1,41 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
-import iconeCartas from "@/assets/icone-cartas.png";
-import iconePrioridade from "@/assets/Icone-prioridade.png";
-import iconeRelatorio from "@/assets/icone-relatorio..jpg";
+import { HubIcon } from "@/components/HubIcon";
 import { UserMenu } from "@/components/UserMenu";
-import {
-  FileText,
-  Search,
-  Building2,
-  AlertTriangle,
-  MessageSquareWarning,
-  FileCheck,
-  BarChart3,
-  Clock,
-  XCircle,
-  BookOpen,
-  Users,
-  FileEdit,
-  FolderOpen,
-  Gavel,
-  Shield,
-  Briefcase,
-  Calendar,
-  Clipboard,
-  PieChart,
-  MessageCircle,
-  Send,
-  MapPin,
-  Star,
-  History,
-} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -53,14 +24,14 @@ interface SubItem {
 }
 
 const categories: CategoryItem[] = [
-  { id: "despacho", label: "Despacho", icon: <FileText className="h-6 w-6" /> },
-  { id: "analise", label: "Análise", icon: <Search className="h-6 w-6" /> },
-  { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" /> },
-  { id: "obras", label: "Obras", icon: <Building2 className="h-6 w-6" /> },
-  { id: "prioridades", label: "Prioridades", icon: <img src={iconePrioridade} alt="" className="h-6 w-6" /> },
-  { id: "reclamacoes", label: "Reclamações", icon: <MessageSquareWarning className="h-6 w-6" /> },
-  { id: "oficios", label: "Ofícios", icon: <FileCheck className="h-6 w-6" /> },
-  { id: "relatorios", label: "Relatórios", icon: <img src={iconeRelatorio} alt="" className="h-6 w-6" /> },
+  { id: "despacho", label: "Despacho", icon: <HubIcon name="document" /> },
+  { id: "analise", label: "Análise", icon: <HubIcon name="search" /> },
+  { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" /> },
+  { id: "obras", label: "Obras", icon: <HubIcon name="buildings" /> },
+  { id: "prioridades", label: "Prioridades", icon: <HubIcon name="prioridade" /> },
+  { id: "reclamacoes", label: "Reclamações", icon: <HubIcon name="complaint" /> },
+  { id: "oficios", label: "Ofícios", icon: <HubIcon name="approval" /> },
+  { id: "relatorios", label: "Relatórios", icon: <HubIcon name="relatorio" /> },
 ];
 
 const subItems: Record<string, SubItem[]> = {
@@ -68,94 +39,92 @@ const subItems: Record<string, SubItem[]> = {
     {
       id: "pendente",
       label: "Pendente",
-      icon: <Clock className="h-5 w-5" />,
+      icon: <HubIcon name="clock" className="h-10 w-10" />,
       route: "/consulta/despacho?filtro=Pendente",
     },
     {
       id: "inconsistencia",
       label: "Inconsistência",
-      icon: <XCircle className="h-5 w-5" />,
+      icon: <HubIcon name="cancel" className="h-10 w-10" />,
       route: "/consulta/despacho?filtro=Inconsistencia",
     },
   ],
   analise: [
-    { id: "despacho", label: "Despacho", icon: <Send className="h-5 w-5" />, route: "/consulta/despacho" },
-    { id: "caderno", label: "Caderno", icon: <BookOpen className="h-5 w-5" />, route: "/consulta/caderno" },
-    { id: "cliente", label: "Cliente", icon: <Users className="h-5 w-5" />, route: "/consulta/clientes" },
-    { id: "prioritarios", label: "Prioritários", icon: <Star className="h-5 w-5" />, route: "/consulta/prioritarios" },
-    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-10 w-10" />, route: "/consulta/caderno?modo=cartas" },
+    { id: "despacho", label: "Despacho", icon: <HubIcon name="document" className="h-10 w-10" />, route: "/consulta/despacho" },
+    { id: "caderno", label: "Caderno", icon: <HubIcon name="book" className="h-10 w-10" />, route: "/consulta/caderno" },
+    { id: "cliente", label: "Cliente", icon: <HubIcon name="users" className="h-10 w-10" />, route: "/consulta/clientes" },
+    { id: "prioritarios", label: "Prioritários", icon: <HubIcon name="prioridade" className="h-10 w-10" />, route: "/consulta/prioritarios" },
+    { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" className="h-10 w-10" />, route: "/consulta/caderno?modo=cartas" },
   ],
   cartas: [
-    { id: "mod-cartas", label: "Mod. Cartas", icon: <FileEdit className="h-5 w-5" />, route: "/consulta/documentos-cartas" },
-    { id: "outros-doc", label: "Outros Doc", icon: <FolderOpen className="h-5 w-5" /> },
+    { id: "mod-cartas", label: "Mod. Cartas", icon: <HubIcon name="edit" className="h-10 w-10" />, route: "/consulta/documentos-cartas" },
+    { id: "outros-doc", label: "Outros Doc", icon: <HubIcon name="folder" className="h-10 w-10" /> },
   ],
   obras: [
-    { id: "obras", label: "Obras", icon: <Building2 className="h-5 w-5" />, route: "/consulta/obras" },
-    { id: "pendente", label: "Pendente", icon: <Clock className="h-5 w-5" /> },
-    { id: "analisada", label: "Analisada", icon: <Search className="h-5 w-5" /> },
-    { id: "contratada", label: "Contratada", icon: <Briefcase className="h-5 w-5" /> },
-    { id: "suspensa", label: "Suspensa", icon: <XCircle className="h-5 w-5" /> },
-    { id: "encerrada", label: "Encerrada", icon: <FileCheck className="h-5 w-5" /> },
-    { id: "prazo-construcao", label: "Prazo Construção", icon: <Calendar className="h-5 w-5" /> },
+    { id: "obras", label: "Obras", icon: <HubIcon name="buildings" className="h-10 w-10" />, route: "/consulta/obras" },
+    { id: "pendente", label: "Pendente", icon: <HubIcon name="clock" className="h-10 w-10" /> },
+    { id: "analisada", label: "Analisada", icon: <HubIcon name="search" className="h-10 w-10" /> },
+    { id: "contratada", label: "Contratada", icon: <HubIcon name="briefcase" className="h-10 w-10" /> },
+    { id: "suspensa", label: "Suspensa", icon: <HubIcon name="cancel" className="h-10 w-10" /> },
+    { id: "encerrada", label: "Encerrada", icon: <HubIcon name="approval" className="h-10 w-10" /> },
+    { id: "prazo-construcao", label: "Prazo Construção", icon: <HubIcon name="calendar" className="h-10 w-10" /> },
   ],
   prioridades: [
     {
       id: "diretoria",
       label: "Diretoria",
-      icon: <Briefcase className="h-5 w-5" />,
+      icon: <HubIcon name="briefcase" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Diretoria",
     },
     {
       id: "reclamacoes",
       label: "Reclamações",
-      icon: <MessageSquareWarning className="h-5 w-5" />,
+      icon: <HubIcon name="complaint" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Reclamações",
     },
     {
       id: "aneel-mme-judicial",
       label: "Aneel / MME / Judicial",
-      icon: <Gavel className="h-5 w-5" />,
+      icon: <HubIcon name="law" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Aneel / MME / Judicial",
     },
     {
       id: "quilombolas",
       label: "Quilombolas",
-      icon: <Shield className="h-5 w-5" />,
+      icon: <HubIcon name="shield" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Quilombolas",
     },
     {
       id: "indigenas",
       label: "Indígenas",
-      icon: <Shield className="h-5 w-5" />,
+      icon: <HubIcon name="shield" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Indígenas",
     },
     {
       id: "outros",
       label: "Outros",
-      icon: <FolderOpen className="h-5 w-5" />,
+      icon: <HubIcon name="folder" className="h-10 w-10" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Outros",
     },
   ],
   reclamacoes: [
-    { id: "controle", label: "Controle", icon: <Clipboard className="h-5 w-5" /> },
-    { id: "prazos", label: "Prazos", icon: <Calendar className="h-5 w-5" /> },
+    { id: "controle", label: "Controle", icon: <HubIcon name="clipboard" className="h-10 w-10" /> },
+    { id: "prazos", label: "Prazos", icon: <HubIcon name="calendar" className="h-10 w-10" /> },
   ],
-  oficios: [{ id: "controle", label: "Controle", icon: <Clipboard className="h-5 w-5" /> }],
+  oficios: [{ id: "controle", label: "Controle", icon: <HubIcon name="clipboard" className="h-10 w-10" /> }],
   relatorios: [
-    { id: "diretoria", label: "Diretoria", icon: <Briefcase className="h-5 w-5" /> },
-    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-10 w-10" />, route: "/consulta/relatorio-cartas" },
-    { id: "projetos", label: "Projetos", icon: <PieChart className="h-5 w-5" /> },
-    { id: "obras", label: "Obras", icon: <Building2 className="h-5 w-5" /> },
+    { id: "diretoria", label: "Diretoria", icon: <HubIcon name="briefcase" className="h-10 w-10" /> },
+    { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" className="h-10 w-10" />, route: "/consulta/relatorio-cartas" },
+    { id: "projetos", label: "Projetos", icon: <HubIcon name="chart" className="h-10 w-10" /> },
+    { id: "obras", label: "Obras", icon: <HubIcon name="buildings" className="h-10 w-10" /> },
   ],
 };
 
 export default function MainHub() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { isAdmin, isOperadorChefe, isOperador } = useUserRole();
   const canAccessTratativas = isAdmin || isOperadorChefe || isOperador;
-  const canAccessChat = isAdmin || isOperadorChefe || isOperador;
 
   // A arte de fundo começa abaixo do cabeçalho: medimos a altura real da barra
   // (muda com o tamanho da tela) e passamos para a camada de fundo.
@@ -235,11 +204,12 @@ export default function MainHub() {
           <div className="w-72 flex-shrink-0">
             <div className="space-y-3">
               {categories.map((category) => (
-                <button
+                <Button
+                    variant="ghost"
                   key={category.id}
                   onClick={() => handleCategoryClick(category.id)}
                   className={cn(
-                    "w-full group relative flex items-center gap-3 px-5 py-4 rounded-xl border transition-all duration-200",
+                    "h-auto w-full group relative flex items-center justify-start gap-3 px-5 py-4 rounded-xl border transition-all duration-200",
                     "shadow-sm hover:shadow-md",
                     selectedCategory === category.id
                       ? "bg-secondary text-secondary-foreground border-secondary shadow-lg"
@@ -255,7 +225,7 @@ export default function MainHub() {
                     {category.icon}
                   </div>
                   <span className="font-medium text-left">{category.label}</span>
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -275,11 +245,12 @@ export default function MainHub() {
                 </h2>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                   {subItems[selectedCategory]?.map((item) => (
-                    <button
+                    <Button
+                    variant="ghost"
                       key={item.id}
                       onClick={() => handleSubItemClick(item)}
                       className={cn(
-                        "group flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 transition-all duration-200",
+                        "h-auto whitespace-normal group flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 transition-all duration-200",
                         "bg-card shadow-md hover:shadow-xl min-h-[140px]",
                         item.route
                           ? "cursor-pointer border-primary/30 hover:border-primary hover:bg-primary/5"
@@ -290,7 +261,7 @@ export default function MainHub() {
                         className={cn(
                           "w-16 h-16 rounded-lg flex items-center justify-center transition-all",
                           item.route
-                            ? "bg-gradient-to-br from-primary to-accent text-primary-foreground group-hover:scale-110"
+                            ? "bg-muted/40 group-hover:scale-110"
                             : "bg-muted text-muted-foreground",
                         )}
                       >
@@ -304,7 +275,7 @@ export default function MainHub() {
                       >
                         {item.label}
                       </span>
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </>

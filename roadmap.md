@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Uniformizar os ícones restantes do MainHub com desenhos coloridos, preservando os enviados pelo usuário; imagens conferidas nas oito categorias em visualização isolada, sem acesso à tela autenticada.
+
 - [x] Exportar todos os Prioritários dos filtros atuais para XLSX, incluindo as demais páginas e 32 colunas de identificação, validação e localização; testes e compilação OK, e arquivo real de 7.378 bytes aberto e validado. O clique autenticado não foi testado por ausência de sessão.
 
 - [x] Incluir a imagem Floresta na pasta do projeto e carregar por importação, sem depender do endereço interno do Lovable.
