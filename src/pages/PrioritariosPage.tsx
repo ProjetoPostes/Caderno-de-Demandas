@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useAnalistas } from "@/hooks/useAnaliseOs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import { maskCpf } from "@/lib/cpfMask";
 import { FILTRO_PREENCHIDO, FILTRO_EM_BRANCO, FILTRO_NULO } from "@/lib/valoresColuna";
 import type { Prioritario } from "@/types/database";
@@ -158,6 +159,10 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const navigate = useNavigate();
   const rows = (data?.rows ?? []) as PrioritarioRowExt[];
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
+  const [original, setOriginal] = useState<PrioritarioRowExt | null>(null);
+  const [destinoPendente, setDestinoPendente] = useState<string | null>(null);
+  const temAlteracoes = !!selected && !!original && JSON.stringify(selected) !== JSON.stringify(original);
+  const irPara = (rota: string) => { if (temAlteracoes) setDestinoPendente(rota); else navigate(rota); };
 
   const muted = (v?: string | null) => <span className="text-xs text-muted-foreground">{v || "-"}</span>;
   const mapa = coordsDoMapa(selected?.latitude, selected?.longitude);
@@ -215,20 +220,23 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
     setErros((e) => { const { [campo as string]: _, ...resto } = e; return resto; });
   };
   const erro = (campo: string) => erros[campo] ? <p className="text-xs text-destructive">{erros[campo]}</p> : null;
-  const salvar = async () => {
-    if (!selected) return;
+  const salvar = async (): Promise<boolean> => {
+    if (!selected) return false;
     const { erros: novos, payload } = validarCorrecao(selected);
     setErros(novos);
-    if (Object.keys(novos).length) { toast.error("Corrija os campos destacados antes de salvar"); return; }
+    if (Object.keys(novos).length) { toast.error("Corrija os campos destacados antes de salvar"); return false; }
     setSalvando(true);
     const { error } = await (supabase.from("prioritario") as any).update(payload).eq("id", selected.id);
     setSalvando(false);
-    if (error) { toast.error(`Erro ao salvar: ${error.message}`); return; }
+    if (error) { toast.error(`Erro ao salvar: ${error.message}`); return false; }
     toast.success("Alterações salvas");
-    setSelected((a) => a ? { ...a, ...payload } as PrioritarioRowExt : a);
+    const salvo = { ...selected, ...payload } as PrioritarioRowExt;
+    setSelected(salvo);
+    setOriginal(salvo);
     qc.invalidateQueries({ queryKey: ["prioritarios"] });
     qc.invalidateQueries({ queryKey: ["prioritarios-kpis"] });
     qc.invalidateQueries({ queryKey: ["valores-colunas"] });
+    return true;
   };
 
   const atribuirResponsavel = async () => {
@@ -315,7 +323,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         sortDir={sortDir}
         onSortChange={(f, d) => { setSortField(f); setSortDir(d); }}
         onClear={() => { setSearch(""); setFilters({}); setPage(1); }}
-        onRowClick={(p) => { setErros({}); setSelected(p); window.scrollTo(0, 0); }}
+        onRowClick={(p) => { setErros({}); setSelected(p); setOriginal(p); window.scrollTo(0, 0); }}
         rowKey={(p) => p.id}
         columns={[
           { header: "", className: "w-8", cell: (p) => (
@@ -344,6 +352,22 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         ]}
       />
       </>)}
+
+      <AlertDialog open={!!destinoPendente} onOpenChange={(o) => { if (!o) setDestinoPendente(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Salvar alterações?</AlertDialogTitle>
+            <AlertDialogDescription>Você alterou dados deste cliente que ainda não foram salvos. Deseja salvar antes de abrir a OS?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={salvando}>Cancelar</AlertDialogCancel>
+            <Button variant="outline" disabled={salvando} onClick={() => { const d = destinoPendente; setDestinoPendente(null); if (d) navigate(d); }}>Sair sem salvar</Button>
+            <Button disabled={salvando} onClick={async () => { const d = destinoPendente; if (await salvar()) { setDestinoPendente(null); if (d) navigate(d); } else setDestinoPendente(null); }}>
+              {salvando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />} Salvar e abrir
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {selected && (
         <div className={standalone ? "p-6" : ""}>
@@ -591,7 +615,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                           <TableRow
                             key={os.id_os}
                             className="cursor-pointer hover:bg-muted/50"
-                            onClick={() => navigate(`/analise/${os.id_os}`)}
+                            onClick={() => irPara(`/analise/${os.id_os}`)}
                           >
                             <TableCell className="font-mono text-xs">{os.num_os ?? "-"}</TableCell>
                             <TableCell className="font-mono text-xs">
@@ -603,7 +627,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const rota = rotaObra(os.id_obra);
-                                    if (rota) navigate(rota);
+                                    if (rota) irPara(rota);
                                   }}
                                 >
                                   {os.obra?.num_obra ?? "-"}
@@ -629,7 +653,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                 </Secao>
                 <div className="flex justify-end gap-2 border-t pt-4">
                   <Button variant="outline" onClick={() => setSelected(null)} disabled={salvando}>Voltar</Button>
-                  <Button onClick={salvar} disabled={salvando}>
+                  <Button onClick={() => { void salvar(); }} disabled={salvando}>
                     {salvando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />} Salvar alterações
                   </Button>
                 </div>
