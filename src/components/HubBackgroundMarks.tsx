@@ -22,7 +22,7 @@ const LARGURA_MARCA = "clamp(160px, min(26vw, 26vh), 420px)";
 /** Desfoque proporcional ao tamanho, para ser lido como plano de fundo. */
 const DESFOQUE_MARCA = "clamp(2px, 0.45vw, 6px)";
 /** Transparência: presente, mas sem disputar atenção com o conteúdo. */
-const OPACIDADE_MARCA = 0.5;
+const OPACIDADE_MARCA = 0.78;
 
 export function HubBackgroundMarks() {
   return (
