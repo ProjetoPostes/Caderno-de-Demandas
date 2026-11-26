@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { HubCornerMarks } from "@/components/HubCornerMarks";
+import { HubBackgroundMarks } from "@/components/HubBackgroundMarks";
 import logoEnergisa from "@/assets/energisa.png";
 import { UserMenu } from "@/components/UserMenu";
 import {
@@ -171,7 +171,7 @@ export default function MainHub() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/10 to-primary/5 flex flex-col">
+    <div className="min-h-screen isolate bg-gradient-to-br from-background via-accent/10 to-primary/5 flex flex-col">
       {/* Header */}
       <header className="border-b border-primary/20 bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -299,7 +299,7 @@ export default function MainHub() {
         </div>
       </footer>
 
-      <HubCornerMarks />
+      <HubBackgroundMarks />
     </div>
   );
 }
