@@ -1,6 +1,6 @@
 import { useDebounce } from "@/hooks/useDebounce";
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
@@ -174,6 +174,29 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [selected, setSelected] = useState<PrioritarioRowExt | null>(null);
   const [original, setOriginal] = useState<PrioritarioRowExt | null>(null);
   const [destinoPendente, setDestinoPendente] = useState<string | null>(null);
+  // Cliente aberto fica na URL (?cliente=id) para o "Voltar" do navegador reabri-lo
+  const [params, setParams] = useSearchParams();
+  const clienteUrl = params.get("cliente");
+  const abrirCliente = (p: PrioritarioRowExt) => {
+    setErros({}); setSelected(p); setOriginal(p); window.scrollTo(0, 0);
+    const n = new URLSearchParams(params); n.set("cliente", String(p.id)); setParams(n);
+  };
+  const fecharCliente = () => {
+    setSelected(null);
+    const n = new URLSearchParams(params); n.delete("cliente"); setParams(n, { replace: true });
+  };
+  useEffect(() => {
+    if (!clienteUrl) { setSelected(null); return; }
+    if (selected && String(selected.id) === clienteUrl) return;
+    const local = rows.find((r) => String(r.id) === clienteUrl);
+    if (local) { setSelected(local); setOriginal(local); return; }
+    let ativo = true;
+    supabase.from("prioritario").select("*").eq("id", clienteUrl).maybeSingle().then(({ data }) => {
+      if (ativo && data) { setSelected(data as PrioritarioRowExt); setOriginal(data as PrioritarioRowExt); }
+    });
+    return () => { ativo = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clienteUrl]);
   const temAlteracoes = !!selected && !!original && JSON.stringify(selected) !== JSON.stringify(original);
   const irPara = (rota: string) => { if (temAlteracoes) setDestinoPendente(rota); else navigate(rota); };
 
@@ -363,7 +386,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         sortDir={sortDir}
         onSortChange={(f, d) => { setSortField(f); setSortDir(d); }}
         onClear={() => { setSearch(""); setFilters({}); setPage(1); }}
-        onRowClick={(p) => { setErros({}); setSelected(p); setOriginal(p); window.scrollTo(0, 0); }}
+        onRowClick={(p) => abrirCliente(p)}
         rowKey={(p) => p.id}
         columns={[
           { header: "", className: "w-8", cell: (p) => (
@@ -411,7 +434,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
 
       {selected && (
         <div className={standalone ? "p-6" : ""}>
-          <Button variant="ghost" size="sm" className="mb-3" onClick={() => setSelected(null)}>
+          <Button variant="ghost" size="sm" className="mb-3" onClick={fecharCliente}>
             <ArrowLeft className="mr-1 h-4 w-4" /> Voltar para Prioritários
           </Button>
           <div className="overflow-hidden rounded-lg border bg-card">
@@ -692,7 +715,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                   <div className="mt-3 text-[11px] text-muted-foreground">Cadastrado em {new Date(selected.created_at).toLocaleString("pt-BR")}</div>
                 </Secao>
                 <div className="flex justify-end gap-2 border-t pt-4">
-                  <Button variant="outline" onClick={() => setSelected(null)} disabled={salvando}>Voltar</Button>
+                  <Button variant="outline" onClick={fecharCliente} disabled={salvando}>Voltar</Button>
                   <Button onClick={() => { void salvar(); }} disabled={salvando}>
                     {salvando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />} Salvar alterações
                   </Button>
