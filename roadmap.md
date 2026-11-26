@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Incluir a imagem Floresta na pasta do projeto e carregar por importação, sem depender do endereço interno do Lovable.
+
 - [x] Criar tema Floresta com imagem exclusiva na barra lateral; 72 testes de contraste passaram e controles reais isolados foram conferidos em computador/celular e nos seis outros temas; a tela de Obras autenticada não pôde ser conferida por ausência de sessão.
 
 - [x] Adicionar indicadores de número de obras, valor orçado e valor realizado para todo o resultado filtrado, e filtro Status unificado, sem alterar o banco; 12 testes passaram e compilação OK; a conferência em /tratativas/obras com dados reais ficou indisponível por exigir login.
