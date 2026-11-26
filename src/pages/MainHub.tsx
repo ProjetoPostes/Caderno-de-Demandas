@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { HubBackgroundMarks } from "@/components/HubBackgroundMarks";
+import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
 import { UserMenu } from "@/components/UserMenu";
 import {
@@ -299,7 +299,7 @@ export default function MainHub() {
         </div>
       </footer>
 
-      <HubBackgroundMarks />
+      <HubBackground />
     </div>
   );
 }
