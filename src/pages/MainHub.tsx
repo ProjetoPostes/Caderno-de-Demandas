@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
 import iconeCartas from "@/assets/icone-cartas.png";
+import iconePrioridade from "@/assets/Icone-prioridade.png";
 import { UserMenu } from "@/components/UserMenu";
 import {
   FileText,
@@ -55,7 +56,7 @@ const categories: CategoryItem[] = [
   { id: "analise", label: "Análise", icon: <Search className="h-6 w-6" /> },
   { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" /> },
   { id: "obras", label: "Obras", icon: <Building2 className="h-6 w-6" /> },
-  { id: "prioridades", label: "Prioridades", icon: <AlertTriangle className="h-6 w-6" /> },
+  { id: "prioridades", label: "Prioridades", icon: <img src={iconePrioridade} alt="" className="h-6 w-6" /> },
   { id: "reclamacoes", label: "Reclamações", icon: <MessageSquareWarning className="h-6 w-6" /> },
   { id: "oficios", label: "Ofícios", icon: <FileCheck className="h-6 w-6" /> },
   { id: "relatorios", label: "Relatórios", icon: <BarChart3 className="h-6 w-6" /> },
