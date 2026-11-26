@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Exportar todos os Prioritários dos filtros atuais para XLSX, incluindo as demais páginas e 32 colunas de identificação, validação e localização; testes e compilação OK, e arquivo real de 7.378 bytes aberto e validado. O clique autenticado não foi testado por ausência de sessão.
+
 - [x] Incluir a imagem Floresta na pasta do projeto e carregar por importação, sem depender do endereço interno do Lovable.
 
 - [x] Criar tema Floresta com imagem exclusiva na barra lateral; 72 testes de contraste passaram e controles reais isolados foram conferidos em computador/celular e nos seis outros temas; a tela de Obras autenticada não pôde ser conferida por ausência de sessão.

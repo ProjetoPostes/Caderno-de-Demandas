@@ -2,7 +2,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText } from "lucide-react";
+import { ArrowLeft, Star, Copy, Save, Loader2, AlertTriangle, CheckCircle2, MapPin, IdCard, ClipboardCheck, StickyNote, Users, SearchCheck, FileText, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,8 @@ import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { rotaObra } from "@/lib/rotas";
 import { podeEditarCorrecao, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
-import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade, buscarPrioritariosFiltrados } from "@/hooks/useTabelasOperacionais";
+import { prioritarioParaPlanilha } from "@/lib/prioritariosExportacao";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -171,6 +172,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const [marcados, setMarcados] = useState<Set<string | number>>(new Set());
   const [responsavelLote, setResponsavelLote] = useState("");
   const [atribuindo, setAtribuindo] = useState(false);
+  const [exportando, setExportando] = useState(false);
   const alternarMarcado = (id: string | number) => setMarcados((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -250,6 +252,26 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
     qc.invalidateQueries({ queryKey: ["prioritarios"] });
   };
 
+  const exportarXlsx = async () => {
+    setExportando(true);
+    try {
+      const registros = await buscarPrioritariosFiltrados({ search, sortField, sortDir, filters });
+      if (registros.length === 0) {
+        toast.info("Nenhum prioritário encontrado com os filtros atuais.");
+        return;
+      }
+      const { exportToExcel } = await import("@/lib/excelUtils");
+      const dados = registros.map((registro) => prioritarioParaPlanilha(registro));
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      await exportToExcel(dados, "Prioritários", `prioritarios_${dataArquivo}.xlsx`);
+      toast.success(`${registros.length.toLocaleString("pt-BR")} prioritário(s) exportado(s) com sucesso.`);
+    } catch (error) {
+      toast.error(`Erro ao exportar: ${error instanceof Error ? error.message : "erro desconhecido"}`);
+    } finally {
+      setExportando(false);
+    }
+  };
+
   return (
     <>
       {!selected && (<>
@@ -274,6 +296,12 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
         search={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
         searchPlaceholder="Buscar por nome, CPF..."
+        headerActions={
+          <Button variant="outline" size="sm" onClick={exportarXlsx} disabled={exportando}>
+            {exportando ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Download className="mr-1 h-4 w-4" />}
+            {exportando ? "Exportando..." : "Exportar XLSX"}
+          </Button>
+        }
         filterSource={{ tabela: "prioritario", chave: "id" }}
         columnFilters={[
           { field: "controle", label: "Controle", type: "text" },

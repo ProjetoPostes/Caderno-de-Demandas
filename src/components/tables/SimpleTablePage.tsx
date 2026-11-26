@@ -77,6 +77,7 @@ interface Props<T> {
   newLabel?: string;
 
   extraFilters?: ReactNode;
+  headerActions?: ReactNode;
   onClear?: () => void;
   summary?: ReactNode;
   /** Rótulo do total filtrado exibido ao lado do título "Filtros" (ex: "obras"). */
@@ -90,7 +91,7 @@ export function SimpleTablePage<T>({
   sortField, sortDir, onSortChange,
   page, pageSize, total, onPageChange,
   rowKey, onRowClick, onNew, newLabel = "Novo",
-  extraFilters, onClear, summary, totalNosFiltros,
+  extraFilters, headerActions, onClear, summary, totalNosFiltros,
 }: Props<T>) {
   const navigate = useNavigate();
   const { data: valoresColunas, isLoading: carregandoFiltros, isError: erroFiltros, refetch: recarregarFiltros } = useValoresColunas(
@@ -120,10 +121,15 @@ export function SimpleTablePage<T>({
               </Badge>
             )}
           </CardTitle>
-          {onNew && (
-            <Button size="sm" onClick={onNew}>
-              <Plus className="h-4 w-4 mr-1" /> {newLabel}
-            </Button>
+          {(headerActions || onNew) && (
+            <div className="flex items-center gap-2">
+              {headerActions}
+              {onNew && (
+                <Button size="sm" onClick={onNew}>
+                  <Plus className="h-4 w-4 mr-1" /> {newLabel}
+                </Button>
+              )}
+            </div>
           )}
         </CardHeader>
         <CardContent className="space-y-3">

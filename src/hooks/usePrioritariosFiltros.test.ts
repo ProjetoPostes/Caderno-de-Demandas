@@ -26,7 +26,7 @@ mock.module("@/integrations/supabase/client", () => ({ supabase: {
 mock.module("@tanstack/react-query", () => ({ useQuery: (opts: unknown) => opts, useMutation: mock(), useQueryClient: mock() }));
 mock.module("@/contexts/AuthContext", () => ({ useAuth: mock() }));
 mock.module("sonner", () => ({ toast: {} }));
-const { usePrioritarios } = await import("./useTabelasOperacionais");
+const { usePrioritarios, buscarPrioritariosFiltrados } = await import("./useTabelasOperacionais");
 
 test("filtra obra pelas OS ativas e aplica presença antes da paginação", async () => {
   const q = usePrioritarios({ page: 2, pageSize: 20, filters: {
@@ -49,4 +49,21 @@ test("obra sem OS vinculadas retorna total zero sem listar prioritários", async
   const q = usePrioritarios({ filters: { obra: "9999" } }) as unknown as { queryFn: () => Promise<unknown> };
   expect(await q.queryFn()).toEqual({ rows: [], total: 0 });
   expect(chamadas.some(c => c[0] === "prioritario")).toBe(false);
+});
+
+test("exportação busca todas as páginas com a busca e os filtros atuais", async () => {
+  chamadas.length = 0;
+  const registros = await buscarPrioritariosFiltrados({
+    search: "maria",
+    filters: { decisao: "MANTIDO" },
+    sortField: "nome",
+    sortDir: "desc",
+  });
+
+  expect(registros).toHaveLength(21);
+  expect(chamadas).toContainEqual(["prioritario", "or", "nome.ilike.%maria%,cpf_corrigido.ilike.%maria%,observacao.ilike.%maria%"]);
+  expect(chamadas).toContainEqual(["prioritario", "eq", "decisao", "MANTIDO"]);
+  expect(chamadas).toContainEqual(["prioritario", "order", "nome", { ascending: false }]);
+  expect(chamadas).toContainEqual(["prioritario", "range", 0, 999]);
+  expect(chamadas).toContainEqual(["prioritario", "range", 20, 20]);
 });

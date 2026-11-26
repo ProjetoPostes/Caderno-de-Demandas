@@ -202,35 +202,59 @@ export function useDecisoesPrioritario() {
   return useValoresDistintosPrioritario("decisao", "decisao");
 }
 
+async function prepararConsultaPrioritarios(search = "", filters?: Record<string, string | undefined>) {
+  const { obra, ...demaisFiltros } = filters ?? {};
+  let clientesDaObra: string | null = null;
+  if (obra?.trim()) {
+    const registros = await buscarTodos<ClienteDaObra>((head) =>
+      supabase.from("caderno")
+        .select("id_os,id_cliente,cliente:id_cliente(cpf),obra:id_obra!inner(num_obra)", head ? { count: "exact", head: true } : {})
+        .is("deleted_at", null)
+        .eq("obra.num_obra", obra.trim())
+        .order("id_os", { ascending: true }));
+    clientesDaObra = expressaoClientesDaObra(registros);
+    if (!clientesDaObra) return null;
+  }
+
+  return (head = false, comContagem = true) => {
+    const opcoes = head ? { count: "exact" as const, head: true } : comContagem ? { count: "exact" as const } : {};
+    let q = supabase.from("prioritario").select("*", opcoes);
+    if (search.trim()) {
+      const s = search.trim();
+      q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
+    }
+    if (clientesDaObra) q = q.or(clientesDaObra);
+    return aplicarFiltrosPrioritarios(q, demaisFiltros);
+  };
+}
+
+function ordenarPrioritarios(q: any, sortField: string, sortDir: SortDir) {
+  return q.order(sortField, { ascending: sortDir === "asc" }).order("id", { ascending: true });
+}
+
+export async function listarPrioritarios(params: ListParams = {}): Promise<Paged<Prioritario>> {
+  const { page = 1, pageSize = 20, search = "", sortField = "nome", sortDir = "asc", filters } = params;
+  const criarConsulta = await prepararConsultaPrioritarios(search, filters);
+  if (!criarConsulta) return { rows: [], total: 0 };
+  const q = ordenarPrioritarios(criarConsulta(), sortField, sortDir).range((page - 1) * pageSize, page * pageSize - 1);
+  const { data, error, count } = await q;
+  if (error) throw error;
+  return { rows: (data ?? []) as Prioritario[], total: count ?? 0 };
+}
+
+/** Busca todas as páginas do resultado filtrado, sem depender da paginação visível. */
+export async function buscarPrioritariosFiltrados(params: ListParams = {}): Promise<Prioritario[]> {
+  const { search = "", sortField = "nome", sortDir = "asc", filters } = params;
+  const criarConsulta = await prepararConsultaPrioritarios(search, filters);
+  if (!criarConsulta) return [];
+  return buscarTodos<Prioritario>((head) => ordenarPrioritarios(criarConsulta(head, head), sortField, sortDir));
+}
+
 export function usePrioritarios(params: ListParams = {}) {
   const { page = 1, pageSize = 20, search = "", sortField = "nome", sortDir = "asc", filters } = params;
   return useQuery({
     queryKey: ["prioritarios", { page, pageSize, search, sortField, sortDir, filters }],
-    queryFn: async (): Promise<Paged<Prioritario>> => {
-      const { obra, ...demaisFiltros } = filters ?? {};
-      let clientesDaObra: string | null = null;
-      if (obra?.trim()) {
-        const registros = await buscarTodos<ClienteDaObra>((head) =>
-          supabase.from("caderno")
-            .select("id_os,id_cliente,cliente:id_cliente(cpf),obra:id_obra!inner(num_obra)", head ? { count: "exact", head: true } : {})
-            .is("deleted_at", null)
-            .eq("obra.num_obra", obra.trim())
-            .order("id_os", { ascending: true }));
-        clientesDaObra = expressaoClientesDaObra(registros);
-        if (!clientesDaObra) return { rows: [], total: 0 };
-      }
-      let q = supabase.from("prioritario").select("*", { count: "exact" });
-      if (search.trim()) {
-        const s = search.trim();
-        q = q.or(`nome.ilike.%${s}%,cpf_corrigido.ilike.%${s}%,observacao.ilike.%${s}%`);
-      }
-      if (clientesDaObra) q = q.or(clientesDaObra);
-      q = aplicarFiltrosPrioritarios(q, demaisFiltros);
-      q = q.order(sortField, { ascending: sortDir === "asc" }).range((page - 1) * pageSize, page * pageSize - 1);
-      const { data, error, count } = await q;
-      if (error) throw error;
-      return { rows: (data ?? []) as Prioritario[], total: count ?? 0 };
-    },
+    queryFn: () => listarPrioritarios(params),
   });
 }
 
