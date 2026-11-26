@@ -44,3 +44,5 @@
 - [x] Aplicar rosa bebê ao tema Floresta: superfícies em rosa bebê e botões em rosa vivo (#D7336C), sem alterar os demais temas nem a imagem do menu; 148 testes passaram e compilação OK; a tela de Obras autenticada não pôde ser conferida por ausência de sessão.
 
 - [x] Selo "Luz para Todos" fixo no canto inferior direito do MainHub, com ícone do app gerado a partir da mesma logo; tamanho reduzido no celular.
+
+- [x] Cabeçalho do MainHub com a logo Energisa (PNG transparente) no lugar do texto "Inteligência LPT"; selo Luz para Todos sem fundo, direto sobre a tela.

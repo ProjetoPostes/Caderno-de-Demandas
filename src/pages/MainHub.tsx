@@ -5,6 +5,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HubCornerMarks } from "@/components/HubCornerMarks";
+import logoEnergisa from "@/assets/energisa.png";
 import { UserMenu } from "@/components/UserMenu";
 import {
   FileText,
@@ -175,15 +176,9 @@ export default function MainHub() {
       <header className="border-b border-primary/20 bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-primary">Inteligência</h1>
-                <span className="text-xs text-secondary font-semibold">LPT</span>
-              </div>
-            </div>
+            <h1 className="flex items-center">
+              <img src={logoEnergisa} alt="Energisa" className="h-9 w-auto sm:h-10" />
+            </h1>
           </div>
           <div className="flex items-center gap-4">
             <TooltipProvider>

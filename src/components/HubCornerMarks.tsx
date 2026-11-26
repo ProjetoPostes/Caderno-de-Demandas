@@ -22,7 +22,7 @@ export function HubCornerMarks() {
           key={mark.id}
           src={mark.src}
           alt={mark.alt}
-          className="w-12 rounded-xl bg-foreground/90 p-1.5 shadow-lg ring-1 ring-foreground/10 sm:w-20 sm:p-2"
+          className="w-14 sm:w-20"
         />
       ))}
     </div>
