@@ -763,32 +763,7 @@ export default function AnaliseSolicitacao() {
               <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
               <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
             </div>
-            <div>
-              <Label htmlFor="num_padrao">Padrão</Label>
-              <Input
-                id="num_padrao"
-                value={form.num_padrao}
-                onChange={(e) => {
-                  const apenasNumeros = e.target.value.replace(/\D/g, "");
-                  set("num_padrao", apenasNumeros);
-                }}
-                inputMode="numeric"
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label htmlFor="num_kit">Kit</Label>
-              <Input
-                id="num_kit"
-                value={form.num_kit}
-                onChange={(e) => {
-                  const apenasNumeros = e.target.value.replace(/\D/g, "");
-                  set("num_kit", apenasNumeros);
-                }}
-                inputMode="numeric"
-                placeholder="0"
-              />
-            </div>
+            
             <div>
               <Label>Observação técnica</Label>
               <Textarea value={form.observacao_tecnica} onChange={(e) => set("observacao_tecnica", e.target.value)} rows={2} />
@@ -843,6 +818,8 @@ export default function AnaliseSolicitacao() {
               <div><Label>Data de ligação</Label><CopyableInput value={form.data_ligacao} /></div>
               <div><Label>Distância cadastro/ligação (m)</Label><Input value={form.distancia_cadastro_ligacao_m} onChange={(e) => set("distancia_cadastro_ligacao_m", e.target.value)} inputMode="decimal" /></div>
               <div><Label>Crítica de distância</Label><CopyableInput value={form.critica_distancia} /></div>
+              <div><Label htmlFor="num_padrao">Padrão</Label><Input id="num_padrao" value={form.num_padrao} onChange={(e) => {const apenasNumeros = e.target.value.replace(/\D/g, "");set("num_padrao", apenasNumeros);}} inputMode="numeric"placeholder="0"/></div>
+              <div><Label htmlFor="num_kit">Kit</Label><Input id="num_kit" value={form.num_kit} onChange={(e) => {const apenasNumeros = e.target.value.replace(/\D/g, ""); set("num_kit", apenasNumeros);}} inputMode="numeric" placeholder="0"/></div>
             </div>
             <div>
               <Label>Observação da unidade consumidora</Label>
