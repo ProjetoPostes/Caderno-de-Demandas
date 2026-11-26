@@ -8,6 +8,7 @@ import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
 import iconeCartas from "@/assets/icone-cartas.png";
 import iconePrioridade from "@/assets/Icone-prioridade.png";
+import iconeRelatorio from "@/assets/icone-relatorio..jpg";
 import { UserMenu } from "@/components/UserMenu";
 import {
   FileText,
@@ -59,7 +60,7 @@ const categories: CategoryItem[] = [
   { id: "prioridades", label: "Prioridades", icon: <img src={iconePrioridade} alt="" className="h-6 w-6" /> },
   { id: "reclamacoes", label: "Reclamações", icon: <MessageSquareWarning className="h-6 w-6" /> },
   { id: "oficios", label: "Ofícios", icon: <FileCheck className="h-6 w-6" /> },
-  { id: "relatorios", label: "Relatórios", icon: <BarChart3 className="h-6 w-6" /> },
+  { id: "relatorios", label: "Relatórios", icon: <img src={iconeRelatorio} alt="" className="h-6 w-6" /> },
 ];
 
 const subItems: Record<string, SubItem[]> = {
