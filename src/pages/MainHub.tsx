@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { HubCornerMarks } from "@/components/HubCornerMarks";
 import { UserMenu } from "@/components/UserMenu";
 import {
   FileText,
@@ -302,6 +303,8 @@ export default function MainHub() {
           Sistema de Consulta e Atribuição de Demandas • <span className="text-primary">Inteligência LPT</span>
         </div>
       </footer>
+
+      <HubCornerMarks />
     </div>
   );
 }
