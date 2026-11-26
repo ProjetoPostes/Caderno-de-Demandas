@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
+import iconeCartas from "@/assets/icone-cartas.png";
 import { UserMenu } from "@/components/UserMenu";
 import {
   FileText,
   Search,
-  Mail,
   Building2,
   AlertTriangle,
   MessageSquareWarning,
@@ -53,7 +53,7 @@ interface SubItem {
 const categories: CategoryItem[] = [
   { id: "despacho", label: "Despacho", icon: <FileText className="h-6 w-6" /> },
   { id: "analise", label: "Análise", icon: <Search className="h-6 w-6" /> },
-  { id: "cartas", label: "Cartas", icon: <Mail className="h-6 w-6" /> },
+  { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" /> },
   { id: "obras", label: "Obras", icon: <Building2 className="h-6 w-6" /> },
   { id: "prioridades", label: "Prioridades", icon: <AlertTriangle className="h-6 w-6" /> },
   { id: "reclamacoes", label: "Reclamações", icon: <MessageSquareWarning className="h-6 w-6" /> },
@@ -81,7 +81,7 @@ const subItems: Record<string, SubItem[]> = {
     { id: "caderno", label: "Caderno", icon: <BookOpen className="h-5 w-5" />, route: "/consulta/caderno" },
     { id: "cliente", label: "Cliente", icon: <Users className="h-5 w-5" />, route: "/consulta/clientes" },
     { id: "prioritarios", label: "Prioritários", icon: <Star className="h-5 w-5" />, route: "/consulta/prioritarios" },
-    { id: "cartas", label: "Cartas", icon: <Mail className="h-5 w-5" />, route: "/consulta/caderno?modo=cartas" },
+    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-10 w-10" />, route: "/consulta/caderno?modo=cartas" },
   ],
   cartas: [
     { id: "mod-cartas", label: "Mod. Cartas", icon: <FileEdit className="h-5 w-5" />, route: "/consulta/documentos-cartas" },
@@ -141,7 +141,7 @@ const subItems: Record<string, SubItem[]> = {
   oficios: [{ id: "controle", label: "Controle", icon: <Clipboard className="h-5 w-5" /> }],
   relatorios: [
     { id: "diretoria", label: "Diretoria", icon: <Briefcase className="h-5 w-5" /> },
-    { id: "cartas", label: "Cartas", icon: <Mail className="h-5 w-5" />, route: "/consulta/relatorio-cartas" },
+    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-10 w-10" />, route: "/consulta/relatorio-cartas" },
     { id: "projetos", label: "Projetos", icon: <PieChart className="h-5 w-5" /> },
     { id: "obras", label: "Obras", icon: <Building2 className="h-5 w-5" /> },
   ],
