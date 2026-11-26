@@ -8,23 +8,30 @@ import fundoLuzParaTodos from "@/assets/fundo-luz-para-todos.webp";
  * empilhamento isolado criado pela raiz da página, então nunca tapa cards,
  * botões nem o cabeçalho. A cor de base é o azul-celeste do próprio arquivo,
  * para que nenhuma faixa fique branca caso a imagem não cubra a tela inteira.
+ *
+ * A arte começa abaixo do cabeçalho: `inicioAbaixoDo` é a altura (em px) da
+ * barra do cabeçalho, medida na página, então a faixa superior da tela fica
+ * livre e o desenho aparece só a partir dali.
  */
 const COR_BASE = "#EAF4FC";
 
-/** Véu claro sobre a arte: preserva a legibilidade dos textos sem esconder o desenho. */
-const VEU = "linear-gradient(hsl(var(--background) / 0.30), hsl(var(--background) / 0.45))";
+interface HubBackgroundProps {
+  /** Altura do cabeçalho, em px. A arte começa logo abaixo dela. */
+  inicioAbaixoDo?: number;
+}
 
-export function HubBackground() {
+export function HubBackground({ inicioAbaixoDo = 0 }: HubBackgroundProps) {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-[-1]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-[-1]"
       style={{
+        top: `${inicioAbaixoDo}px`,
         backgroundColor: COR_BASE,
-        backgroundImage: `${VEU}, url(${fundoLuzParaTodos})`,
-        backgroundSize: "cover, cover",
-        backgroundPosition: "center, center",
-        backgroundRepeat: "no-repeat, no-repeat",
+        backgroundImage: `url(${fundoLuzParaTodos})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     />
   );

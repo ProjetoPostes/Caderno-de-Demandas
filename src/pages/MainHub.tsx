@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -155,6 +155,23 @@ export default function MainHub() {
   const canAccessTratativas = isAdmin || isOperadorChefe || isOperador;
   const canAccessChat = isAdmin || isOperadorChefe || isOperador;
 
+  // A arte de fundo começa abaixo do cabeçalho: medimos a altura real da barra
+  // (muda com o tamanho da tela) e passamos para a camada de fundo.
+  const headerRef = useRef<HTMLElement>(null);
+  const [alturaCabecalho, setAlturaCabecalho] = useState(0);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+
+    const medir = () => setAlturaCabecalho(Math.round(header.getBoundingClientRect().height));
+    medir();
+
+    const observador = new ResizeObserver(medir);
+    observador.observe(header);
+    return () => observador.disconnect();
+  }, []);
+
   const handleCategoryClick = (categoryId: string) => {
     setSelectedCategory(categoryId);
   };
@@ -169,11 +186,13 @@ export default function MainHub() {
     navigate("/tratativas");
   };
 
-
   return (
     <div className="min-h-screen isolate bg-gradient-to-br from-background via-accent/10 to-primary/5 flex flex-col">
       {/* Header */}
-      <header className="border-b border-primary/20 bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <header
+        ref={headerRef}
+        className="border-b border-primary/20 bg-card/80 backdrop-blur-sm sticky top-0 z-10"
+      >
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h1 className="flex items-center">
@@ -299,7 +318,7 @@ export default function MainHub() {
         </div>
       </footer>
 
-      <HubBackground />
+      <HubBackground inicioAbaixoDo={alturaCabecalho} />
     </div>
   );
 }
