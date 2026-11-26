@@ -30,7 +30,7 @@ export function HubBackground({ inicioAbaixoDo = 0 }: HubBackgroundProps) {
         backgroundColor: COR_BASE,
         backgroundImage: `url(${fundoLuzParaTodos})`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "center top",
         backgroundRepeat: "no-repeat",
       }}
     />
