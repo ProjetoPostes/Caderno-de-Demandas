@@ -19,9 +19,9 @@ const marks: HubMark[] = [
 /** Largura da marca: mínima em telas pequenas, proporcional à tela, máx. em telas grandes. */
 const LARGURA_MARCA = "clamp(56px, min(11vw, 28vh), 190px)";
 /** Distância da borda direita, também proporcional à tela. */
-const AFASTAMENTO_DIREITA = "clamp(12px, 1.6vw, 36px)";
+const AFASTAMENTO_DIREITA = "clamp(32px, 4.5vw, 120px)";
 /** Distância da base, mantendo a marca acima do rodapé. */
-const AFASTAMENTO_BASE = "clamp(58px, 9vh, 110px)";
+const AFASTAMENTO_BASE = "clamp(72px, 12vh, 160px)";
 
 export function HubCornerMarks() {
   return (
