@@ -202,7 +202,7 @@ export function useDecisoesPrioritario() {
   return useValoresDistintosPrioritario("decisao", "decisao");
 }
 
-async function prepararConsultaPrioritarios(search = "", filters?: Record<string, string | undefined>) {
+export async function prepararConsultaPrioritarios(search = "", filters?: Record<string, string | undefined>) {
   const { obra, ...demaisFiltros } = filters ?? {};
   let clientesDaObra: string | null = null;
   if (obra?.trim()) {

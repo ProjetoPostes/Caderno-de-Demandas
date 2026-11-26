@@ -17,7 +17,7 @@ import { coordsDoMapa, fmtCoord } from "@/lib/coords";
 import { rotaObra } from "@/lib/rotas";
 import { podeEditarCorrecao, validarCorrecao } from "@/lib/prioritarioValidation";
 import { criarCorTranche, corAlocacao, corCoordenadaValidada, corDecisao, canonicalizarDecisao, type CorBadge } from "@/lib/prioritarioCores";
-import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade, buscarPrioritariosFiltrados } from "@/hooks/useTabelasOperacionais";
+import { usePrioritarios, useTranchesPrioritario, usePrioritarioOsList, useMunicipiosLocalidade, buscarPrioritariosFiltrados, prepararConsultaPrioritarios } from "@/hooks/useTabelasOperacionais";
 import { prioritarioParaPlanilha } from "@/lib/prioritariosExportacao";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -60,11 +60,20 @@ type PrioritarioRowExt = Prioritario & {
 };
 
 // Contagens apenas para exibição (derivadas dos registros existentes)
-function usePrioritariosKpis() {
+function usePrioritariosKpis(search = "", filters: Record<string, string | undefined> = {}) {
+  const ativos = Object.fromEntries(Object.entries(filters).filter(([, v]) => !!v));
+  const filtrado = !!search.trim() || Object.keys(ativos).length > 0;
   return useQuery({
-    queryKey: ["prioritarios-kpis"],
+    queryKey: ["prioritarios-kpis", search, ativos],
+    placeholderData: (anterior) => anterior,
     queryFn: async () => {
-      const rapido = await supabase.rpc("get_kpis_prioritarios");
+      const rapido = filtrado
+        ? await (supabase.rpc as any)("get_kpis_prioritarios_filtrados", {
+            p_busca: search.trim() || null,
+            p_filtros: ativos,
+            p_num_obra: ativos.obra?.trim() || null,
+          })
+        : await supabase.rpc("get_kpis_prioritarios");
       if (!rapido.error && rapido.data) {
         const r = (Array.isArray(rapido.data) ? rapido.data[0] : rapido.data) as Record<string, unknown> | undefined;
         if (r) {
@@ -72,8 +81,11 @@ function usePrioritariosKpis() {
           return { total: n(r.total), comTranche: n(r.com_tranche), checkPo: n(r.check_po), impedimento: n(r.impedimento ?? r.com_impedimento) };
         }
       }
+      // Reserva enquanto a função do banco não existir: mesmas regras de filtro da lista
+      const criar = filtrado ? await prepararConsultaPrioritarios(search, ativos) : null;
+      if (filtrado && !criar) return { total: 0, comTranche: 0, checkPo: 0, impedimento: 0 };
       const count = async (fn?: (q: any) => any) => {
-        let q: any = supabase.from("prioritario").select("id", { count: "exact", head: true });
+        let q: any = criar ? criar(true) : supabase.from("prioritario").select("id", { count: "exact", head: true });
         if (fn) q = fn(q);
         const { count: c, error } = await q;
         if (error) throw error;
@@ -154,7 +166,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
   const filtrosAtraso = useDebounce(filters, 350);
 
   const { data, isLoading } = usePrioritarios({ page, pageSize: PAGE_SIZE, search: buscaAtraso, sortField, sortDir, filters: filtrosAtraso });
-  const { data: kpis } = usePrioritariosKpis();
+  const { data: kpis } = usePrioritariosKpis(buscaAtraso, filtrosAtraso);
   const { data: tranchesOpcoes } = useTranchesPrioritario();
   const corTranche = useMemo(() => criarCorTranche(tranchesOpcoes ?? []), [tranchesOpcoes]);
   const navigate = useNavigate();
