@@ -7,6 +7,25 @@ import { HubBackground } from "@/components/HubBackground";
 import logoEnergisa from "@/assets/energisa.png";
 import { HubIcon } from "@/components/HubIcon";
 import { UserMenu } from "@/components/UserMenu";
+import iconeDocument from "@/assets/document.png";
+import iconeApproval from "@/assets/approval.png";
+import iconeBook from "@/assets/book.png";
+import iconebriefcase from "@/assets/briefcase.png";
+import iconecalendar from "@/assets/calendar.png";
+import iconecancel from "@/assets/cancel.png";
+import iconecity from "@/assets/city-buildings.png";
+import iconeclipboard from "@/assets/clipboard.png";
+import iconeclock from "@/assets/clock.png";
+import iconecomplaint from "@/assets/complaint.png";
+import iconeconference from "@/assets/conference.png";
+import iconeedit from "@/assets/edit-file.png";
+import iconefolder from "@/assets/folder-invoices.png";
+import iconelaw from "@/assets/law.png";
+import iconepie from "@/assets/pie-chart.png";
+import iconesearch from "@/assets/search.png";
+import iconeshieldgreen from "@/assets/security-shield-green.png";
+import iconePrioridade from "@/assets/Icone-prioridade.png";
+import iconeCartas from "@/assets/icone-cartas.png";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
@@ -24,13 +43,13 @@ interface SubItem {
 }
 
 const categories: CategoryItem[] = [
-  { id: "despacho", label: "Despacho", icon: <HubIcon name="document" /> },
-  { id: "analise", label: "Análise", icon: <HubIcon name="search" /> },
-  { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" /> },
-  { id: "obras", label: "Obras", icon: <HubIcon name="buildings" /> },
-  { id: "prioridades", label: "Prioridades", icon: <HubIcon name="prioridade" /> },
-  { id: "reclamacoes", label: "Reclamações", icon: <HubIcon name="complaint" /> },
-  { id: "oficios", label: "Ofícios", icon: <HubIcon name="approval" /> },
+  { id: "despacho", label: "Despacho", icon: <img src={iconeDocument} alt="" className="h-6 w-6" /> },
+  { id: "analise", label: "Análise", icon: <img src={iconesearch} alt="" className="h-6 w-6" /> },
+  { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" /> },
+  { id: "obras", label: "Obras", icon: <img src={iconecity} alt="" className="h-6 w-6" /> },
+  { id: "prioridades", label: "Prioridades", icon: <img src={iconePrioridade} alt="" className="h-6 w-6" /> },
+  { id: "reclamacoes", label: "Reclamações", icon: <img src={iconecomplaint} alt="" className="h-6 w-6" /> },
+  { id: "oficios", label: "Ofícios", icon: <img src={iconeApproval} alt="" className="h-6 w-6" /> },
   { id: "relatorios", label: "Relatórios", icon: <HubIcon name="relatorio" /> },
 ];
 
@@ -39,84 +58,84 @@ const subItems: Record<string, SubItem[]> = {
     {
       id: "pendente",
       label: "Pendente",
-      icon: <HubIcon name="clock" className="h-10 w-10" />,
+      icon: <img src={iconeclock} alt="" className="h-6 w-6" />,
       route: "/consulta/despacho?filtro=Pendente",
     },
     {
       id: "inconsistencia",
       label: "Inconsistência",
-      icon: <HubIcon name="cancel" className="h-10 w-10" />,
+      icon: <img src={iconecancel} alt="" className="h-6 w-6" />,
       route: "/consulta/despacho?filtro=Inconsistencia",
     },
   ],
   analise: [
-    { id: "despacho", label: "Despacho", icon: <HubIcon name="document" className="h-10 w-10" />, route: "/consulta/despacho" },
-    { id: "caderno", label: "Caderno", icon: <HubIcon name="book" className="h-10 w-10" />, route: "/consulta/caderno" },
-    { id: "cliente", label: "Cliente", icon: <HubIcon name="users" className="h-10 w-10" />, route: "/consulta/clientes" },
-    { id: "prioritarios", label: "Prioritários", icon: <HubIcon name="prioridade" className="h-10 w-10" />, route: "/consulta/prioritarios" },
-    { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" className="h-10 w-10" />, route: "/consulta/caderno?modo=cartas" },
+    { id: "despacho", label: "Despacho", icon: <img src={iconeDocument} alt="" className="h-6 w-6" />, route: "/consulta/despacho" },
+    { id: "caderno", label: "Caderno", icon: <img src={iconeBook} alt="" className="h-6 w-6" />, route: "/consulta/caderno" },
+    { id: "cliente", label: "Cliente", icon: <img src={iconeconference} alt="" className="h-6 w-6" />, route: "/consulta/clientes" },
+    { id: "prioritarios", label: "Prioritários", icon: <img src={iconePrioridade} alt="" className="h-6 w-6" />, route: "/consulta/prioritarios" },
+    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" />, route: "/consulta/caderno?modo=cartas" },
   ],
   cartas: [
-    { id: "mod-cartas", label: "Mod. Cartas", icon: <HubIcon name="edit" className="h-10 w-10" />, route: "/consulta/documentos-cartas" },
-    { id: "outros-doc", label: "Outros Doc", icon: <HubIcon name="folder" className="h-10 w-10" /> },
+    { id: "mod-cartas", label: "Mod. Cartas", icon: <img src={iconeedit} alt="" className="h-6 w-6" />, route: "/consulta/documentos-cartas" },
+    { id: "outros-doc", label: "Outros Doc", icon: <img src={iconefolder} alt="" className="h-6 w-6" /> },
   ],
   obras: [
-    { id: "obras", label: "Obras", icon: <HubIcon name="buildings" className="h-10 w-10" />, route: "/consulta/obras" },
-    { id: "pendente", label: "Pendente", icon: <HubIcon name="clock" className="h-10 w-10" /> },
-    { id: "analisada", label: "Analisada", icon: <HubIcon name="search" className="h-10 w-10" /> },
-    { id: "contratada", label: "Contratada", icon: <HubIcon name="briefcase" className="h-10 w-10" /> },
-    { id: "suspensa", label: "Suspensa", icon: <HubIcon name="cancel" className="h-10 w-10" /> },
-    { id: "encerrada", label: "Encerrada", icon: <HubIcon name="approval" className="h-10 w-10" /> },
-    { id: "prazo-construcao", label: "Prazo Construção", icon: <HubIcon name="calendar" className="h-10 w-10" /> },
+    { id: "obras", label: "Obras", icon: <img src={iconecity} alt="" className="h-6 w-6" />, route: "/consulta/obras" },
+    { id: "pendente", label: "Pendente", icon: <img src={iconeclock} alt="" className="h-6 w-6" /> },
+    { id: "analisada", label: "Analisada", icon: <img src={iconesearch} alt="" className="h-6 w-6" /> },
+    { id: "contratada", label: "Contratada", icon: <img src={iconebriefcase} alt="" className="h-6 w-6" /> },
+    { id: "suspensa", label: "Suspensa", icon: <img src={iconecancel} alt="" className="h-6 w-6" /> },
+    { id: "encerrada", label: "Encerrada", icon: <img src={iconeApproval} alt="" className="h-6 w-6" /> },
+    { id: "prazo-construcao", label: "Prazo Construção", icon: <img src={iconecalendar} alt="" className="h-6 w-6" /> },
   ],
   prioridades: [
     {
       id: "diretoria",
       label: "Diretoria",
-      icon: <HubIcon name="briefcase" className="h-10 w-10" />,
+      icon: <img src={iconebriefcase} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Diretoria",
     },
     {
       id: "reclamacoes",
       label: "Reclamações",
-      icon: <HubIcon name="complaint" className="h-10 w-10" />,
+      icon: <img src={iconecomplaint} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Reclamações",
     },
     {
       id: "aneel-mme-judicial",
       label: "Aneel / MME / Judicial",
-      icon: <HubIcon name="law" className="h-10 w-10" />,
+      icon: <img src={iconelaw} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Aneel / MME / Judicial",
     },
     {
       id: "quilombolas",
       label: "Quilombolas",
-      icon: <HubIcon name="shield" className="h-10 w-10" />,
+      icon: <img src={iconeshieldgreen} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Quilombolas",
     },
     {
       id: "indigenas",
       label: "Indígenas",
-      icon: <HubIcon name="shield" className="h-10 w-10" />,
+      icon: <img src={iconeshieldgreen} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Indígenas",
     },
     {
       id: "outros",
       label: "Outros",
-      icon: <HubIcon name="folder" className="h-10 w-10" />,
+      icon: <img src={iconefolder} alt="" className="h-6 w-6" />,
       route: "/consulta/caderno?modo=prioridade&prioridade=Outros",
     },
   ],
   reclamacoes: [
-    { id: "controle", label: "Controle", icon: <HubIcon name="clipboard" className="h-10 w-10" /> },
-    { id: "prazos", label: "Prazos", icon: <HubIcon name="calendar" className="h-10 w-10" /> },
+    { id: "controle", label: "Controle", icon: <img src={iconeclipboard} alt="" className="h-6 w-6" /> },
+    { id: "prazos", label: "Prazos", icon: <img src={iconecalendar} alt="" className="h-6 w-6" /> },
   ],
-  oficios: [{ id: "controle", label: "Controle", icon: <HubIcon name="clipboard" className="h-10 w-10" /> }],
+  oficios: [{ id: "controle", label: "Controle", icon: <img src={iconeclipboard} alt="" className="h-6 w-6" /> }],
   relatorios: [
-    { id: "diretoria", label: "Diretoria", icon: <HubIcon name="briefcase" className="h-10 w-10" /> },
-    { id: "cartas", label: "Cartas", icon: <HubIcon name="cartas" className="h-10 w-10" />, route: "/consulta/relatorio-cartas" },
-    { id: "projetos", label: "Projetos", icon: <HubIcon name="chart" className="h-10 w-10" /> },
-    { id: "obras", label: "Obras", icon: <HubIcon name="buildings" className="h-10 w-10" /> },
+    { id: "diretoria", label: "Diretoria", icon: <img src={iconebriefcase} alt="" className="h-6 w-6" /> },
+    { id: "cartas", label: "Cartas", icon: <img src={iconeCartas} alt="" className="h-6 w-6" />, route: "/consulta/relatorio-cartas" },
+    { id: "projetos", label: "Projetos", icon: <img src={iconepie} alt="" className="h-6 w-6" /> },
+    { id: "obras", label: "Obras", icon: <img src={iconecity} alt="" className="h-6 w-6" /> },
   ],
 };
 
