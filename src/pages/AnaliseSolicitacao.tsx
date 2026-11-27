@@ -519,7 +519,7 @@ export default function AnaliseSolicitacao() {
 
   if (os.isLoading || analise.isLoading) {
     return (
-      <div className="container mx-auto max-w-6xl p-4 space-y-4">
+      <div className="container mx-auto max-w-[1600px] p-4 space-y-4">
         <Skeleton className="h-10 w-72" />
         <Skeleton className="h-24 w-full" />
         <div className="grid gap-4 lg:grid-cols-2">
@@ -549,7 +549,7 @@ export default function AnaliseSolicitacao() {
   const dados = os.data;
 
   return (
-    <div className="container mx-auto max-w-6xl p-4 space-y-4 text-sm">
+    <div className="container mx-auto max-w-[1600px] p-4 space-y-4 text-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Análise da Solicitação</h1>
