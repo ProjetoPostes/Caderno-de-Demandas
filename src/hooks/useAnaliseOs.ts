@@ -15,6 +15,7 @@ export interface OsResumo {
   status: string | null;
   id_obra: number | null;
   num_obra: string | null;
+  id_cliente: number | null;
   cpf: string | null;
   nome: string | null;
   dt_nasc: string | null;
@@ -31,6 +32,7 @@ interface CadernoJoined {
   datasol: string | null;
   tranche: string | null;
   status: string | null;
+  id_cliente: number | null;
   obra: { id_obra: number; num_obra: string | null } | null;
   cliente: { cpf: string | null; nome: string | null; dt_nasc: string | null } | null;
   localidade: {
@@ -50,7 +52,7 @@ export function useOsResumo(idOs: string | undefined) {
       const { data, error } = await supabase
         .from("caderno")
         .select(
-          "id_os, num_os, datasol, tranche, status, obra:id_obra(id_obra, num_obra), cliente:id_cliente(cpf, nome, dt_nasc), localidade:id_loc(nome_lcd, municipio, codigo_ibge_municipio, uf, regional)",
+          "id_os, num_os, datasol, tranche, status, id_cliente, obra:id_obra(id_obra, num_obra), cliente:id_cliente(cpf, nome, dt_nasc), localidade:id_loc(nome_lcd, municipio, codigo_ibge_municipio, uf, regional)",
         )
         .eq("id_os", idOs as string)
         .maybeSingle();
@@ -65,6 +67,7 @@ export function useOsResumo(idOs: string | undefined) {
         status: row.status,
         id_obra: row.obra?.id_obra ?? null,
         num_obra: row.obra?.num_obra ?? null,
+        id_cliente: row.id_cliente ?? null,
         cpf: row.cliente?.cpf ?? null,
         nome: row.cliente?.nome ?? null,
         dt_nasc: row.cliente?.dt_nasc ?? null,

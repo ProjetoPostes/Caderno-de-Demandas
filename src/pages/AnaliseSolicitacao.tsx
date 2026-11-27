@@ -34,6 +34,9 @@ import { rotaObra } from "@/lib/rotas";
 import { fmtCoord } from "@/lib/coords";
 import { distanciaMetros, localizarCoordenadas, validarTipoCoordenada } from "@/lib/analiseCoordenadas";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useQueryClient } from "@tanstack/react-query";
+import { avaliarTranche, TRANCHE_OPCOES, type ResultadoTranche } from "@/lib/validacaoTranche";
 import type { Json } from "@/integrations/supabase/schema";
 import {
   useAnaliseAtual,
@@ -225,6 +228,40 @@ export default function AnaliseSolicitacao() {
   const criteriosAnalise = useCriteriosDaAnalise(analise.data?.id_analise);
   const analistas = useAnalistas();
   const salvar = useSalvarAnalise();
+  const { isAdmin } = useUserRole();
+  const queryClient = useQueryClient();
+  const [trancheEdit, setTrancheEdit] = useState<string | null>(null);
+  const [validacaoTranche, setValidacaoTranche] = useState<ResultadoTranche | null>(null);
+  const [validandoTranche, setValidandoTranche] = useState(false);
+  const trancheAlterada = trancheEdit !== null && trancheEdit !== (os.data?.tranche ?? "");
+  useEffect(() => {
+    if (!trancheAlterada || !trancheEdit || !os.data) { setValidacaoTranche(null); return; }
+    let ativo = true;
+    setValidandoTranche(true);
+    (async () => {
+      try {
+        const prio = cpfCliente
+          ? await supabase.from("prioritario").select("tranche").eq("cpf_corrigido", cpfCliente)
+          : { data: [], error: null };
+        if (prio.error) throw prio.error;
+        let outras = 0;
+        if (os.data.id_cliente != null) {
+          const r = await supabase.from("caderno").select("id_os", { count: "exact", head: true })
+            .eq("id_cliente", os.data.id_cliente).eq("tranche", trancheEdit).neq("id_os", os.data.id_os);
+          if (r.error) throw r.error;
+          outras = r.count ?? 0;
+        }
+        const tranches = ((prio.data as { tranche: string | null }[] | null) ?? []).map((x) => x.tranche);
+        if (ativo) setValidacaoTranche(avaliarTranche(trancheEdit, tranches, outras));
+      } catch (e) {
+        console.error("validação da tranche falhou:", e);
+        if (ativo) setValidacaoTranche({ status: "divergente", bloqueia: true, mensagem: "Não foi possível validar a tranche no Prioritário. Tente novamente." });
+      } finally {
+        if (ativo) setValidandoTranche(false);
+      }
+    })();
+    return () => { ativo = false; };
+  }, [trancheEdit, trancheAlterada, cpfCliente, os.data]);
 
   const [form, setForm] = useState<FormState>(emptyForm);
   const [selecionados, setSelecionados] = useState<number[]>([]);
@@ -440,6 +477,10 @@ export default function AnaliseSolicitacao() {
   const executarSalvamento = async (concluir: boolean) => {
     if (!idOs || salvar.isPending) return;
     if (!validarCoordenadasObrigatorias()) return;
+    if (trancheAlterada) {
+      if (validandoTranche || !validacaoTranche) { toast.error("Aguarde a validação da tranche."); return; }
+      if (validacaoTranche.bloqueia) { toast.error(validacaoTranche.mensagem); return; }
+    }
     try {
       await salvar.mutateAsync({
         idOs,
@@ -447,6 +488,12 @@ export default function AnaliseSolicitacao() {
         criterios: selecionados,
         concluir,
       });
+      if (trancheAlterada && isAdmin) {
+        const { error: errTranche } = await supabase.from("caderno").update({ tranche: trancheEdit }).eq("id_os", idOs);
+        if (errTranche) throw errTranche;
+        setTrancheEdit(null);
+        await queryClient.invalidateQueries({ queryKey: ["analise-os-resumo", idOs] });
+      }
       setDirty(false);
       hidratado.current = false;
       criteriosHidratados.current = false;
@@ -527,7 +574,20 @@ export default function AnaliseSolicitacao() {
               <div><Label>Nº OS</Label><CopyableInput value={String(dados.num_os)} /></div>
               <div><Label>Status da OS</Label><CopyableInput value={dados.status} /></div>
               <div><Label>Data da solicitação</Label><CopyableInput value={dados.datasol} /></div>
-              <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
+              <div><Label>Tranche</Label>{isAdmin ? (
+                <Select value={trancheEdit ?? dados.tranche ?? undefined} onValueChange={(v) => { setTrancheEdit(v); setDirty(true); }}>
+                  <SelectTrigger aria-label="Tranche"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    {[...new Set([...(dados.tranche ? [dados.tranche] : []), ...TRANCHE_OPCOES])].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              ) : <CopyableInput value={dados.tranche} />}
+                {trancheAlterada && (
+                  <p className={`mt-1 text-xs ${validandoTranche ? "text-muted-foreground" : validacaoTranche?.bloqueia ? "text-destructive" : validacaoTranche?.status === "sem_prioritario" ? "text-amber-600" : "text-green-700"}`}>
+                    {validandoTranche ? "Validando no Prioritário..." : validacaoTranche?.mensagem}
+                  </p>
+                )}
+              </div>
               <div><Label>Localidade</Label><CopyableInput value={dados.nome_lcd} /></div>
               <div><Label>Código IBGE</Label><CopyableInput value={dados.codigo_ibge_municipio} /></div>
               <div><Label>UF</Label><CopyableInput value={dados.uf} /></div>
@@ -761,7 +821,7 @@ export default function AnaliseSolicitacao() {
                 )}
               </div>
               <div><Label>Tipo de atendimento</Label><CopyableInput value={form.tipo_atendimento} /></div>
-              <div><Label>Tranche</Label><CopyableInput value={dados.tranche} /></div>
+              <div><Label>Tranche</Label><CopyableInput value={trancheEdit ?? dados.tranche} /></div>
             </div>
             
             <div>

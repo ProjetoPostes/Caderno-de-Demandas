@@ -25,3 +25,4 @@
 - Sidebar imagery is a decorative theme-gated child inside the shared sidebar, with CSS-token overlay and contrast checks; this preserves desktop, collapsed and mobile navigation without duplicating layout or changing authentication.
 - Bundle the sidebar's user-requested project-local image through a Vite source import so external deployments do not depend on Lovable's internal asset-serving route.
 - MainHub icons share the HubIcon asset registry so category and shortcut drawings stay consistent while preserving user-provided artwork.
+- Tranche changes in OS analysis are validated by the tested pure helper `src/lib/validacaoTranche.ts` against Prioritário rows and the client's other OSs, and written to `caderno` only after a successful analysis save; keeps the quota rule testable and the save RPC unchanged.
