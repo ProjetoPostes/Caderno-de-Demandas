@@ -548,20 +548,40 @@ export default function AnaliseSolicitacao() {
 
   const dados = os.data;
 
+  const renderBotoesAcao = (compacto: boolean) => (
+    <>
+      <Button variant="outline" size={compacto ? "sm" : "default"} onClick={() => navigate(-1)} disabled={salvar.isPending}>
+        <ArrowLeft className="mr-2 h-4 w-4" />Voltar
+      </Button>
+      <Button variant="secondary" size={compacto ? "sm" : "default"} onClick={() => executarSalvamento(false)} disabled={salvar.isPending}>
+        {salvar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        Salvar Rascunho
+      </Button>
+      <Button size={compacto ? "sm" : "default"} onClick={handleConcluir} disabled={salvar.isPending}>
+        {salvar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
+        Concluir Análise
+      </Button>
+    </>
+  );
+
   return (
     <div className="container mx-auto max-w-[1600px] p-4 space-y-4 text-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Análise da Solicitação</h1>
-          <p className="text-muted-foreground">
-            OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.nome_lcd ?? "Localidade não informada"}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={analise.data?.analise_concluida ? "default" : "secondary"}>
-            {analise.data?.status_analise ?? "rascunho"}
-          </Badge>
-          {dirty && <Badge variant="outline">Alterações não salvas</Badge>}
+      <div className="sticky top-0 z-20 -mx-4 -mt-4 border-b bg-background px-4 pb-3 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Análise da Solicitação</h1>
+            <p className="text-muted-foreground">
+              OS {dados.num_os} · {dados.nome ?? "Beneficiário não informado"} · {dados.nome_lcd ?? "Localidade não informada"}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={analise.data?.analise_concluida ? "default" : "secondary"}>
+              {analise.data?.status_analise ?? "rascunho"}
+            </Badge>
+            {dirty && <Badge variant="outline">Alterações não salvas</Badge>}
+            <span className="mx-1 hidden h-6 w-px bg-border sm:block" />
+            {renderBotoesAcao(true)}
+          </div>
         </div>
       </div>
 
@@ -969,19 +989,7 @@ export default function AnaliseSolicitacao() {
         </Card>
       </div>
 
-      <div className="flex flex-wrap justify-end gap-2 pb-8">
-        <Button variant="outline" onClick={() => navigate(-1)} disabled={salvar.isPending}>
-          <ArrowLeft className="mr-2 h-4 w-4" />Voltar
-        </Button>
-        <Button variant="secondary" onClick={() => executarSalvamento(false)} disabled={salvar.isPending}>
-          {salvar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-          Salvar Rascunho
-        </Button>
-        <Button onClick={handleConcluir} disabled={salvar.isPending}>
-          {salvar.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
-          Concluir Análise
-        </Button>
-      </div>
+      <div className="flex flex-wrap justify-end gap-2 pb-8">{renderBotoesAcao(false)}</div>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
