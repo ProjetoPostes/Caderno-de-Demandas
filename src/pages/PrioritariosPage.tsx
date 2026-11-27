@@ -352,7 +352,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
             { value: FILTRO_PREENCHIDO, label: "Preenchido" },
             { value: FILTRO_EM_BRANCO, label: "Vazio" },
           ] },
-          { field: "coordenada_validada", label: "Coordenada validada", options: [
+          { field: "coordenada_validada", label: "Coordenada alterada", options: [
             { value: "true", label: "Sim" },
             { value: "false", label: "Não" },
             { value: FILTRO_NULO, label: "Não informado" },
@@ -409,7 +409,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
           },
           { header: "Tranche", sortField: "tranche", className: "text-xs", cell: (p) => p.tranche ? <BadgeCor cor={corTranche(p.tranche)}>{p.tranche}</BadgeCor> : muted(null) },
           { header: "Alocação", sortField: "alocacao", className: "text-xs", cell: (p) => p.alocacao ? <BadgeCor cor={corAlocacao(p.alocacao)}>{p.alocacao}</BadgeCor> : muted(null) },
-          { header: "Coordenada validada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <BadgeCor cor={corCoordenadaValidada(p.coordenada_validada)}>{p.coordenada_validada ? "Sim" : "Não"}</BadgeCor> },
+          { header: "Coordenada alterada", sortField: "coordenada_validada", className: "text-xs", cell: (p) => p.coordenada_validada == null ? muted(null) : <BadgeCor cor={corCoordenadaValidada(p.coordenada_validada)}>{p.coordenada_validada ? "Sim" : "Não"}</BadgeCor> },
           { header: "Decisão", sortField: "decisao", className: "text-xs", cell: (p) => p.decisao ? <BadgeCor cor={corDecisao(p.decisao)}>{canonicalizarDecisao(p.decisao)}</BadgeCor> : muted(null) },
           { header: "Responsável", sortField: "Responsável", className: "text-xs", cell: (p) => muted(p["Responsável"]) },
         ]}
@@ -609,7 +609,7 @@ export default function PrioritariosPage({ standalone = false }: { standalone?: 
                       {erro("longitude")}
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="prioritario-coordenada-validada">Coordenada validada</Label>
+                      <Label htmlFor="prioritario-coordenada-validada">Coordenada alterada?</Label>
                       <Select value={selected.coordenada_validada == null ? "nao-informado" : selected.coordenada_validada ? "sim" : "nao"} onValueChange={(valor) => alterarCampo("coordenada_validada", valor === "nao-informado" ? null : valor === "sim")}>
                         <SelectTrigger id="prioritario-coordenada-validada"><SelectValue /></SelectTrigger>
                         <SelectContent>
